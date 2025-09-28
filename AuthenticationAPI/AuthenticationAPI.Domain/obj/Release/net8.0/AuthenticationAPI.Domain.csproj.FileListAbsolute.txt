@@ -1,0 +1,12 @@
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\bin\Release\net8.0\AuthenticationAPI.Domain.deps.json
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\bin\Release\net8.0\AuthenticationAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\bin\Release\net8.0\AuthenticationAPI.Domain.pdb
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.AssemblyInfo.cs
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.sourcelink.json
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\refint\AuthenticationAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\AuthenticationAPI.Domain.pdb
+C:\Users\Admin\Documents\GitHub\E-Commerce-Microservice\DemoAuthenticationAPI\AuthenticationAPI.Domain\obj\Release\net8.0\ref\AuthenticationAPI.Domain.dll

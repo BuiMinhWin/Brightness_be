@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationAPI.Domain", "AuthenticationAPI.Domain\AuthenticationAPI.Domain.csproj", "{D98E90D7-A944-4011-B889-1ED367B4CB7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationAPI.Application", "AuthenticationAPI.Application\AuthenticationAPI.Application.csproj", "{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationAPI.Infrastructure", "AuthenticationAPI.Infrastructure\AuthenticationAPI.Infrastructure.csproj", "{6B721377-E098-4C65-BDC8-79B770BBA2C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationAPI.Presentation", "AuthenticationAPI.Presentation\AuthenticationAPI.Presentation.csproj", "{898CDF7A-34F7-45DD-8B25-E3DFF933A952}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightNess.Library", "..\BrightNess.SharedLibrarySolution\BrightNess.Library\BrightNess.Library.csproj", "{99CECA92-77D5-EADB-02C6-697E0DC7D852}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D98E90D7-A944-4011-B889-1ED367B4CB7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D98E90D7-A944-4011-B889-1ED367B4CB7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D98E90D7-A944-4011-B889-1ED367B4CB7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D98E90D7-A944-4011-B889-1ED367B4CB7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B721377-E098-4C65-BDC8-79B770BBA2C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B721377-E098-4C65-BDC8-79B770BBA2C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B721377-E098-4C65-BDC8-79B770BBA2C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B721377-E098-4C65-BDC8-79B770BBA2C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{898CDF7A-34F7-45DD-8B25-E3DFF933A952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{898CDF7A-34F7-45DD-8B25-E3DFF933A952}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{898CDF7A-34F7-45DD-8B25-E3DFF933A952}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{898CDF7A-34F7-45DD-8B25-E3DFF933A952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99CECA92-77D5-EADB-02C6-697E0DC7D852}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99CECA92-77D5-EADB-02C6-697E0DC7D852}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99CECA92-77D5-EADB-02C6-697E0DC7D852}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99CECA92-77D5-EADB-02C6-697E0DC7D852}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2D131D3-04AA-45C1-A8C7-95FE89A8017D}
+	EndGlobalSection
+EndGlobal
