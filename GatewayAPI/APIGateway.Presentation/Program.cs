@@ -6,7 +6,8 @@ using Ocelot.Middleware;
 using BrightNess.Library.DI;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("ocelot.json",optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 builder.Services.AddOcelot().AddCacheManager(x => x.WithDictionaryHandle());
 // Configure the HTTP request pipeline.
 JWTAuthenticationScheme.AddJWTAuthenticationScheme(builder.Services, builder.Configuration);

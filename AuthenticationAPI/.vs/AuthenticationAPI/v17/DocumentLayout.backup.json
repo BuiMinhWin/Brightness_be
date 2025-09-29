@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.infrastructure\\dependencyinjection\\servicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|solutionrelative:authenticationapi.infrastructure\\dependencyinjection\\servicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,14 +35,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ServiceContainer.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
-              "RelativeDocumentMoniker": "AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
-              "RelativeToolTip": "AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABEAAAB5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T07:11:54.434Z",
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\appsettings.json",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-29T15:04:14.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Dockerfile",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Dockerfile",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Dockerfile",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-09-29T15:04:07.654Z",
               "EditorCaption": ""
             },
             {
@@ -49,9 +66,9 @@
               "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Program.cs",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
               "RelativeToolTip": "AuthenticationAPI.Presentation\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAADcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T07:10:00.628Z",
+              "WhenOpened": "2025-09-29T14:47:32.879Z",
               "EditorCaption": ""
             }
           ]
