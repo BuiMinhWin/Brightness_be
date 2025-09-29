@@ -3186,6 +3186,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "AuthenticationAPI.Application >= 1.0.0",
+      "AuthenticationAPI.Domain >= 1.0.0",
       "BCrypt.Net-Next >= 4.0.3",
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.20"
     ]
@@ -3224,6 +3225,9 @@
           "projectReferences": {
             "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
               "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj"
+            },
+            "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+              "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
             }
           }
         }

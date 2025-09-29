@@ -171,6 +171,9 @@
             "projectReferences": {
               "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
                 "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj"
+              },
+              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
               }
             }
           }
@@ -280,7 +283,7 @@
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.6.2, )"
+              "version": "[8.1.4, )"
             }
           },
           "imports": [

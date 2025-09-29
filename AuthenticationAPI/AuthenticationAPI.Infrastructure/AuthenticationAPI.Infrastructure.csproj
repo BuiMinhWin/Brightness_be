@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthenticationAPI.Application\AuthenticationAPI.Application.csproj" />
+    <ProjectReference Include="..\AuthenticationAPI.Domain\AuthenticationAPI.Domain.csproj" />
   </ItemGroup>
 
 </Project>
