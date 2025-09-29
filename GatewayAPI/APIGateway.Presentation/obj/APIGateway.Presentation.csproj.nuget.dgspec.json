@@ -58,9 +58,9 @@
               "target": "Package",
               "version": "[8.0.20, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.20, )"
+              "version": "[8.0.4, )"
             },
             "Serilog.AspNetCore": {
               "target": "Package",

@@ -9,7 +9,7 @@
     "Parameters": [
       {
         "Name": "id",
-        "Type": "System.Int32",
+        "Type": "System.Guid",
         "IsRequired": true
       }
     ],
@@ -41,7 +41,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "eCommerce.SharedLibrary.Responses.Response",
+        "Type": "BrightNess.Library.Responses.Response",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -67,7 +67,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "eCommerce.SharedLibrary.Responses.Response",
+        "Type": "BrightNess.Library.Responses.Response",
         "MediaTypes": [
           "text/plain",
           "application/json",

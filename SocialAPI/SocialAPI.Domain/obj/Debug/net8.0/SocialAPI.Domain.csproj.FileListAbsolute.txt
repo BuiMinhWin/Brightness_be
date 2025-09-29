@@ -1,0 +1,12 @@
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\bin\Debug\net8.0\SocialAPI.Domain.deps.json
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\bin\Debug\net8.0\SocialAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\bin\Debug\net8.0\SocialAPI.Domain.pdb
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.AssemblyInfo.cs
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.sourcelink.json
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\refint\SocialAPI.Domain.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\SocialAPI.Domain.pdb
+C:\Users\Admin\Documents\GitHub\Brightness_be\SocialAPI\SocialAPI.Domain\obj\Debug\net8.0\ref\SocialAPI.Domain.dll

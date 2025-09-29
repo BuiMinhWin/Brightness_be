@@ -171,6 +171,9 @@
             "projectReferences": {
               "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
                 "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj"
+              },
+              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
               }
             }
           }

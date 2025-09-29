@@ -1,0 +1,142 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: BrightnessDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  authentication-api:
+    build:
+      context: .
+      dockerfile: AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+
+  gateway-api:
+    build:
+      context: .
+      dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8088:8088"
+    depends_on:
+      - authentication-api
+      - measurement-api
+      - workout-api
+      - nutrition-api
+      - challenge-api
+      - social-api
+      - billing-api
+      - media-api
+      - chat-service
+
+  measurement-api:
+    build:
+      context: .
+      dockerfile: MeasurementAPI/MeasurementAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  workout-api:
+    build:
+      context: .
+      dockerfile: WorkoutAPI/WorkoutAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+  nutrition-api:
+    build:
+      context: .
+      dockerfile: NutritionAPI/NutritionAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+
+  challenge-api:
+    build:
+      context: .
+      dockerfile: ChallengeAPI/ChallengeAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+
+  social-api:
+    build:
+      context: .
+      dockerfile: SocialAPI/SocialAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+
+  billing-api:
+    build:
+      context: .
+      dockerfile: BillingAPI/BillingAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres
+
+  media-api:
+    build:
+      context: .
+      dockerfile: MediaAPI/MediaAPI.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8086:8086"
+    depends_on:
+      - postgres
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: ChatService/ChatService.Presentation/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

@@ -519,3 +519,4 @@ C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAP
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Presentation\obj\Debug\net8.0\ref\AuthenticationAPI.Presentation.dll
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Presentation\bin\Debug\net8.0\Npgsql.dll
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Presentation\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Presentation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

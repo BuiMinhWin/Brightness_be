@@ -9,6 +9,7 @@
       "AuthenticationAPI.Infrastructure/1.0.0": {
         "dependencies": {
           "AuthenticationAPI.Application": "1.0.0",
+          "AuthenticationAPI.Domain": "1.0.0",
           "BCrypt.Net-Next": "4.0.3",
           "Microsoft.EntityFrameworkCore.Tools": "8.0.20"
         },

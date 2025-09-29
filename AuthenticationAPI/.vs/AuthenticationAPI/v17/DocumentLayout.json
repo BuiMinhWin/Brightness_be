@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.infrastructure\\migrations\\20250928163240_adjustuserstable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|solutionrelative:authenticationapi.infrastructure\\migrations\\20250928163240_adjustuserstable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.infrastructure\\dependencyinjection\\servicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|solutionrelative:authenticationapi.infrastructure\\dependencyinjection\\servicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.infrastructure\\data\\authenticationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6B721377-E098-4C65-BDC8-79B770BBA2C9}|AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj|solutionrelative:authenticationapi.infrastructure\\data\\authenticationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,28 +31,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "20250928163240_AdjustUsersTable.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\Migrations\\20250928163240_AdjustUsersTable.cs",
-              "RelativeDocumentMoniker": "AuthenticationAPI.Infrastructure\\Migrations\\20250928163240_AdjustUsersTable.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\Migrations\\20250928163240_AdjustUsersTable.cs",
-              "RelativeToolTip": "AuthenticationAPI.Infrastructure\\Migrations\\20250928163240_AdjustUsersTable.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "ServiceContainer.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
+              "RelativeToolTip": "AuthenticationAPI.Infrastructure\\DependencyInjection\\ServiceContainer.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABEAAAB5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-28T16:36:30.747Z",
+              "WhenOpened": "2025-09-29T07:11:54.434Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AuthenticationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\Data\\AuthenticationDbContext.cs",
-              "RelativeDocumentMoniker": "AuthenticationAPI.Infrastructure\\Data\\AuthenticationDbContext.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\Data\\AuthenticationDbContext.cs",
-              "RelativeToolTip": "AuthenticationAPI.Infrastructure\\Data\\AuthenticationDbContext.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Program.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-28T16:33:40.828Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-29T07:10:00.628Z"
             }
           ]
         },

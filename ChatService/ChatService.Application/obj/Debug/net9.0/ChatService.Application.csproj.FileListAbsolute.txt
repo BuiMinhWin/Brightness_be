@@ -1,0 +1,16 @@
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\bin\Debug\net9.0\ChatService.Application.deps.json
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\bin\Debug\net9.0\ChatService.Application.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\bin\Debug\net9.0\ChatService.Application.pdb
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\bin\Debug\net9.0\ChatService.Domain.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\bin\Debug\net9.0\ChatService.Domain.pdb
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.AssemblyInfo.cs
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.sourcelink.json
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatServ.5B4B118C.Up2Date
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\refint\ChatService.Application.dll
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ChatService.Application.pdb
+C:\Users\Admin\Documents\GitHub\Brightness_be\ChatService\ChatService.Application\obj\Debug\net9.0\ref\ChatService.Application.dll
