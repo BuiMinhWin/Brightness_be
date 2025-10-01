@@ -1,7 +1,20 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9ABACD46-38D3-40DF-89F9-58B53C0E2E6D}|MediaAPI.Infrastructure\\MediaAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\mediaapi\\mediaapi.infrastructure\\migrations\\20250929082005_mediatable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9ABACD46-38D3-40DF-89F9-58B53C0E2E6D}|MediaAPI.Infrastructure\\MediaAPI.Infrastructure.csproj|solutionrelative:mediaapi.infrastructure\\migrations\\20250929082005_mediatable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9ABACD46-38D3-40DF-89F9-58B53C0E2E6D}|MediaAPI.Infrastructure\\MediaAPI.Infrastructure.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\mediaapi\\mediaapi.infrastructure\\data\\mediadbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9ABACD46-38D3-40DF-89F9-58B53C0E2E6D}|MediaAPI.Infrastructure\\MediaAPI.Infrastructure.csproj|solutionrelative:mediaapi.infrastructure\\data\\mediadbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1B02C83-F331-4D3F-B757-51E3BCCC01F7}|MediaAPI.Presentation\\MediaAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\mediaapi\\mediaapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1B02C83-F331-4D3F-B757-51E3BCCC01F7}|MediaAPI.Presentation\\MediaAPI.Presentation.csproj|solutionrelative:mediaapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -9,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 356,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -18,6 +31,45 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20250929082005_MediaTable.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Infrastructure\\Migrations\\20250929082005_MediaTable.cs",
+              "RelativeDocumentMoniker": "MediaAPI.Infrastructure\\Migrations\\20250929082005_MediaTable.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Infrastructure\\Migrations\\20250929082005_MediaTable.cs",
+              "RelativeToolTip": "MediaAPI.Infrastructure\\Migrations\\20250929082005_MediaTable.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-01T07:22:30.719Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MediaDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Infrastructure\\Data\\MediaDbContext.cs",
+              "RelativeDocumentMoniker": "MediaAPI.Infrastructure\\Data\\MediaDbContext.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Infrastructure\\Data\\MediaDbContext.cs",
+              "RelativeToolTip": "MediaAPI.Infrastructure\\Data\\MediaDbContext.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-01T07:22:10.896Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Presentation\\Program.cs",
+              "RelativeDocumentMoniker": "MediaAPI.Presentation\\Program.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\MediaAPI\\MediaAPI.Presentation\\Program.cs",
+              "RelativeToolTip": "MediaAPI.Presentation\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-01T07:22:03.342Z",
+              "EditorCaption": ""
             }
           ]
         },

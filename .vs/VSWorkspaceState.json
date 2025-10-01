@@ -1,8 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\deploy\\aws"
+    "\\AuthenticationAPI",
+    "\\MediaAPI"
   ],
-  "SelectedNode": "\\deploy",
   "PreviewInSolutionExplorer": false
 }

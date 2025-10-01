@@ -6,17 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MediaAPI.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class MediaTable : Migration
+    public partial class DeleteSchemaTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "media");
-
             migrationBuilder.CreateTable(
                 name: "media_items",
-                schema: "media",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -39,8 +35,7 @@ namespace MediaAPI.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "media_items",
-                schema: "media");
+                name: "media_items");
         }
     }
 }

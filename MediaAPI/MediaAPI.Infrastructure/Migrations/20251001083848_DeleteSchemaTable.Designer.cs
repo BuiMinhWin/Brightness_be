@@ -12,15 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MediaAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(MediaDbContext))]
-    [Migration("20250929082005_MediaTable")]
-    partial class MediaTable
+    [Migration("20251001083848_DeleteSchemaTable")]
+    partial class DeleteSchemaTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("media")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -68,7 +67,7 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("media_items", "media");
+                    b.ToTable("media_items", (string)null);
                 });
 #pragma warning restore 612, 618
         }

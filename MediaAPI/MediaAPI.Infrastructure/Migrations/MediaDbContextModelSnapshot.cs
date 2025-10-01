@@ -17,7 +17,6 @@ namespace MediaAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("media")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -65,7 +64,7 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("media_items", "media");
+                    b.ToTable("media_items", (string)null);
                 });
 #pragma warning restore 612, 618
         }
