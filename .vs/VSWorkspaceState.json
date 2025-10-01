@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\deploy\\aws"
   ],
-  "SelectedNode": "\\AuthenticationAPI.sln",
+  "SelectedNode": "\\deploy",
   "PreviewInSolutionExplorer": false
 }

@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$AwsAccountId,
 
-    [string]$Region = "ap-southeast-1",
+    [string]$Region = "ap-southeast-2",
 
     [string]$RepositoryPrefix = "brightness-prod",
 
