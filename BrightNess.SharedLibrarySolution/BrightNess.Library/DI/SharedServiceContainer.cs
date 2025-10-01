@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 
@@ -12,6 +11,8 @@ namespace BrightNess.Library.DI
 {
     public static class SharedServiceContainer
     {
+        private const string DefaultCorsPolicy = "DefaultCorsPolicy";
+
         public static IServiceCollection AddSharedServices<TContext>(this IServiceCollection services,
             IConfiguration config, string fileName) where TContext : DbContext
         {
@@ -35,26 +36,47 @@ namespace BrightNess.Library.DI
             services.AddSingleton<ITokenService, TokenService>();
 
             JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
+
+            var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(DefaultCorsPolicy, builder =>
+                {
+                    if (allowedOrigins != null && allowedOrigins.Length > 0)
+                    {
+                        builder.WithOrigins(allowedOrigins)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    }
+                    else
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    }
+                });
+            });
+
             return services;
         }
 
         public static IApplicationBuilder UseSharedPolicies(this IApplicationBuilder app)
         {
             app.UseMiddleware<GlobalException>();
-            var env = app.ApplicationServices.GetRequiredService<IHostEnvironment>();
-            if (env.IsDevelopment())
-            {
-                app.UseWhen(
-                    ctx => !ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase),
-                    ab => ab.UseMiddleware<ListenToOnlyAPIGateway>()
-                );
-            }
-            else
-            {
-                app.UseMiddleware<ListenToOnlyAPIGateway>();
-            }
+            app.UseCors(DefaultCorsPolicy);
+
+            app.UseWhen(
+                ctx => !ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase),
+                ab => ab.UseMiddleware<ListenToOnlyAPIGateway>()
+            );
 
             return app;
         }
     }
 }
+
+
+
+

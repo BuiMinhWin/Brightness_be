@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "haNK+fLHAt8=",
+  "dgSpecHash": "rcvdb4eGCmk=",
   "success": true,
   "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.20\\microsoft.aspnetcore.authentication.jwtbearer.8.0.20.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.20\\microsoft.entityframeworkcore.8.0.20.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.20\\microsoft.entityframeworkcore.abstractions.8.0.20.nupkg.sha512",

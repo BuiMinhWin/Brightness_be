@@ -13,6 +13,9 @@
       ],
       "UpstreamPathTemplate": "/api/Authentication/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST" ],
+      "AddHeadersToRequest": {
+        "Api-Gateway": "Signed"
+      },
       "RateLimitOptions": {
         "ClientWhitelist": [],
         "EnableRateLimiting": true,

@@ -1,14 +1,41 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345
       POSTGRES_DB: BrightnessDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "12345"
     ports:
-      - "5432:5432"
+      - "5433:5432"  # host:container
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    command: >
+      postgres -c listen_addresses='*' -c log_statement=all
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - app_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   authentication-api:
     build:
@@ -20,7 +47,10 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   gateway-api:
     build:
@@ -41,6 +71,8 @@ services:
       - billing-api
       - media-api
       - chat-service
+    networks:
+      - app_network
 
   measurement-api:
     build:
@@ -52,7 +84,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   workout-api:
     build:
@@ -64,7 +99,10 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   nutrition-api:
     build:
@@ -76,7 +114,10 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   challenge-api:
     build:
@@ -88,7 +129,10 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   social-api:
     build:
@@ -100,7 +144,10 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   billing-api:
     build:
@@ -112,7 +159,10 @@ services:
     ports:
       - "8085:8085"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   media-api:
     build:
@@ -124,7 +174,10 @@ services:
     ports:
       - "8086:8086"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
 
   chat-service:
     build:
@@ -136,7 +189,15 @@ services:
     ports:
       - "8087:8087"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+networks:
+  app_network: {}
 
 volumes:
-  pgdata:
+  postgres_data: {}
+  pgadmin_data: {}
+  pgdata: {}

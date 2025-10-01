@@ -1,13 +1,18 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AuthenticationAPI.Application.DTOs;
 using BrightNess.Library.Responses;
 
 namespace AuthenticationAPI.Application.Interfaces
 {
-    public interface IUser
+    public interface IUserService
     {
-        Task<Response> Register(UserDTO userDTO);
-        Task<Response> Login(LoginDTO loginDTO);
-        Task<GetUserDTO?> GetUser(Guid userId);
+        Task<Response> RegisterAsync(UserDTO userDTO);
+        Task<Response> LoginAsync(LoginDTO loginDTO);
+        Task<GetUserDTO?> GetByIdAsync(Guid userId);
+        Task<IEnumerable<GetUserDTO>> GetAllAsync();
+        Task<Response> UpdateAsync(Guid userId, UpdateUserDTO userDTO);
+        Task<Response> DeleteAsync(Guid userId);
     }
 }
