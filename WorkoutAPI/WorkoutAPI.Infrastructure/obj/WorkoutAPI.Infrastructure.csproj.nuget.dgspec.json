@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj": {}
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
         "projectName": "BrightNess.Library",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -83,24 +84,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj",
         "projectName": "WorkoutAPI.Application",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -109,17 +110,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj"
               }
             }
           }
@@ -155,24 +157,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj",
         "projectName": "WorkoutAPI.Domain",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -181,6 +183,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -220,24 +223,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj",
         "projectName": "WorkoutAPI.Infrastructure",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\WorkoutAPI.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -246,17 +249,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Application\\WorkoutAPI.Application.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\WorkoutAPI\\WorkoutAPI.Domain\\WorkoutAPI.Domain.csproj"
               }
             }
           }
@@ -328,7 +332,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

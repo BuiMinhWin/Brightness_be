@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AuthenticationAPI.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fe62a8b128cbe8be91962f525663c59fe557499")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b29e64181ee8b03e07a2c7bc399f7daf90b6fb3")]
 [assembly: System.Reflection.AssemblyProductAttribute("AuthenticationAPI.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AuthenticationAPI.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
