@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
 using MeasurementAPI.Application.Interfaces;
 using MeasurementAPI.Application.Requests;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MeasurementAPI.Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/measurements/devices")]
     public class DevicesController(IMeasurementDeviceService deviceService) : ControllerBase
@@ -46,13 +48,6 @@ namespace MeasurementAPI.Presentation.Controllers
             request.DeviceId = id;
             var response = await _deviceService.RecordSyncAsync(request);
             return response.Flag ? Ok(response) : BadRequest(response);
-        }
-
-        [HttpGet("{id:guid}/sync-logs")]
-        public async Task<IActionResult> GetSyncLogsAsync(Guid id, [FromQuery] int take = 20)
-        {
-            var logs = await _deviceService.GetSyncLogsAsync(id, take);
-            return Ok(logs);
         }
     }
 }

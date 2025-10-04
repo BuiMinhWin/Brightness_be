@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MeasurementAPI.Presentation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01148c02e86ea6236561923d30f9baaa587c37e5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0db66bb9ca011ac197ceaf0b8e374050aee8810")]
 [assembly: System.Reflection.AssemblyProductAttribute("MeasurementAPI.Presentation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MeasurementAPI.Presentation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

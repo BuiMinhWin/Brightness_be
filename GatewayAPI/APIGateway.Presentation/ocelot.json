@@ -78,7 +78,7 @@
       "UpstreamPathTemplate": "/api/Product/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "DELETE" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Buiminhwin",
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     },
@@ -102,7 +102,7 @@
         "Header": "ECommerce-Caching-Control"
       },
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Buiminhwin",
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     },
@@ -125,7 +125,7 @@
         "Header": "ECommerce-Caching-Control"
       },
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Buiminhwin",
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     },
@@ -143,7 +143,7 @@
       "UpstreamPathTemplate": "/api/Order/{everything}",
       "UpstreamHttpMethod": [ "POST", "PUT", "DELETE" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Buiminhwin",
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     },
@@ -160,7 +160,7 @@
       "UpstreamPathTemplate": "/ws/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Buiminhwin",
+        "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
     }

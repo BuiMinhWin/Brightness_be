@@ -1,4 +1,4 @@
-using AuthenticationAPI.Domain.Entities;
+﻿using AuthenticationAPI.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationAPI.Infrastructure.Data
@@ -6,6 +6,7 @@ namespace AuthenticationAPI.Infrastructure.Data
     public class AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,21 @@ namespace AuthenticationAPI.Infrastructure.Data
                 entity.Property(u => u.CreatedAt)
                     .HasDefaultValueSql("now() at time zone 'utc'");
             });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.HasIndex(t => t.Token).IsUnique();
+                entity.Property(t => t.Token).IsRequired();
+                entity.Property(t => t.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                entity.Property(t => t.ExpiresAt).IsRequired();
+
+                entity.HasOne(t => t.User)
+                    .WithMany(u => u.RefreshTokens)
+                    .HasForeignKey(t => t.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
+

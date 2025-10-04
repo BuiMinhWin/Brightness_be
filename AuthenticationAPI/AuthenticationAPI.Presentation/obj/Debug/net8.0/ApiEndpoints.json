@@ -130,6 +130,32 @@
   },
   {
     "ContainingType": "AuthenticationAPI.Presentation.Controllers.AuthenticationController",
+    "Method": "RefreshToken",
+    "RelativePath": "api/Authentication/refresh",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "AuthenticationAPI.Application.DTOs.RefreshTokenRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BrightNess.Library.Responses.Response",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "AuthenticationAPI.Presentation.Controllers.AuthenticationController",
     "Method": "Register",
     "RelativePath": "api/Authentication/register",
     "HttpMethod": "POST",
@@ -139,6 +165,32 @@
       {
         "Name": "userDTO",
         "Type": "AuthenticationAPI.Application.DTOs.UserDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BrightNess.Library.Responses.Response",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "AuthenticationAPI.Presentation.Controllers.AuthenticationController",
+    "Method": "RevokeToken",
+    "RelativePath": "api/Authentication/revoke",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "AuthenticationAPI.Application.DTOs.RefreshTokenRequest",
         "IsRequired": true
       }
     ],

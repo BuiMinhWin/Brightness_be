@@ -14,6 +14,5 @@ namespace MeasurementAPI.Application.Interfaces
         Task<Response> RegisterAsync(RegisterDeviceRequest request);
         Task<Response> UpdateAsync(Guid deviceId, UpdateDeviceRequest request);
         Task<Response> RecordSyncAsync(RecordDeviceSyncRequest request);
-        Task<IEnumerable<DeviceSyncLogDTO>> GetSyncLogsAsync(Guid deviceId, int take = 20);
     }
 }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using BrightNess.Library.DI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SocialAPI.Infrastructure.Data;
@@ -9,8 +9,7 @@ namespace SocialAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddSocialInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<SocialDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+            SharedServiceContainer.AddSharedServices<SocialDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "SocialApi");
 
             return services;
         }

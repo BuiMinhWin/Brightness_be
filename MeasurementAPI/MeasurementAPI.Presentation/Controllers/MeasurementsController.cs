@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
 using MeasurementAPI.Application.Interfaces;
 using MeasurementAPI.Application.Requests;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MeasurementAPI.Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/measurements")]
     public class MeasurementsController(IBodyMeasurementService bodyMeasurementService) : ControllerBase

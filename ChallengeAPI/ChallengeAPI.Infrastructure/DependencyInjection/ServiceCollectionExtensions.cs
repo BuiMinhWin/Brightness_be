@@ -1,7 +1,7 @@
-using ChallengeAPI.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using BrightNess.Library.DI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ChallengeAPI.Infrastructure.Data;
 
 namespace ChallengeAPI.Infrastructure.DependencyInjection
 {
@@ -9,8 +9,7 @@ namespace ChallengeAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChallengeInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ChallengeDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+            SharedServiceContainer.AddSharedServices<ChallengeDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "ChallengeApi");
 
             return services;
         }

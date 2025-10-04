@@ -59,7 +59,13 @@ namespace MeasurementAPI.Application.Services
             var response = await _repository.CreateAsync(measurement);
             if (response.Flag && device is not null)
             {
-                device.LastSyncedAt = DateTime.UtcNow;
+                var now = DateTime.UtcNow;
+                device.LastSyncedAt = now;
+                device.LastSyncStartedAt = request.RecordedAt;
+                device.LastSyncCompletedAt = now;
+                device.LastSyncSuccess = true;
+                device.LastSyncMessage = "Measurement recorded";
+                device.LastSyncPayload = request.RawData;
                 await _deviceRepository.UpdateAsync(device);
             }
 
