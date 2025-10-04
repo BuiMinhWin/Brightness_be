@@ -1,0 +1,6 @@
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.AssemblyInfo.cs
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\GitHub\Brightness_be\obj\Debug\net8.0\MeasurementAPI.Infrastructure.sourcelink.json

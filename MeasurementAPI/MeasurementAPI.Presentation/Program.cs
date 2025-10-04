@@ -1,13 +1,23 @@
-using MeasurementAPI.Infrastructure.Data;
+﻿using MeasurementAPI.Infrastructure.Data;
 using MeasurementAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Measurement API",
+        Version = "v1",
+        Description = "Collect body measurements, manage devices, and sync records"
+    });
+});
+
 builder.Services.AddMeasurementInfrastructure(builder.Configuration);
 
 var app = builder.Build();
@@ -40,14 +50,13 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseMeasurementInfrastructure();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

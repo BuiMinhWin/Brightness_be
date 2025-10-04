@@ -1,18 +1,21 @@
-using System;
+﻿using System;
+using BillingAPI.Domain.Enums;
 
 namespace BillingAPI.Application.DTOs
 {
     public record PaymentDTO
     (
         Guid Id,
-        Guid SubscriptionId,
+        Guid InvoiceId,
         Guid? UserExternalId,
         decimal Amount,
         string Currency,
-        string? PaymentMethod,
+        PaymentGatewayType Gateway,
         string PaymentStatus,
         string? TransactionId,
+        string? CheckoutUrl,
         DateTime CreatedAt,
+        DateTime? ExpiredAt,
         DateTime? UpdatedAt
     );
 }

@@ -1,13 +1,23 @@
-using BillingAPI.Infrastructure.Data;
+﻿using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Billing API",
+        Version = "v1",
+        Description = "Manage subscription plans, invoices, and payments"
+    });
+});
+
 builder.Services.AddBillingInfrastructure(builder.Configuration);
 
 var app = builder.Build();
@@ -40,14 +50,21 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
+app.UseBillingInfrastructure();
+
 if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

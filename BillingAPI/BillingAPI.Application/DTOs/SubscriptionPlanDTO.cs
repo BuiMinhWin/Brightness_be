@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace BillingAPI.Application.DTOs
 {
@@ -6,8 +6,11 @@ namespace BillingAPI.Application.DTOs
     (
         Guid Id,
         string Name,
+        string? Description,
         decimal Price,
         string Currency,
+        int DurationDays,
+        bool IsActive,
         DateTime CreatedAt,
         DateTime? UpdatedAt
     );

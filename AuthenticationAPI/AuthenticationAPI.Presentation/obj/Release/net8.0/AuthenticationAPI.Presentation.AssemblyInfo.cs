@@ -14,7 +14,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AuthenticationAPI.Presentation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< Updated upstream
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb17d677a908623b63254ea41187b9f56bf360c4")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01148c02e86ea6236561923d30f9baaa587c37e5")]
+>>>>>>> Stashed changes
 [assembly: System.Reflection.AssemblyProductAttribute("AuthenticationAPI.Presentation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AuthenticationAPI.Presentation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

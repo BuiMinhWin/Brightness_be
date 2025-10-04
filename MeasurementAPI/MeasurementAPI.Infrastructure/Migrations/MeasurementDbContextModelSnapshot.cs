@@ -32,11 +32,20 @@ namespace MeasurementAPI.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<decimal?>("BasalMetabolicRate")
+                        .HasColumnType("numeric");
+
                     b.Property<decimal?>("BodyFatPercent")
                         .HasColumnType("numeric(5,2)");
 
                     b.Property<decimal?>("ChestCm")
                         .HasColumnType("numeric(5,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeviceId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Goal")
                         .HasMaxLength(256)
@@ -52,10 +61,25 @@ namespace MeasurementAPI.Infrastructure.Migrations
                     b.Property<decimal?>("HipCm")
                         .HasColumnType("numeric(5,2)");
 
+                    b.Property<string>("RawData")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("RecordedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<decimal?>("SkeletalMuscleMassKg")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("SyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("TotalBodyWaterPercent")
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -71,7 +95,108 @@ namespace MeasurementAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeviceId");
+
                     b.ToTable("body_measurements", (string)null);
+                });
+
+            modelBuilder.Entity("MeasurementAPI.Domain.Entities.DeviceSyncLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RawPayload")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("SyncCompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SyncStartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("DeviceSyncLog");
+                });
+
+            modelBuilder.Entity("MeasurementAPI.Domain.Entities.MeasurementDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeviceType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirmwareVersion")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastSyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Manufacturer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SerialNumber")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MeasurementDevice");
+                });
+
+            modelBuilder.Entity("MeasurementAPI.Domain.Entities.BodyMeasurement", b =>
+                {
+                    b.HasOne("MeasurementAPI.Domain.Entities.MeasurementDevice", "Device")
+                        .WithMany("Measurements")
+                        .HasForeignKey("DeviceId");
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("MeasurementAPI.Domain.Entities.DeviceSyncLog", b =>
+                {
+                    b.HasOne("MeasurementAPI.Domain.Entities.MeasurementDevice", "Device")
+                        .WithMany("SyncLogs")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("MeasurementAPI.Domain.Entities.MeasurementDevice", b =>
+                {
+                    b.Navigation("Measurements");
+
+                    b.Navigation("SyncLogs");
                 });
 #pragma warning restore 612, 618
         }

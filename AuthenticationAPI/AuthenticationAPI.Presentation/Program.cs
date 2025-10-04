@@ -85,16 +85,6 @@ app.MapControllers();
 
 app.Run();
 
-
-
-
-
-
-
-
-
-
-
 static bool IsDatabaseStartingUp(Exception ex)
 {
     return ex switch

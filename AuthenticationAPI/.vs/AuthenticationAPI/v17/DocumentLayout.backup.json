@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}|AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}|AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj|solutionrelative:authenticationapi.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\authenticationapi\\authenticationapi.presentation\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 356,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,41 +30,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\Services\\UserService.cs",
-              "RelativeDocumentMoniker": "AuthenticationAPI.Application\\Services\\UserService.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\Services\\UserService.cs",
-              "RelativeToolTip": "AuthenticationAPI.Application\\Services\\UserService.cs",
-              "ViewState": "AgIAAKEAAAAAAAAAAAAswFkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T16:09:33.557Z",
-              "EditorCaption": ""
+              "DocumentIndex": 1,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.Development.json",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-10-03T07:26:05.211Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
               "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\appsettings.json",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
               "RelativeToolTip": "AuthenticationAPI.Presentation\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABCAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-09-29T15:04:14.586Z",
+              "WhenOpened": "2025-10-03T07:26:04.077Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
-              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Program.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
-              "RelativeToolTip": "AuthenticationAPI.Presentation\\Program.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAADcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T14:47:32.879Z"
             }
           ]
         },
