@@ -34,3 +34,15 @@ C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAP
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\refint\AuthenticationAPI.Domain.dll
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.pdb
 C:\Users\Admin\Documents\GitHub\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\ref\AuthenticationAPI.Domain.dll
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\bin\Debug\net8.0\AuthenticationAPI.Domain.deps.json
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\bin\Debug\net8.0\AuthenticationAPI.Domain.dll
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\bin\Debug\net8.0\AuthenticationAPI.Domain.pdb
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.AssemblyInfoInputs.cache
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.AssemblyInfo.cs
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.csproj.CoreCompileInputs.cache
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.sourcelink.json
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.dll
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\refint\AuthenticationAPI.Domain.dll
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\AuthenticationAPI.Domain.pdb
+D:\FPT\ki_8\Exe\Brightness_be\AuthenticationAPI\AuthenticationAPI.Domain\obj\Debug\net8.0\ref\AuthenticationAPI.Domain.dll

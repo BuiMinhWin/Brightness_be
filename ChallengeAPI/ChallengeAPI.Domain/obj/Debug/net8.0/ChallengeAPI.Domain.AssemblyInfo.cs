@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChallengeAPI.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b29e64181ee8b03e07a2c7bc399f7daf90b6fb3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3de073f50fef9b7ac1bfe946a42bba6e25bfdd2")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChallengeAPI.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChallengeAPI.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

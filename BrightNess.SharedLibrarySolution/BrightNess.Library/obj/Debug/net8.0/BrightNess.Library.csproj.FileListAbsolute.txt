@@ -11,3 +11,16 @@ C:\Users\Admin\Documents\GitHub\Brightness_be\BrightNess.SharedLibrarySolution\B
 C:\Users\Admin\Documents\GitHub\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\refint\BrightNess.Library.dll
 C:\Users\Admin\Documents\GitHub\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.pdb
 C:\Users\Admin\Documents\GitHub\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\ref\BrightNess.Library.dll
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\bin\Debug\net8.0\BrightNess.Library.deps.json
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\bin\Debug\net8.0\BrightNess.Library.dll
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\bin\Debug\net8.0\BrightNess.Library.pdb
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.csproj.AssemblyReference.cache
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.GeneratedMSBuildEditorConfig.editorconfig
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.AssemblyInfoInputs.cache
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.AssemblyInfo.cs
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.csproj.CoreCompileInputs.cache
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.sourcelink.json
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.dll
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\refint\BrightNess.Library.dll
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\BrightNess.Library.pdb
+D:\FPT\ki_8\Exe\Brightness_be\BrightNess.SharedLibrarySolution\BrightNess.Library\obj\Debug\net8.0\ref\BrightNess.Library.dll

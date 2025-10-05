@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj": {}
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj",
         "projectName": "AuthenticationAPI.Application",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,17 +26,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj"
               }
             }
           }
@@ -78,24 +79,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj",
         "projectName": "AuthenticationAPI.Domain",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -104,6 +105,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -143,24 +145,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj",
         "projectName": "AuthenticationAPI.Infrastructure",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -169,17 +171,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Domain\\AuthenticationAPI.Domain.csproj"
               }
             }
           }
@@ -227,24 +230,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj",
         "projectName": "AuthenticationAPI.Presentation",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -253,14 +256,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj"
+              "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj": {
+                "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Infrastructure\\AuthenticationAPI.Infrastructure.csproj"
               }
             }
           }
@@ -311,24 +315,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
+    "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
+        "projectUniqueName": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
         "projectName": "BrightNess.Library",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\obj\\",
+        "projectPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj",
+        "packagesPath": "C:\\Users\\tptha\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tptha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -337,6 +341,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -394,7 +399,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
