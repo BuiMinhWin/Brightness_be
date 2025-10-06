@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SocialAPI.Infrastructure.Data;
 using SocialAPI.Infrastructure.DependencyInjection;
+using SocialAPI.Application.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSocialInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -48,7 +51,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
+
 
 app.MapControllers();
 

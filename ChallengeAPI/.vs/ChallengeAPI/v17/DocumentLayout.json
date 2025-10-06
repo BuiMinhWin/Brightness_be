@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{39962E47-163B-4170-8CD4-C1855E4359FC}|ChallengeAPI.Application\\ChallengeAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.application\\services\\challengeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{39962E47-163B-4170-8CD4-C1855E4359FC}|ChallengeAPI.Application\\ChallengeAPI.Application.csproj|solutionrelative:challengeapi.application\\services\\challengeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|solutionrelative:challengeapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.infrastructure\\repositories\\achievementrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|solutionrelative:challengeapi.infrastructure\\repositories\\achievementrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{39962E47-163B-4170-8CD4-C1855E4359FC}|ChallengeAPI.Application\\ChallengeAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.application\\services\\challengeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{39962E47-163B-4170-8CD4-C1855E4359FC}|ChallengeAPI.Application\\ChallengeAPI.Application.csproj|solutionrelative:challengeapi.application\\services\\challengeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{99CECA92-77D5-EADB-02C6-697E0DC7D852}|..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\listentoonlyapigateway.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -16,10 +20,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{6762D085-9EEB-4431-A7CE-50D09B47A92A}|ChallengeAPI.Presentation\\ChallengeAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.presentation\\controllers\\challengescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6762D085-9EEB-4431-A7CE-50D09B47A92A}|ChallengeAPI.Presentation\\ChallengeAPI.Presentation.csproj|solutionrelative:challengeapi.presentation\\controllers\\challengescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{285A7024-1878-4EC2-9B22-546A73427FA0}|ChallengeAPI.Infrastructure\\ChallengeAPI.Infrastructure.csproj|solutionrelative:challengeapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{58CB790E-E1B8-4F8F-928B-F518BAB7FB46}|ChallengeAPI.Domain\\ChallengeAPI.Domain.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\challengeapi\\challengeapi.domain\\entities\\achievement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -60,12 +60,12 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 560,
+          "DockedHeight": 45,
           "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Bookmark",
@@ -77,11 +77,11 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+              "Name": "ST:61:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:61:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+              "Name": "ST:61:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
               "$type": "Document",
@@ -98,7 +98,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "ListenToOnlyAPIGateway.cs",
               "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "RelativeDocumentMoniker": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
@@ -106,8 +106,7 @@
               "RelativeToolTip": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAswBsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T13:51:17.996Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T13:51:17.996Z"
             },
             {
               "$type": "Document",
@@ -119,8 +118,7 @@
               "RelativeToolTip": "ChallengeAPI.Domain\\Entities\\Achievement.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T12:04:04.242Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T12:04:04.242Z"
             },
             {
               "$type": "Document",
@@ -132,8 +130,7 @@
               "RelativeToolTip": "ChallengeAPI.Application\\Services\\ChallengeParticipantService.cs",
               "ViewState": "AgIAAD0AAAAAAAAAAAAjwD8AAABcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T11:36:28.316Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T11:36:28.316Z"
             },
             {
               "$type": "Document",
@@ -145,8 +142,7 @@
               "RelativeToolTip": "ChallengeAPI.Presentation\\Controllers\\ChallengeParticipantsController.cs",
               "ViewState": "AgIAACwAAAAAAAAAAAAgwDwAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T11:34:42.473Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T11:34:42.473Z"
             },
             {
               "$type": "Document",
@@ -158,8 +154,7 @@
               "RelativeToolTip": "ChallengeAPI.Domain\\Entities\\ChallengeParticipant.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T11:34:19.928Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T11:34:19.928Z"
             },
             {
               "$type": "Document",
@@ -171,8 +166,7 @@
               "RelativeToolTip": "ChallengeAPI.Domain\\Entities\\ChallengeTask.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAA3wBEAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T10:58:13.288Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T10:58:13.288Z"
             },
             {
               "$type": "Document",
@@ -184,8 +178,7 @@
               "RelativeToolTip": "ChallengeAPI.Presentation\\Controllers\\ChallengeTasksController.cs",
               "ViewState": "AgIAACkAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T10:44:46.654Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T10:44:46.654Z"
             },
             {
               "$type": "Document",
@@ -197,8 +190,7 @@
               "RelativeToolTip": "ChallengeAPI.Application\\Services\\ChallengeTaskService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAGsAAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T10:44:37.924Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T10:44:37.924Z"
             },
             {
               "$type": "Document",
@@ -210,12 +202,11 @@
               "RelativeToolTip": "ChallengeAPI.Infrastructure\\Repositories\\ChallengeTaskRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T10:44:32.774Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T10:44:32.774Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ChallengesController.cs",
               "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\ChallengeAPI.Presentation\\Controllers\\ChallengesController.cs",
               "RelativeDocumentMoniker": "ChallengeAPI.Presentation\\Controllers\\ChallengesController.cs",
@@ -223,14 +214,21 @@
               "RelativeToolTip": "ChallengeAPI.Presentation\\Controllers\\ChallengesController.cs",
               "ViewState": "AgIAAG4AAAAAAAAAAAAiwG4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T09:49:14.554Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-05T09:49:14.554Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             }
           ]
         },
         {
-          "DockedHeight": 40,
-          "SelectedChildIndex": 6,
+          "DockedHeight": 555,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -258,26 +256,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "ChallengeService.cs",
               "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\ChallengeAPI.Application\\Services\\ChallengeService.cs",
               "RelativeDocumentMoniker": "ChallengeAPI.Application\\Services\\ChallengeService.cs",
               "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\ChallengeAPI.Application\\Services\\ChallengeService.cs",
               "RelativeToolTip": "ChallengeAPI.Application\\Services\\ChallengeService.cs",
-              "ViewState": "AgIAAOMAAAAAAAAAAAA0wOkAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAANkAAAAAAAAAAAAwwOkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-05T13:18:19.845Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "ServiceCollectionExtensions.cs",
               "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\ChallengeAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
               "RelativeDocumentMoniker": "ChallengeAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
               "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\ChallengeAPI\\ChallengeAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
               "RelativeToolTip": "ChallengeAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAA5AAAAAAAAAA==",
+              "ViewState": "AgIAABEAAAAAAAAAAAAAwBwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-05T13:00:56.737Z",
               "EditorCaption": ""

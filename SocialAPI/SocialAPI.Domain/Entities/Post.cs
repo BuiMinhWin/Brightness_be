@@ -13,7 +13,10 @@ namespace SocialAPI.Domain.Entities
         public string Status { get; set; } = "draft";
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-        public ICollection<PostTag> Tags { get; set; } = new List<PostTag>();
+        public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>(); // Ch? gi? l?i dòng này
+        public ICollection<PostImage> Images { get; set; } = new List<PostImage>();
     }
 }

@@ -1,14 +1,43 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\SocialAPI\\",
-  "Documents": [],
+  "WorkspaceRootPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6BD7373A-17E9-44FD-A004-E0FB180E76DF}|SocialAPI.Infrastructure\\SocialAPI.Infrastructure.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BD7373A-17E9-44FD-A004-E0FB180E76DF}|SocialAPI.Infrastructure\\SocialAPI.Infrastructure.csproj|solutionrelative:socialapi.infrastructure\\dependencyinjection\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BD7373A-17E9-44FD-A004-E0FB180E76DF}|SocialAPI.Infrastructure\\SocialAPI.Infrastructure.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.infrastructure\\repositories\\postimagerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BD7373A-17E9-44FD-A004-E0FB180E76DF}|SocialAPI.Infrastructure\\SocialAPI.Infrastructure.csproj|solutionrelative:socialapi.infrastructure\\repositories\\postimagerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{45EA6142-B199-453B-873E-18B5FC5120CE}|SocialAPI.Presentation\\SocialAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.presentation\\controllers\\postimagescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{45EA6142-B199-453B-873E-18B5FC5120CE}|SocialAPI.Presentation\\SocialAPI.Presentation.csproj|solutionrelative:socialapi.presentation\\controllers\\postimagescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.application\\services\\postimageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|solutionrelative:socialapi.application\\services\\postimageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.application\\services\\postservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|solutionrelative:socialapi.application\\services\\postservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.application\\interfaces\\ipostimageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|solutionrelative:socialapi.application\\interfaces\\ipostimageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\socialapi\\socialapi.application\\interfaces\\ipostimagerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8850719E-5B64-4D8B-96F8-83D909564E80}|SocialAPI.Application\\SocialAPI.Application.csproj|solutionrelative:socialapi.application\\interfaces\\ipostimagerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 356,
+          "DockedHeight": 45,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -18,26 +47,139 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:61:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         },
         {
-          "DockedHeight": 244,
-          "SelectedChildIndex": -1,
+          "DockedHeight": 555,
+          "SelectedChildIndex": 13,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            }
-          ]
-        },
-        {
-          "DockedHeight": 300,
-          "SelectedChildIndex": -1,
-          "Children": [
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PostImageRepository.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Infrastructure\\Repositories\\PostImageRepository.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Infrastructure\\Repositories\\PostImageRepository.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Infrastructure\\Repositories\\PostImageRepository.cs",
+              "RelativeToolTip": "SocialAPI.Infrastructure\\Repositories\\PostImageRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:40:11.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PostImageService.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Services\\PostImageService.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Application\\Services\\PostImageService.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Services\\PostImageService.cs",
+              "RelativeToolTip": "SocialAPI.Application\\Services\\PostImageService.cs",
+              "ViewState": "AgIAAF4AAAAAAAAAAAAAwG0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:39:48.939Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PostService.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Services\\PostService.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Application\\Services\\PostService.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Services\\PostService.cs",
+              "RelativeToolTip": "SocialAPI.Application\\Services\\PostService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:39:47.817Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IPostImageRepository.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Interfaces\\IPostImageRepository.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Application\\Interfaces\\IPostImageRepository.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Interfaces\\IPostImageRepository.cs",
+              "RelativeToolTip": "SocialAPI.Application\\Interfaces\\IPostImageRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:23:57.71Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IPostImageService.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Interfaces\\IPostImageService.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Application\\Interfaces\\IPostImageService.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Application\\Interfaces\\IPostImageService.cs",
+              "RelativeToolTip": "SocialAPI.Application\\Interfaces\\IPostImageService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:22:51.351Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PostImagesController.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Presentation\\Controllers\\PostImagesController.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Presentation\\Controllers\\PostImagesController.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Presentation\\Controllers\\PostImagesController.cs",
+              "RelativeToolTip": "SocialAPI.Presentation\\Controllers\\PostImagesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:22:11.385Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ServiceCollectionExtensions.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
+              "RelativeDocumentMoniker": "SocialAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\SocialAPI\\SocialAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs*",
+              "RelativeToolTip": "SocialAPI.Infrastructure\\DependencyInjection\\ServiceCollectionExtensions.cs*",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABkAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-06T15:16:11.35Z",
+              "EditorCaption": ""
             }
           ]
         }

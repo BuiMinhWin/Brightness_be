@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SocialAPI.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class SocialTable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -118,6 +118,28 @@ namespace SocialAPI.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "post_images",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PostId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "bytea", nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: true),
+                    ContentType = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_post_images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_post_images_posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "post_tags",
                 columns: table => new
                 {
@@ -133,12 +155,28 @@ namespace SocialAPI.Infrastructure.Migrations
                         principalTable: "posts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_post_tags_tags_TagId",
+                        column: x => x.TagId,
+                        principalTable: "tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_comments_PostId",
                 table: "comments",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_post_images_PostId",
+                table: "post_images",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_post_tags_TagId",
+                table: "post_tags",
+                column: "TagId");
         }
 
         /// <inheritdoc />
@@ -151,6 +189,9 @@ namespace SocialAPI.Infrastructure.Migrations
                 name: "comments");
 
             migrationBuilder.DropTable(
+                name: "post_images");
+
+            migrationBuilder.DropTable(
                 name: "post_tags");
 
             migrationBuilder.DropTable(
@@ -160,10 +201,10 @@ namespace SocialAPI.Infrastructure.Migrations
                 name: "reports");
 
             migrationBuilder.DropTable(
-                name: "tags");
+                name: "posts");
 
             migrationBuilder.DropTable(
-                name: "posts");
+                name: "tags");
         }
     }
 }

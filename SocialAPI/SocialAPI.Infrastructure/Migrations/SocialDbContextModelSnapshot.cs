@@ -129,6 +129,35 @@ namespace SocialAPI.Infrastructure.Migrations
                     b.ToTable("posts", (string)null);
                 });
 
+            modelBuilder.Entity("SocialAPI.Domain.Entities.PostImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("post_images", (string)null);
+                });
+
             modelBuilder.Entity("SocialAPI.Domain.Entities.PostTag", b =>
                 {
                     b.Property<Guid>("PostId")
@@ -138,6 +167,8 @@ namespace SocialAPI.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("TagId");
 
                     b.ToTable("post_tags", (string)null);
                 });
@@ -250,20 +281,48 @@ namespace SocialAPI.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SocialAPI.Domain.Entities.PostTag", b =>
+            modelBuilder.Entity("SocialAPI.Domain.Entities.PostImage", b =>
                 {
-                    b.HasOne("SocialAPI.Domain.Entities.Post", null)
-                        .WithMany("Tags")
+                    b.HasOne("SocialAPI.Domain.Entities.Post", "Post")
+                        .WithMany("Images")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("SocialAPI.Domain.Entities.PostTag", b =>
+                {
+                    b.HasOne("SocialAPI.Domain.Entities.Post", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialAPI.Domain.Entities.Tag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Tags");
+                    b.Navigation("Images");
+
+                    b.Navigation("PostTags");
+                });
+
+            modelBuilder.Entity("SocialAPI.Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("PostTags");
                 });
 #pragma warning restore 612, 618
         }

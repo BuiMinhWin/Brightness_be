@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SocialAPI.Domain.Entities;
 
 namespace SocialAPI.Infrastructure.Data
@@ -12,12 +12,11 @@ namespace SocialAPI.Infrastructure.Data
         public DbSet<PostVote> PostVotes => Set<PostVote>();
         public DbSet<CommentVote> CommentVotes => Set<CommentVote>();
         public DbSet<Report> Reports => Set<Report>();
+        public DbSet<PostImage> PostImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            
 
             modelBuilder.Entity<Post>(entity =>
             {
@@ -46,10 +45,21 @@ namespace SocialAPI.Infrastructure.Data
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
             });
 
+            // Cấu hình many-to-many relationship tại đây
             modelBuilder.Entity<PostTag>(entity =>
             {
                 entity.ToTable("post_tags");
                 entity.HasKey(x => new { x.PostId, x.TagId });
+
+                entity.HasOne(pt => pt.Post)
+                    .WithMany(p => p.PostTags)
+                    .HasForeignKey(pt => pt.PostId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pt => pt.Tag)
+                    .WithMany(t => t.PostTags)
+                    .HasForeignKey(pt => pt.TagId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<PostVote>(entity =>
@@ -76,6 +86,16 @@ namespace SocialAPI.Infrastructure.Data
                 entity.Property(x => x.Reason).IsRequired().HasMaxLength(500);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+            });
+
+            modelBuilder.Entity<PostImage>(entity =>
+            {
+                entity.ToTable("post_images");
+
+                entity.HasOne(pi => pi.Post)
+                    .WithMany(p => p.Images)
+                    .HasForeignKey(pi => pi.PostId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
