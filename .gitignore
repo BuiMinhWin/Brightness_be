@@ -51,12 +51,20 @@ yarn-error.log
 
 # Docker
 docker-compose.override.yml
+docker-compose.prod.yml
 
 # User specific files
-**/appsettings.Development.json
+# Ignore environment-specific appsettings, except for Development.
+# Production/Staging secrets should never be committed.
+**/appsettings.Production.json
+**/appsettings.Staging.json
+
 *.csproj.user
 *.db
 .wsuo
+
+# Environment variables file
+.env
 
 # Backup files
 *.backup.json

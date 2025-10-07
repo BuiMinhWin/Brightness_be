@@ -16,6 +16,5 @@ RUN dotnet publish AuthenticationAPI/AuthenticationAPI.Presentation/Authenticati
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:5000
-EXPOSE 5000
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "AuthenticationAPI.Presentation.dll"]
