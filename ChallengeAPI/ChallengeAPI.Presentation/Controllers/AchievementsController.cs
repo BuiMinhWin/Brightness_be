@@ -66,7 +66,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _achievementService.UpdateAchievementAsync(id, achievementDto);
-                return NoContent();
+                return Ok(new { message = "Updated successfully" });
             }
             catch (ArgumentException ex)
             {

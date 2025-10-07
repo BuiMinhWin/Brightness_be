@@ -55,7 +55,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeService.UpdateChallengeAsync(id, challengeDto);
-                return Ok(new { message = "Challenge rule updated successfully" });
+                return Ok(new { message = "Updated successfully" });
             }
             catch (ArgumentException ex)
             {
@@ -103,14 +103,5 @@ namespace ChallengeAPI.Presentation.Controllers
             var challenges = await _challengeService.GetAllChallengesAsync();
             return Ok(challenges);
         }
-
-
-
-
-
-
-
-
-
     }
 }

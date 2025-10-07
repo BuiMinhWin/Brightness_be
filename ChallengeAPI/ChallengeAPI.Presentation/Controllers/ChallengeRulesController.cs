@@ -64,7 +64,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeRuleService.UpdateChallengeRuleAsync(id, challengeRuleDto);
-                return NoContent();
+                return Ok(new { message = "Challenge rule updated successfully" });
             }
             catch (ArgumentException ex)
             {
@@ -78,7 +78,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeRuleService.PatchChallengeRuleAsync(id, patchData);
-                return NoContent();
+                return Ok(new { message = "Challenge rule updated successfully" });
             }
             catch (ArgumentException ex)
             {

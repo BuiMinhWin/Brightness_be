@@ -27,22 +27,13 @@ namespace ChallengeAPI.Application.Services
         public async Task<IEnumerable<LeaderboardDTO>> GetLeaderboardAsync(Guid challengeId)
         {
             var participants = await _challengeParticipantRepository.GetByChallengeIdAsync(challengeId);
-            var tasks = await _challengeTaskRepository.GetByChallengeIdAsync(challengeId);
 
-            var leaderboard = new List<LeaderboardDTO>();
-
-            foreach (var participant in participants)
+            var leaderboard = participants.Select(p => new LeaderboardDTO
             {
-                var progress = await _challengeTaskProgressRepository.GetByParticipantIdAsync(participant.Id);
-                var score = progress.Count(p => p.Status == "completed");
-
-                leaderboard.Add(new LeaderboardDTO
-                {
-                    UserId = participant.UserId,
-                    UserName = "", // I will need to get the user name from the user service
-                    Score = score
-                });
-            }
+                UserId = p.UserId,
+                UserName = "", // I will need to get the user name from the user service
+                Score = p.TotalPoints ?? 0
+            }).ToList();
 
             var rankedLeaderboard = leaderboard.OrderByDescending(l => l.Score)
                                                .Select((l, index) => new LeaderboardDTO
