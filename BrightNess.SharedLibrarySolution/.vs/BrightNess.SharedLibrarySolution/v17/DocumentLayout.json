@@ -1,0 +1,211 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\responses\\response.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\responses\\response.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\listentoonlyapigateway.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\middleware\\listentoonlyapigateway.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\globalexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\middleware\\globalexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\logs\\logexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\logs\\logexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\jwt\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\jwt\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\jwt\\tokenpayload.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\jwt\\tokenpayload.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\jwt\\jwtoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\jwt\\jwtoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\jwt\\itokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\jwt\\itokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\interface\\igenericinterface.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\interface\\igenericinterface.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\di\\sharedservicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\di\\sharedservicecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\di\\jwtauthenticationscheme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226DBDA9-5338-4650-9521-4A3D1F01E2A5}|BrightNess.Library\\BrightNess.Library.csproj|solutionrelative:brightness.library\\di\\jwtauthenticationscheme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "SharedServiceContainer.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\DI\\SharedServiceContainer.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\DI\\SharedServiceContainer.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\DI\\SharedServiceContainer.cs",
+              "RelativeToolTip": "BrightNess.Library\\DI\\SharedServiceContainer.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAQwDMAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T15:04:06.805Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "JWTAuthenticationScheme.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\DI\\JWTAuthenticationScheme.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\DI\\JWTAuthenticationScheme.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\DI\\JWTAuthenticationScheme.cs",
+              "RelativeToolTip": "BrightNess.Library\\DI\\JWTAuthenticationScheme.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T15:03:20.657Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Response.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Responses\\Response.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Responses\\Response.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Responses\\Response.cs",
+              "RelativeToolTip": "BrightNess.Library\\Responses\\Response.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T15:01:01.164Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ListenToOnlyAPIGateway.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
+              "RelativeToolTip": "BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T15:00:45.204Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GlobalException.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Middleware\\GlobalException.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
+              "RelativeToolTip": "BrightNess.Library\\Middleware\\GlobalException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFIAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T15:00:19.947Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "LogException.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Logs\\LogException.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Logs\\LogException.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Logs\\LogException.cs",
+              "RelativeToolTip": "BrightNess.Library\\Logs\\LogException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:59:51.005Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TokenService.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\TokenService.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Jwt\\TokenService.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\TokenService.cs",
+              "RelativeToolTip": "BrightNess.Library\\Jwt\\TokenService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:59:08.544Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TokenPayload.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\TokenPayload.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Jwt\\TokenPayload.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\TokenPayload.cs",
+              "RelativeToolTip": "BrightNess.Library\\Jwt\\TokenPayload.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:58:59.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "JwtOption.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\JwtOption.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Jwt\\JwtOption.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\JwtOption.cs",
+              "RelativeToolTip": "BrightNess.Library\\Jwt\\JwtOption.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:58:53.107Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ITokenService.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\ITokenService.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Jwt\\ITokenService.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Jwt\\ITokenService.cs",
+              "RelativeToolTip": "BrightNess.Library\\Jwt\\ITokenService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:58:48.085Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IGenericInterface.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Interface\\IGenericInterface.cs",
+              "RelativeDocumentMoniker": "BrightNess.Library\\Interface\\IGenericInterface.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Interface\\IGenericInterface.cs",
+              "RelativeToolTip": "BrightNess.Library\\Interface\\IGenericInterface.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-28T14:57:23.425Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

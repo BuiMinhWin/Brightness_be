@@ -1,63 +1,26 @@
-﻿using ChallengeAPI.Infrastructure.Data;
+using ChallengeAPI.Infrastructure.Data;
 using ChallengeAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using Npgsql;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter { DateTimeFormat = "dd-MM-yyyy" });
+    });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Challenge API",
-        Version = "v1",
-        Description = "Challenge service endpoints"
-    });
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme."
-    });
-
-    c.AddSecurityDefinition("ApiGatewayHeader", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Name = "Api-Gateway",
-        Type = SecuritySchemeType.ApiKey,
-        Description = "Set to any non-empty value when testing without API Gateway."
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            Array.Empty<string>()
-        },
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiGatewayHeader" }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
-
+builder.Services.AddSwaggerGen();
 builder.Services.AddChallengeInfrastructure(builder.Configuration);
-builder.Services.AddAuthorization();
+builder.Configuration.GetConnectionString("BrightnessDb");
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
+
 
 await using var scope = app.Services.CreateAsyncScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<ChallengeDbContext>();
@@ -65,6 +28,8 @@ const int maxRetryAttempts = 15;
 var delay = TimeSpan.FromSeconds(2);
 var migrationSucceeded = false;
 Exception? lastException = null;
+
+
 
 for (var attempt = 1; attempt <= maxRetryAttempts; attempt++)
 {
@@ -95,12 +60,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthorization();
 
 app.MapControllers();
 
 await app.RunAsync();
+
+
+// Custom converter
 
 static bool IsDatabaseStartingUp(Exception ex)
 {
@@ -112,3 +79,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+

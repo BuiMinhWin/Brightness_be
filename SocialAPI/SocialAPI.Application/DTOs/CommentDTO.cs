@@ -11,6 +11,7 @@ namespace SocialAPI.Application.DTOs
         string Content,
         string Status,
         DateTime CreatedAt,
-        DateTime? UpdatedAt
+        DateTime? UpdatedAt,
+        int ReactionCount = 0
     );
 }

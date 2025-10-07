@@ -1,5 +1,6 @@
-using ChallengeAPI.Domain.Entities;
+﻿using ChallengeAPI.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ChallengeAPI.Infrastructure.Data
 {
@@ -20,6 +21,7 @@ namespace ChallengeAPI.Infrastructure.Data
             {
                 entity.ToTable("challenges");
                 entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
                 entity.Property(x => x.Title).IsRequired().HasMaxLength(200);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
@@ -39,6 +41,29 @@ namespace ChallengeAPI.Infrastructure.Data
             {
                 entity.ToTable("challenge_rules");
                 entity.HasKey(x => x.Id);
+
+                entity.HasOne(r => r.Challenge)
+                      .WithMany(c => c.Rules)
+                      .HasForeignKey(r => r.ChallengeId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.HowToParticipate)
+                    .HasConversion(
+                        v => string.Join(';', v),
+                        v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                        (c1, c2) => c1.SequenceEqual(c2),
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => c.ToList()));
+
+                entity.Property(e => e.RuleText)
+                    .HasConversion(
+                        v => string.Join(';', v),
+                        v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                        (c1, c2) => c1.SequenceEqual(c2),
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => c.ToList()));
             });
 
             modelBuilder.Entity<ChallengeTask>(entity =>
@@ -49,6 +74,11 @@ namespace ChallengeAPI.Infrastructure.Data
                 entity.Property(x => x.Points).HasColumnType("numeric(8,2)");
                 entity.Property(x => x.StartDate).HasColumnType("date");
                 entity.Property(x => x.EndDate).HasColumnType("date");
+
+                entity.HasOne(t => t.Challenge)
+                      .WithMany(c => c.Tasks)
+                      .HasForeignKey(t => t.ChallengeId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<ChallengeTaskProgress>(entity =>

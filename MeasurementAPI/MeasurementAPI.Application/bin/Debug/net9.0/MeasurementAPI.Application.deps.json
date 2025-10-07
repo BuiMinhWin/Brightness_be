@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "MeasurementAPI.Application/1.0.0": {
+        "dependencies": {
+          "MeasurementAPI.Domain": "1.0.0"
+        },
+        "runtime": {
+          "MeasurementAPI.Application.dll": {}
+        }
+      },
+      "MeasurementAPI.Domain/1.0.0": {
+        "runtime": {
+          "MeasurementAPI.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MeasurementAPI.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MeasurementAPI.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

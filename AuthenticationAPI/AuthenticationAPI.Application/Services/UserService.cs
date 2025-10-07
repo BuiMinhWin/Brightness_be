@@ -1,35 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AuthenticationAPI.Application.DTOs;
 using AuthenticationAPI.Application.Interfaces;
 using AuthenticationAPI.Domain.Entities;
 using BrightNess.Library.Jwt;
 using BrightNess.Library.Responses;
-using Microsoft.Extensions.Options;
 
 namespace AuthenticationAPI.Application.Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository, ITokenService tokenService) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly ITokenService _tokenService;
-        private readonly JwtOptions _jwtOptions;
-
-        public UserService(
-            IUserRepository userRepository,
-            IRefreshTokenRepository refreshTokenRepository,
-            ITokenService tokenService,
-            IOptions<JwtOptions> jwtOptions)
-        {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
-            _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
-            _jwtOptions = jwtOptions?.Value ?? throw new ArgumentNullException(nameof(jwtOptions));
-        }
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        private readonly ITokenService _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
 
         public async Task<Response> RegisterAsync(UserDTO userDTO)
         {
@@ -69,7 +53,7 @@ namespace AuthenticationAPI.Application.Services
                 : createResponse;
         }
 
-        public async Task<Response> LoginAsync(LoginDTO loginDTO, string? ipAddress = null)
+        public async Task<Response> LoginAsync(LoginDTO loginDTO)
         {
             var user = await _userRepository.GetByEmailAsync(loginDTO.email);
             if (user is null)
@@ -83,69 +67,6 @@ namespace AuthenticationAPI.Application.Services
                 return new Response(false, "Invalid credentials");
             }
 
-            var tokenPayload = new TokenPayload
-            {
-                Name = user.FullName ?? user.UserName,
-                Email = user.Email,
-                Role = user.Role
-            };
-
-            var accessToken = _tokenService.GenerateToken(tokenPayload);
-            var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes);
-
-            var refreshToken = await GenerateRefreshTokenAsync(user.Id, ipAddress);
-            var refreshCreateResponse = await _refreshTokenRepository.CreateAsync(refreshToken);
-            if (!refreshCreateResponse.Flag)
-            {
-                return new Response(false, "Failed to persist refresh token");
-            }
-
-            var tokens = new AuthTokensDTO(accessToken, refreshToken.Token, accessTokenExpiresAt, refreshToken.ExpiresAt);
-            return new Response(true, "Login successfully", tokens);
-        }
-
-        public async Task<Response> RefreshTokenAsync(string refreshToken, string? ipAddress = null)
-        {
-            if (string.IsNullOrWhiteSpace(refreshToken))
-            {
-                return new Response(false, "Refresh token is required");
-            }
-
-            var existingToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
-            if (existingToken is null)
-            {
-                return new Response(false, "Refresh token not found");
-            }
-
-            if (!existingToken.IsActive)
-            {
-                return new Response(false, existingToken.RevokedAt.HasValue ? "Refresh token has been revoked" : "Refresh token expired");
-            }
-
-            var user = existingToken.User;
-            if (user is null)
-            {
-                return new Response(false, "User not found for refresh token");
-            }
-
-            existingToken.RevokedAt = DateTime.UtcNow;
-            existingToken.RevokedByIp = ipAddress;
-
-            var newRefreshToken = await GenerateRefreshTokenAsync(user.Id, ipAddress);
-            existingToken.ReplacedByToken = newRefreshToken.Token;
-
-            var revokeResponse = await _refreshTokenRepository.UpdateAsync(existingToken);
-            if (!revokeResponse.Flag)
-            {
-                return new Response(false, "Failed to revoke refresh token");
-            }
-
-            var createResponse = await _refreshTokenRepository.CreateAsync(newRefreshToken);
-            if (!createResponse.Flag)
-            {
-                return new Response(false, "Failed to persist refresh token");
-            }
-
             var payload = new TokenPayload
             {
                 Name = user.FullName ?? user.UserName,
@@ -153,38 +74,8 @@ namespace AuthenticationAPI.Application.Services
                 Role = user.Role
             };
 
-            var accessToken = _tokenService.GenerateToken(payload);
-            var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes);
-
-            var tokens = new AuthTokensDTO(accessToken, newRefreshToken.Token, accessTokenExpiresAt, newRefreshToken.ExpiresAt);
-            return new Response(true, "Token refreshed successfully", tokens);
-        }
-
-        public async Task<Response> RevokeRefreshTokenAsync(string refreshToken, string? ipAddress = null)
-        {
-            if (string.IsNullOrWhiteSpace(refreshToken))
-            {
-                return new Response(false, "Refresh token is required");
-            }
-
-            var existingToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
-            if (existingToken is null)
-            {
-                return new Response(false, "Refresh token not found");
-            }
-
-            if (!existingToken.IsActive)
-            {
-                return new Response(false, "Refresh token is already inactive");
-            }
-
-            existingToken.RevokedAt = DateTime.UtcNow;
-            existingToken.RevokedByIp = ipAddress;
-
-            var revokeResponse = await _refreshTokenRepository.UpdateAsync(existingToken);
-            return revokeResponse.Flag
-                ? new Response(true, "Refresh token revoked")
-                : revokeResponse;
+            var token = _tokenService.GenerateToken(payload);
+            return new Response(true, token);
         }
 
         public async Task<GetUserDTO?> GetByIdAsync(Guid userId)
@@ -269,26 +160,6 @@ namespace AuthenticationAPI.Application.Services
             return deleteResponse.Flag
                 ? new Response(true, "User deleted successfully")
                 : deleteResponse;
-        }
-
-        private async Task<RefreshToken> GenerateRefreshTokenAsync(Guid userId, string? ipAddress)
-        {
-            RefreshToken? refreshToken;
-            do
-            {
-                refreshToken = new RefreshToken
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedByIp = ipAddress,
-                    ExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationDays)
-                };
-            }
-            while (await _refreshTokenRepository.GetByTokenAsync(refreshToken.Token) is not null);
-
-            return refreshToken;
         }
 
         private static GetUserDTO MapToDto(User user) => new GetUserDTO(

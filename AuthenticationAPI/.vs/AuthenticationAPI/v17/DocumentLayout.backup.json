@@ -1,0 +1,148 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\authenticationapi\\authenticationapi.presentation\\authenticationapi.presentation.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\authenticationapi.presentation.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\authenticationapi\\authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\authenticationapi\\authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\authenticationapi\\authenticationapi.presentation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{898CDF7A-34F7-45DD-8B25-E3DFF933A952}|AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.csproj|solutionrelative:authenticationapi.presentation\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}|AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj|d:\\fpt\\ki_8\\exe\\brightness_be\\authenticationapi\\authenticationapi.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9DB61B30-DC76-4DA6-A8E9-5B5C455F9733}|AuthenticationAPI.Application\\AuthenticationAPI.Application.csproj|solutionrelative:authenticationapi.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 490,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Dockerfile",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Dockerfile",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Dockerfile",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-10-03T21:34:40.628Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthenticationAPI.Presentation.http",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.http",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.http",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.http",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\AuthenticationAPI.Presentation.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2025-10-03T21:34:13.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Application\\Services\\UserService.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Application\\Services\\UserService.cs",
+              "RelativeToolTip": "AuthenticationAPI.Application\\Services\\UserService.cs",
+              "ViewState": "AgIAAKEAAAAAAAAAAAAswFkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T16:09:33.557Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\appsettings.json",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\appsettings.json",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-29T15:04:14.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
+              "RelativeDocumentMoniker": "AuthenticationAPI.Presentation\\Program.cs",
+              "ToolTip": "D:\\FPT\\ki_8\\Exe\\Brightness_be\\AuthenticationAPI\\AuthenticationAPI.Presentation\\Program.cs",
+              "RelativeToolTip": "AuthenticationAPI.Presentation\\Program.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAAwEIAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T14:47:32.879Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 110,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

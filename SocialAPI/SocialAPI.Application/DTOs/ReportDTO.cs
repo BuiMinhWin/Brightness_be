@@ -15,4 +15,5 @@ namespace SocialAPI.Application.DTOs
         DateTime CreatedAt,
         DateTime? ReviewedAt
     );
+
 }
