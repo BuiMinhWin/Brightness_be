@@ -71,6 +71,7 @@ services:
       - billing-api
       - media-api
       - chat-service
+      - ai-ocr-service
     networks:
       - app_network
 
@@ -188,6 +189,26 @@ services:
       ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
     ports:
       - "8087:8087"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  ai-ocr-service:
+    build:
+      context: .
+      dockerfile: AIOCRService/AIOCRService.Presentation/Dockerfile
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
+      GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
+      GoogleAI__Model: gemini-2.5-flash
+    ports:
+      - "8089:8080"
     depends_on:
       postgres:
         condition: service_healthy
