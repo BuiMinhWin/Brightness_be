@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Npgsql;
 using AuthenticationAPI.Infrastructure.Data;
@@ -16,6 +16,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
     c.AddSecurityDefinition("ApiGatewayHeader", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -23,22 +33,24 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Description = "Set to any non-empty value when testing without API Gateway."
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-
-            new OpenApiSecurityScheme
-            {
-
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "ApiGatewayHeader"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+     {
+         {
+             new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+             },
+             Array.Empty<string>()
+         },
+         {
+             new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiGatewayHeader" }
+             },
+             Array.Empty<string>()
+         }
+     });
 });
 builder.Services.AddInfrastructureService(builder.Configuration);
 
@@ -85,16 +97,6 @@ app.MapControllers();
 
 app.Run();
 
-
-
-
-
-
-
-
-
-
-
 static bool IsDatabaseStartingUp(Exception ex)
 {
     return ex switch
@@ -105,6 +107,7 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+
 
 
 

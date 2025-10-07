@@ -1,13 +1,60 @@
-using MeasurementAPI.Infrastructure.Data;
+﻿using MeasurementAPI.Infrastructure.Data;
 using MeasurementAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Measurement API",
+        Version = "v1",
+        Description = "Collect body measurements, manage devices, and sync records"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    c.AddSecurityDefinition("ApiGatewayHeader", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Api-Gateway",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Set to any non-empty value when testing without API Gateway."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiGatewayHeader" }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+});
+
 builder.Services.AddMeasurementInfrastructure(builder.Configuration);
 
 var app = builder.Build();
@@ -40,14 +87,13 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseMeasurementInfrastructure();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -64,3 +110,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+

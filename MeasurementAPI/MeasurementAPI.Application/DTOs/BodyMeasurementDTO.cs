@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using MeasurementAPI.Domain.Enums;
 
 namespace MeasurementAPI.Application.DTOs
 {
@@ -6,9 +7,14 @@ namespace MeasurementAPI.Application.DTOs
     (
         Guid Id,
         Guid UserId,
+        Guid? DeviceId,
+        MeasurementSourceType Source,
         decimal? HeightCm,
         decimal? WeightKg,
         decimal? BodyFatPercent,
+        decimal? SkeletalMuscleMassKg,
+        decimal? TotalBodyWaterPercent,
+        decimal? BasalMetabolicRate,
         decimal? WaistCm,
         decimal? ChestCm,
         decimal? HipCm,
@@ -16,6 +22,9 @@ namespace MeasurementAPI.Application.DTOs
         int? WorkoutDaysPerWeek,
         string? Goal,
         string? HealthNote,
-        DateTime RecordedAt
+        string? RawData,
+        DateTime RecordedAt,
+        DateTime CreatedAt,
+        DateTime? SyncedAt
     );
 }
