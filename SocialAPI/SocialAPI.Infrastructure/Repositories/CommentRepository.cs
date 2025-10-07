@@ -80,5 +80,16 @@ namespace SocialAPI.Infrastructure.Repositories
         {
             return await _context.CommentVotes.Where(cv => cv.CommentId == commentId).ToListAsync();
         }
+
+        public async Task UpdateCommentReactionCountAsync(Guid commentId, int reactionCount)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment != null)
+            {
+                comment.ReactionCount = reactionCount;
+                _context.Comments.Update(comment);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -60,7 +60,7 @@ namespace SocialAPI.Presentation.Controllers
             try
             {
                 await _postImageService.DeletePostImageAsync(imageId);
-                return NoContent();
+                return Ok("Delete Success");
             }
             catch (Exception ex)
             {

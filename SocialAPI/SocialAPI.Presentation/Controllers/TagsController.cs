@@ -47,7 +47,7 @@ namespace SocialAPI.Presentation.Controllers
         public async Task<IActionResult> DeleteTag(Guid tagId)
         {
             await _tagService.DeleteTagAsync(tagId);
-            return NoContent();
+            return Ok("Delete Success");
         }
     }
 }

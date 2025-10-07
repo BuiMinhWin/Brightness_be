@@ -18,5 +18,6 @@ namespace SocialAPI.Application.Interfaces
         Task UpdateCommentVoteAsync(CommentVote vote);
         Task RemoveCommentVoteAsync(CommentVote vote);
         Task<IEnumerable<CommentVote>> GetVotesForCommentAsync(Guid commentId);
+        Task UpdateCommentReactionCountAsync(Guid commentId, int reactionCount);
     }
 }

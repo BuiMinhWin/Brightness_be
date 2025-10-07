@@ -16,5 +16,6 @@ namespace SocialAPI.Application.Interfaces
 
         Task VoteCommentAsync(Guid commentId, Guid userId, string voteType);
         Task CancelCommentVoteAsync(Guid commentId, Guid userId);
+        Task UpdateCommentReactionCountAsync(Guid commentId);
     }
 }

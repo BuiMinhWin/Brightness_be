@@ -105,7 +105,7 @@ namespace SocialAPI.Presentation.Controllers
                 return NotFound();
             }
             await _commentService.DeleteCommentAsync(commentId, userId);
-            return NoContent();
+            return Ok("Delete Success");
         }
     }
 }

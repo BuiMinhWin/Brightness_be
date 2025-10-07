@@ -26,7 +26,7 @@ namespace SocialAPI.Presentation.Controllers
             //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
             await _commentService.VoteCommentAsync(commentId, userId, voteDto.VoteType);
-            return Ok();
+            return Ok("React success");
         }
 
         //[Authorize]
@@ -36,7 +36,7 @@ namespace SocialAPI.Presentation.Controllers
             //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
             await _commentService.CancelCommentVoteAsync(commentId, userId);
-            return Ok();
+            return Ok("Cancel success");
         }
     }
 }

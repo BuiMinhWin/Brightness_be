@@ -61,7 +61,7 @@ namespace SocialAPI.Presentation.Controllers
         public async Task<IActionResult> DeletePost(Guid id)
         {
             await _postService.DeletePostAsync(id);
-            return NoContent();
+            return Ok("Delete success");
         }
 
         [HttpGet("tag/{tagSlug}")]
@@ -78,7 +78,7 @@ namespace SocialAPI.Presentation.Controllers
             //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
             await _postService.VotePostAsync(id, userId, voteDto.VoteType);
-            return Ok();
+            return Ok("Vote success");
         }
 
         //[Authorize]
@@ -88,7 +88,7 @@ namespace SocialAPI.Presentation.Controllers
             //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
             await _postService.CancelPostVoteAsync(id, userId);
-            return Ok();
+            return Ok("Cancel Success");
         }
     }
 }
