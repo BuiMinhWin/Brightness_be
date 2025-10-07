@@ -1,15 +1,161 @@
-MediaAPI/.vs/MediaAPI/FileContentIndex/fd1ac05b-7b1f-4abf-8799-4617d829dcae.vsidx
-.vs/slnx.sqlite
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/CodeChunks.db-shm
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/CodeChunks.db-wal
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/SemanticSymbols.db-shm
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/SemanticSymbols.db-wal
-MediaAPI/.vs/MediaAPI/FileContentIndex/d2f00ca6-42aa-4fdc-af8f-dd701842af3f.vsidx
-MediaAPI/.vs/MediaAPI/v17/.wsuo
-.vs/VSWorkspaceState.json
-.vs/slnx.sqlite
-.vs/Brightness_be/v17/workspaceFileList.bin
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/CodeChunks.db
-MediaAPI/.vs/MediaAPI/CopilotIndices/17.14.1231.31060/SemanticSymbols.db
-MediaAPI/.vs/MediaAPI/FileContentIndex/711ac048-c85d-4267-8aa7-897891707414.vsidx
-MediaAPI/.vs/MediaAPI/v17/.suo
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+*.env
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Visual Studio cache/options
+.vs/
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Caches
+*.cache
+*.dll
+*.exe
+
+# Backup & report files
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+ServiceFabricBackup/
+*.rptproj.bak
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Business Intelligence projects
+*.rdl.data
+*.bim.layout
+*.bim_*.settings
+*.rptproj.rsuser
+
+# Microsoft Fakes
+FakesAssemblies/
+
+# Node.js (if using for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Rider
+.idea/
+*.sln.iml
+
+# Azure
+*.pubxml
+*.azurePubxml
+*.PublishSettings
+ServiceConfiguration.Cloud.cscfg
+
+# Sensitive data
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+*.secrets.json
+
+# SSL certificates
+*.pfx
+*.p12
+*.key
+*.crt
+*.cer
