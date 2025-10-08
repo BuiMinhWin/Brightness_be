@@ -1,5 +1,5 @@
+﻿using BrightNess.Library.DI;
 using MediaAPI.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,8 +9,7 @@ namespace MediaAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddMediaInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<MediaDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+            SharedServiceContainer.AddSharedServices<MediaDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "MediaApi");
 
             return services;
         }

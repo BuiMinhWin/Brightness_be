@@ -1,7 +1,16 @@
+﻿using ChallengeAPI.Application.Repositories;
+using ChallengeAPI.Application.Services;
 using ChallengeAPI.Infrastructure.Data;
+using ChallengeAPI.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ChallengeAPI.Infrastructure.Data;
+using ChallengeAPI.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using ChallengeAPI.Application.ServicesImpl;
 
 namespace ChallengeAPI.Infrastructure.DependencyInjection
 {
@@ -11,6 +20,26 @@ namespace ChallengeAPI.Infrastructure.DependencyInjection
         {
             services.AddDbContext<ChallengeDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+
+            services.AddScoped<IChallengeService, ChallengeService>();
+            services.AddScoped<IChallengeRepository, ChallengeRepository>();
+
+            services.AddScoped<IChallengeRuleService, ChallengeRuleService>();
+            services.AddScoped<IChallengeRuleRepository, ChallengeRuleRepository>();
+
+            services.AddScoped<IChallengeTaskService, ChallengeTaskService>();
+            services.AddScoped<IChallengeTaskRepository, ChallengeTaskRepository>();
+
+            services.AddScoped<IChallengeParticipantService, ChallengeParticipantService>();
+            services.AddScoped<IChallengeParticipantRepository, ChallengeParticipantRepository>();
+
+            services.AddScoped<IChallengeTaskProgressService, ChallengeTaskProgressService>();
+            services.AddScoped<IChallengeTaskProgressRepository, ChallengeTaskProgressRepository>();
+
+            services.AddScoped<IAchievementService, AchievementService>();
+            services.AddScoped<IAchievementRepository, AchievementRepository>();
+
+            services.AddScoped<ILeaderboardService, LeaderboardService>();
 
             return services;
         }

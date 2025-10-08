@@ -1,5 +1,5 @@
+﻿using BrightNess.Library.DI;
 using ChatService.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,8 +9,7 @@ namespace ChatService.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChatInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ChatDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+            SharedServiceContainer.AddSharedServices<ChatDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "ChatService");
 
             return services;
         }

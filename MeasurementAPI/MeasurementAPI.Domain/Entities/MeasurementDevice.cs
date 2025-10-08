@@ -15,8 +15,12 @@ namespace MeasurementAPI.Domain.Entities
         public bool IsActive { get; set; } = true;
         public DateTime RegisteredAt { get; set; }
         public DateTime? LastSyncedAt { get; set; }
+        public DateTime? LastSyncStartedAt { get; set; }
+        public DateTime? LastSyncCompletedAt { get; set; }
+        public bool? LastSyncSuccess { get; set; }
+        public string? LastSyncMessage { get; set; }
+        public string? LastSyncPayload { get; set; }
 
         public ICollection<BodyMeasurement> Measurements { get; set; } = new List<BodyMeasurement>();
-        public ICollection<DeviceSyncLog> SyncLogs { get; set; } = new List<DeviceSyncLog>();
     }
 }

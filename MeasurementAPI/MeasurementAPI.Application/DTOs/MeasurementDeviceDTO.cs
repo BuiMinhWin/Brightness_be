@@ -13,6 +13,11 @@ namespace MeasurementAPI.Application.DTOs
         string? FirmwareVersion,
         bool IsActive,
         DateTime RegisteredAt,
-        DateTime? LastSyncedAt
+        DateTime? LastSyncedAt,
+        DateTime? LastSyncStartedAt,
+        DateTime? LastSyncCompletedAt,
+        bool? LastSyncSuccess,
+        string? LastSyncMessage,
+        string? LastSyncPayload
     );
 }

@@ -5,7 +5,6 @@ namespace MeasurementAPI.Application.Requests
 {
     public class RecordDeviceSyncRequest
     {
-        [Required]
         public Guid DeviceId { get; set; }
 
         [Required]

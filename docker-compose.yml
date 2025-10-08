@@ -1,11 +1,11 @@
 services:
   postgres:
-    image: postgres:17
+    image: pgvector/pgvector:pg17
     restart: always
     environment:
       POSTGRES_DB: BrightnessDb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "12345"
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5433:5432"  # host:container
     volumes:
@@ -42,10 +42,10 @@ services:
       context: .
       dockerfile: AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "5000:5000"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,10 +57,9 @@ services:
       context: .
       dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
     ports:
-      - "8088:8088"
+      - "8088:5000"
     depends_on:
       - authentication-api
       - measurement-api
@@ -71,6 +70,7 @@ services:
       - billing-api
       - media-api
       - chat-service
+      - ai-ocr-service
     networks:
       - app_network
 
@@ -79,10 +79,10 @@ services:
       context: .
       dockerfile: MeasurementAPI/MeasurementAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8080:8080"
+      - "8090:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,10 +94,10 @@ services:
       context: .
       dockerfile: WorkoutAPI/WorkoutAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8081:8081"
+      - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,10 +109,10 @@ services:
       context: .
       dockerfile: NutritionAPI/NutritionAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8082:8082"
+      - "8082:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -124,10 +124,10 @@ services:
       context: .
       dockerfile: ChallengeAPI/ChallengeAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8083:8083"
+      - "8083:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -139,10 +139,10 @@ services:
       context: .
       dockerfile: SocialAPI/SocialAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8084:8084"
+      - "8084:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -154,10 +154,10 @@ services:
       context: .
       dockerfile: BillingAPI/BillingAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8085:8085"
+      - "8085:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -169,10 +169,10 @@ services:
       context: .
       dockerfile: MediaAPI/MediaAPI.Presentation/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
     ports:
-      - "8086:8086"
+      - "8086:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -184,10 +184,30 @@ services:
       context: .
       dockerfile: ChatService/ChatService.Presentation/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+    ports:
+      - "8087:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  ai-ocr-service:
+    build:
+      context: .
+      dockerfile: AIOCRService/AIOCRService.Presentation/Dockerfile
+    env_file:
+      - .env
+    environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
+      GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
+      GoogleAI__Model: gemini-2.5-flash
     ports:
-      - "8087:8087"
+      - "8089:8080"
     depends_on:
       postgres:
         condition: service_healthy

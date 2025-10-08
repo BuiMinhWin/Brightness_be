@@ -1,0 +1,6 @@
+@AIOCRService.Presentation_HostAddress = http://localhost:5159
+
+GET {{AIOCRService.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

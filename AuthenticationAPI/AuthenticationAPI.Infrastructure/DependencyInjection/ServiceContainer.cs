@@ -1,4 +1,4 @@
-using AuthenticationAPI.Application.Interfaces;
+﻿using AuthenticationAPI.Application.Interfaces;
 using AuthenticationAPI.Application.Services;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.Repositories;
@@ -13,9 +13,10 @@ namespace AuthenticationAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration config)
         {
-            SharedServiceContainer.AddSharedServices<AuthenticationDbContext>(services, config, config["MySerilog:FileName"]);
+            SharedServiceContainer.AddSharedServices<AuthenticationDbContext>(services, config, config["MySerilog:FileName"] ?? "AuthenticationApi");
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IUserService, UserService>();
 
             return services;

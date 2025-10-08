@@ -18,10 +18,10 @@ namespace MeasurementAPI.Infrastructure.Repositories
         public async Task<IEnumerable<MeasurementDevice>> GetByUserAsync(Guid userId)
         {
             return await Context.MeasurementDevices
-                .Include(device => device.SyncLogs.OrderByDescending(log => log.SyncStartedAt).Take(5))
                 .AsNoTracking()
                 .Where(device => device.UserId == userId)
                 .OrderBy(device => device.DeviceType)
+                .ThenBy(device => device.RegisteredAt)
                 .ToListAsync();
         }
 
@@ -34,9 +34,7 @@ namespace MeasurementAPI.Infrastructure.Repositories
 
         public override async Task<MeasurementDevice?> FindByIdAsync(Guid id)
         {
-            return await Context.MeasurementDevices
-                .Include(device => device.SyncLogs.OrderByDescending(log => log.SyncStartedAt).Take(10))
-                .FirstOrDefaultAsync(device => device.Id == id);
+            return await Context.MeasurementDevices.FirstOrDefaultAsync(device => device.Id == id);
         }
     }
 }
