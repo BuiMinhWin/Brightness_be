@@ -1,6 +1,0 @@
-@PersonalCoachAPI.Presentation_HostAddress = http://localhost:5002
-
-GET {{PersonalCoachAPI.Presentation_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
