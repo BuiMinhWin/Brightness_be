@@ -12,6 +12,6 @@ RUN dotnet publish GatewayAPI/APIGateway.Presentation/APIGateway.Presentation.cs
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8088
-EXPOSE 8088
+ENV ASPNETCORE_URLS=http://+:5000
+EXPOSE 5000
 ENTRYPOINT ["dotnet", "APIGateway.Presentation.dll"]

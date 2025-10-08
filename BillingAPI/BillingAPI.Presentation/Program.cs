@@ -16,6 +16,43 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "Manage subscription plans, invoices, and payments"
     });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    c.AddSecurityDefinition("ApiGatewayHeader", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Api-Gateway",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Set to any non-empty value when testing without API Gateway."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiGatewayHeader" }
+            },
+            Array.Empty<string>()
+        }
+    });
+
 });
 
 builder.Services.AddBillingInfrastructure(builder.Configuration);
@@ -81,3 +118,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+

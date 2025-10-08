@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
 using BillingAPI.Application.Interfaces;
 using BillingAPI.Application.Requests;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BillingAPI.Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/billing/invoices")]
     public class InvoicesController(IInvoiceService invoiceService) : ControllerBase

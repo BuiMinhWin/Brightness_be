@@ -15,6 +15,5 @@ RUN dotnet publish ChallengeAPI/ChallengeAPI.Presentation/ChallengeAPI.Presentat
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8083
-EXPOSE 8083
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "ChallengeAPI.Presentation.dll"]

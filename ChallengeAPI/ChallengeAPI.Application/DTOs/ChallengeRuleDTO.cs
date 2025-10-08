@@ -6,7 +6,7 @@ namespace ChallengeAPI.Application.DTOs
     (
         Guid Id,
         Guid ChallengeId,
-        string? HowToParticipate,
-        string? RuleText
+        List<string>? HowToParticipate,
+        List<string>? RuleText
     );
 }

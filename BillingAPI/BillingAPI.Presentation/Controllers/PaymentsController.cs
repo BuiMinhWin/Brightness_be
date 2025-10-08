@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BillingAPI.Presentation.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/billing/payments")]
     public class PaymentsController(IPaymentService paymentService) : ControllerBase
@@ -24,6 +26,7 @@ namespace BillingAPI.Presentation.Controllers
             return session is null ? BadRequest("Unable to initiate payment") : Ok(session);
         }
 
+        [AllowAnonymous]
         [HttpGet("vnpay/callback")]
         public async Task<IActionResult> VnPayCallbackAsync()
         {
@@ -38,6 +41,7 @@ namespace BillingAPI.Presentation.Controllers
             return result is null ? BadRequest("Invalid VNPay callback") : Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost("payos/webhook")]
         public async Task<IActionResult> PayOsWebhookAsync()
         {

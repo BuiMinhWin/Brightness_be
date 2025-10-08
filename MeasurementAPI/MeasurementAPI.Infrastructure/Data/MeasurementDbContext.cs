@@ -9,7 +9,6 @@ namespace MeasurementAPI.Infrastructure.Data
     {
         public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
         public DbSet<MeasurementDevice> MeasurementDevices => Set<MeasurementDevice>();
-        public DbSet<DeviceSyncLog> DeviceSyncLogs => Set<DeviceSyncLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,7 +16,6 @@ namespace MeasurementAPI.Infrastructure.Data
 
             ConfigureBodyMeasurement(modelBuilder.Entity<BodyMeasurement>());
             ConfigureMeasurementDevice(modelBuilder.Entity<MeasurementDevice>());
-            ConfigureDeviceSyncLog(modelBuilder.Entity<DeviceSyncLog>());
         }
 
         private static void ConfigureBodyMeasurement(EntityTypeBuilder<BodyMeasurement> entity)
@@ -64,22 +62,15 @@ namespace MeasurementAPI.Infrastructure.Data
             entity.Property(device => device.FirmwareVersion).HasMaxLength(64);
             entity.Property(device => device.RegisteredAt).HasDefaultValueSql("now() at time zone 'utc'");
             entity.Property(device => device.IsActive).HasDefaultValue(true);
+            entity.Property(device => device.LastSyncedAt);
+            entity.Property(device => device.LastSyncStartedAt);
+            entity.Property(device => device.LastSyncCompletedAt);
+            entity.Property(device => device.LastSyncSuccess);
+            entity.Property(device => device.LastSyncMessage).HasMaxLength(512);
+            entity.Property(device => device.LastSyncPayload).HasColumnType("text");
 
             entity.HasIndex(device => new { device.UserId, device.DeviceType });
             entity.HasIndex(device => new { device.UserId, device.SerialNumber }).IsUnique().HasFilter("\"SerialNumber\" IS NOT NULL");
-        }
-
-        private static void ConfigureDeviceSyncLog(EntityTypeBuilder<DeviceSyncLog> entity)
-        {
-            entity.ToTable("device_sync_logs");
-            entity.HasKey(log => log.Id);
-            entity.Property(log => log.Message).HasMaxLength(512);
-            entity.Property(log => log.RawPayload).HasColumnType("text");
-
-            entity.HasOne(log => log.Device)
-                .WithMany(device => device.SyncLogs)
-                .HasForeignKey(log => log.DeviceId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
 
         private static MeasurementSourceType ParseSource(string value)

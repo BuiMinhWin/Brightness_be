@@ -15,6 +15,5 @@ RUN dotnet publish NutritionAPI/NutritionAPI.Presentation/NutritionAPI.Presentat
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8082
-EXPOSE 8082
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "NutritionAPI.Presentation.dll"]

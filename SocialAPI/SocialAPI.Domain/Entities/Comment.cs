@@ -12,5 +12,6 @@ namespace SocialAPI.Domain.Entities
         public string Status { get; set; } = "visible";
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public int ReactionCount { get; set; } = 0;
     }
 }

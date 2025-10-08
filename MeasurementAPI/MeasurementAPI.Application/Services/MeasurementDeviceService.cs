@@ -10,13 +10,9 @@ using BrightNess.Library.Responses;
 
 namespace MeasurementAPI.Application.Services
 {
-    public class MeasurementDeviceService(
-        IMeasurementDeviceRepository deviceRepository,
-        IDeviceSyncLogRepository syncLogRepository)
-        : IMeasurementDeviceService
+    public class MeasurementDeviceService(IMeasurementDeviceRepository deviceRepository) : IMeasurementDeviceService
     {
         private readonly IMeasurementDeviceRepository _deviceRepository = deviceRepository ?? throw new ArgumentNullException(nameof(deviceRepository));
-        private readonly IDeviceSyncLogRepository _syncLogRepository = syncLogRepository ?? throw new ArgumentNullException(nameof(syncLogRepository));
 
         public async Task<IEnumerable<MeasurementDeviceDTO>> GetByUserAsync(Guid userId)
         {
@@ -77,12 +73,13 @@ namespace MeasurementAPI.Application.Services
 
             if (!string.IsNullOrWhiteSpace(request.SerialNumber))
             {
-                var existing = await _deviceRepository.GetBySerialAsync(device.UserId, request.SerialNumber.Trim());
+                var trimmedSerial = request.SerialNumber.Trim();
+                var existing = await _deviceRepository.GetBySerialAsync(device.UserId, trimmedSerial);
                 if (existing is not null && existing.Id != device.Id)
                 {
                     return new Response(false, "Another device with this serial number already exists");
                 }
-                device.SerialNumber = request.SerialNumber.Trim();
+                device.SerialNumber = trimmedSerial;
             }
 
             if (!string.IsNullOrWhiteSpace(request.FirmwareVersion))
@@ -106,38 +103,14 @@ namespace MeasurementAPI.Application.Services
                 return new Response(false, "Device not found");
             }
 
-            var log = new DeviceSyncLog
-            {
-                Id = Guid.NewGuid(),
-                DeviceId = device.Id,
-                SyncStartedAt = request.SyncStartedAt,
-                SyncCompletedAt = request.SyncCompletedAt,
-                Success = request.Success,
-                Message = request.Message,
-                RawPayload = request.RawPayload
-            };
+            device.LastSyncStartedAt = request.SyncStartedAt;
+            device.LastSyncCompletedAt = request.SyncCompletedAt ?? request.SyncStartedAt;
+            device.LastSyncSuccess = request.Success;
+            device.LastSyncMessage = request.Message;
+            device.LastSyncPayload = request.RawPayload;
+            device.LastSyncedAt = request.SyncCompletedAt ?? request.SyncStartedAt;
 
-            var response = await _syncLogRepository.CreateAsync(log);
-            if (response.Flag)
-            {
-                device.LastSyncedAt = request.SyncCompletedAt ?? DateTime.UtcNow;
-                await _deviceRepository.UpdateAsync(device);
-            }
-
-            return response;
-        }
-
-        public async Task<IEnumerable<DeviceSyncLogDTO>> GetSyncLogsAsync(Guid deviceId, int take = 20)
-        {
-            var logs = await _syncLogRepository.GetRecentAsync(deviceId, take);
-            return logs.Select(log => new DeviceSyncLogDTO(
-                log.Id,
-                log.DeviceId,
-                log.SyncStartedAt,
-                log.SyncCompletedAt,
-                log.Success,
-                log.Message
-            ));
+            return await _deviceRepository.UpdateAsync(device);
         }
 
         private static MeasurementDeviceDTO MapToDto(MeasurementDevice device) => new(
@@ -150,7 +123,12 @@ namespace MeasurementAPI.Application.Services
             device.FirmwareVersion,
             device.IsActive,
             device.RegisteredAt,
-            device.LastSyncedAt
+            device.LastSyncedAt,
+            device.LastSyncStartedAt,
+            device.LastSyncCompletedAt,
+            device.LastSyncSuccess,
+            device.LastSyncMessage,
+            device.LastSyncPayload
         );
     }
 }

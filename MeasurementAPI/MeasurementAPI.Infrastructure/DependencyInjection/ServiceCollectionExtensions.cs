@@ -17,7 +17,6 @@ namespace MeasurementAPI.Infrastructure.DependencyInjection
 
             services.AddScoped<IBodyMeasurementRepository, BodyMeasurementRepository>();
             services.AddScoped<IMeasurementDeviceRepository, MeasurementDeviceRepository>();
-            services.AddScoped<IDeviceSyncLogRepository, DeviceSyncLogRepository>();
 
             services.AddScoped<IBodyMeasurementService, BodyMeasurementService>();
             services.AddScoped<IMeasurementDeviceService, MeasurementDeviceService>();

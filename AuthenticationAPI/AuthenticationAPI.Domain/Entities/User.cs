@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AuthenticationAPI.Domain.Entities
@@ -47,5 +48,7 @@ namespace AuthenticationAPI.Domain.Entities
 
         [Column("payment_customer_ref")]
         public string? PaymentCustomerRef { get; set; }
+
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

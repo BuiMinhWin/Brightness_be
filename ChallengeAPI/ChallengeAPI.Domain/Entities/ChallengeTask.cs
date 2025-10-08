@@ -15,5 +15,6 @@ namespace ChallengeAPI.Domain.Entities
         public string? ValidationRule { get; set; }
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
+        public Challenge Challenge { get; set; } = null!;
     }
 }

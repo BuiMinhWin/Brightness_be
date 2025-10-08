@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,9 +12,9 @@ namespace AuthenticationAPI.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class AuthenticationController(IUserService userService) : ControllerBase
     {
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<Response>> Register(UserDTO userDTO)
         {
@@ -23,11 +23,31 @@ namespace AuthenticationAPI.Presentation.Controllers
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<Response>> Login(LoginDTO loginDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await userService.LoginAsync(loginDTO);
+            var ipAddress = GetClientIpAddress();
+            var result = await userService.LoginAsync(loginDTO, ipAddress);
+            return result.Flag ? Ok(result) : BadRequest(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<ActionResult<Response>> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var result = await userService.RefreshTokenAsync(request.RefreshToken, GetClientIpAddress());
+            return result.Flag ? Ok(result) : BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpPost("revoke")]
+        public async Task<ActionResult<Response>> RevokeToken([FromBody] RefreshTokenRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var result = await userService.RevokeRefreshTokenAsync(request.RefreshToken, GetClientIpAddress());
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
@@ -69,7 +89,11 @@ namespace AuthenticationAPI.Presentation.Controllers
             var result = await userService.DeleteAsync(id);
             return result.Flag ? Ok(result) : NotFound(result);
         }
+
+        private string? GetClientIpAddress()
+        {
+            return HttpContext.Connection.RemoteIpAddress?.ToString();
+        }
     }
 }
-
 

@@ -3,10 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightNess.Library.DI
 {
@@ -14,10 +11,13 @@ namespace BrightNess.Library.DI
     {
         public static IServiceCollection AddJWTAuthenticationScheme(this IServiceCollection services, IConfiguration config)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer("Buiminhwin", options =>
+            services.AddAuthentication(options =>
                 {
-                    // Prefer options bound via DI
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
                     var jwtSection = config.GetSection("Authentication");
                     var key = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
                     string issuer = jwtSection["Issuer"]!;
@@ -35,9 +35,9 @@ namespace BrightNess.Library.DI
                         ValidAudience = audience,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ClockSkew = TimeSpan.FromMinutes(2)
-
                     };
                 });
+
             return services;
         }
     }

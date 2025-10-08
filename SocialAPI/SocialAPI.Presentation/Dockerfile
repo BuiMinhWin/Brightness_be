@@ -15,6 +15,5 @@ RUN dotnet publish SocialAPI/SocialAPI.Presentation/SocialAPI.Presentation.cspro
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8084
-EXPOSE 8084
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "SocialAPI.Presentation.dll"]
