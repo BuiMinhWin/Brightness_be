@@ -61,10 +61,24 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8080 } ]
+      "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8087 } ]
+    },
+    {
+      "UpstreamPathTemplate": "/ai-ocr/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "ai-ocr-service", "Port": 8080 } ]
+    },
+    {
+      "UpstreamPathTemplate": "/coach/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "personal-coach-api", "Port": 8080 } ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:8089"
+    "BaseUrl": "http://localhost:8088"
   }
 }

@@ -20,11 +20,19 @@ namespace AIOCRService.Domain.Entities
 
     public enum OCRType
     {
-        FoodLabel = 1,
-        MedicalDocument = 2,
-        Prescription = 3,
-        LabResult = 4,
-        General = 5
+        FoodLabel = 1,              // Nutrition facts labels
+        MedicalDocument = 2,        // General medical documents
+        Prescription = 3,           // Medication prescriptions
+        LabResult = 4,              // InBody, blood tests, DEXA scans
+        InjuryHistory = 5,          // Injury/surgery records
+        FitnessAssessment = 6,      // Fitness test results (VO2 max, 1RM, etc.)
+        MealPlan = 7,               // Meal plans from nutritionists
+        WorkoutLog = 8,             // Previous workout logs
+        HealthQuestionnaire = 9,    // Health history forms
+        ProgressPhoto = 10,         // Body progress photos
+        AllergyTest = 11,           // Allergy/intolerance test results
+        SupplementLabel = 12,       // Supplement facts
+        General = 99                // Other documents
     }
 }
 

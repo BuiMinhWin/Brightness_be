@@ -1,4 +1,5 @@
 using AIOCRService.Application.Interfaces;
+using AIOCRService.Infrastructure.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -39,8 +40,12 @@ namespace AIOCRService.Infrastructure.Services
                     throw new InvalidOperationException("Google AI API key not configured");
                 }
 
-                var systemPrompt = GetSystemPrompt(dataType);
-                var userPrompt = $"{prompt}\n\nExtracted text: {extractedText}";
+                // Optimize extracted text for token efficiency
+                var optimizedText = TextOptimizationHelper.OptimizeForAI(extractedText, dataType);
+
+                var systemPrompt = AIPromptConfigService.GetSystemPrompt(dataType);
+                var userPromptPrefix = AIPromptConfigService.GetUserPrompt(dataType);
+                var userPrompt = $"{userPromptPrefix}\n{prompt}\n\nExtracted text: {optimizedText}";
 
                 var requestBody = new
                 {
@@ -54,13 +59,7 @@ namespace AIOCRService.Infrastructure.Services
                             }
                         }
                     },
-                    generationConfig = new
-                    {
-                        temperature = 0.3,
-                        maxOutputTokens = 4000,
-                        topP = 0.8,
-                        topK = 10
-                    }
+                    generationConfig = AIPromptConfigService.GetGenerationConfig()
                 };
 
                 var json = JsonConvert.SerializeObject(requestBody);
@@ -86,20 +85,86 @@ namespace AIOCRService.Infrastructure.Services
                 var aiResponse = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "No response from AI";
                 _logger.LogInformation("Parsed AI Response: {ParsedResponse}", aiResponse);
                 
-                // Try to parse as JSON, if it fails, return as is
-                try
-                {
-                    var jsonResponse = JsonConvert.DeserializeObject(aiResponse);
-                    return JsonConvert.SerializeObject(jsonResponse, Formatting.Indented);
-                }
-                catch
-                {
-                    return aiResponse;
-                }
+                // Return raw text - parsing will be done by AIResponseParser
+                return aiResponse;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing text with Google AI");
+                throw;
+            }
+        }
+
+        public async Task<string> ProcessImageDirectlyAsync(string imageBase64, string prompt, string dataType)
+        {
+            try
+            {
+                var apiKey = _configuration["GoogleAI:ApiKey"];
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    throw new InvalidOperationException("Google AI API key not configured");
+                }
+
+                // Remove data:image/jpeg;base64, prefix if present
+                if (imageBase64.Contains(","))
+                {
+                    imageBase64 = imageBase64.Split(',')[1];
+                }
+
+                var systemPrompt = AIPromptConfigService.GetSystemPrompt(dataType);
+
+                var requestBody = new
+                {
+                    contents = new[]
+                    {
+                        new
+                        {
+                            parts = new object[]
+                            {
+                                new { text = $"{systemPrompt}\n\n{prompt}" },
+                                new
+                                {
+                                    inline_data = new
+                                    {
+                                        mime_type = "image/jpeg",
+                                        data = imageBase64
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    generationConfig = AIPromptConfigService.GetGenerationConfig()
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var model = _configuration["GoogleAI:Model"] ?? "gemini-2.5-flash";
+                var url = $"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={apiKey}";
+
+                var response = await _httpClient.PostAsync(url, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Google AI API error: {Error}", errorContent);
+                    throw new HttpRequestException($"Google AI API error: {response.StatusCode}");
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Google AI Vision Response: {Response}", responseContent);
+
+                var result = JsonConvert.DeserializeObject<GoogleAIResponse>(responseContent);
+
+                var aiResponse = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "No response from AI";
+                _logger.LogInformation("Parsed AI Vision Response: {ParsedResponse}", aiResponse);
+
+                // Return raw text - parsing will be done by AIResponseParser
+                return aiResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing image with Google AI Vision");
                 throw;
             }
         }
@@ -112,71 +177,60 @@ namespace AIOCRService.Infrastructure.Services
 
         public async Task<string> GenerateInsightsAsync(string content, string dataType)
         {
-            var prompt = GetInsightPrompt(dataType);
+            var prompt = AIPromptConfigService.GetUserPrompt(dataType);
             return await ProcessTextWithAIAsync(content, prompt, dataType);
         }
 
-        private static string GetSystemPrompt(string dataType)
+        private static string OptimizeTextForAI(string extractedText, string dataType)
         {
-            return dataType switch
-            {
-                "nutrition" => @"Bạn là chuyên gia dinh dưỡng. Phân tích thông tin dinh dưỡng và trả về JSON với format:
-{
-  ""summary"": ""Tóm tắt ngắn gọn về sản phẩm"",
-  ""keyNutrients"": [""chất dinh dưỡng 1"", ""chất dinh dưỡng 2""],
-  ""calories"": ""số calo"",
-  ""recommendations"": [""khuyến nghị 1"", ""khuyến nghị 2""],
-  ""healthScore"": ""điểm sức khỏe (1-10)"",
-  ""warnings"": [""cảnh báo nếu có""]
-}",
-                "medical" => @"Bạn là trợ lý y tế. Phân tích tài liệu y tế và trả về JSON với format:
-{
-  ""summary"": ""Tóm tắt tài liệu y tế"",
-  ""keyFindings"": [""phát hiện quan trọng 1"", ""phát hiện quan trọng 2""],
-  ""recommendations"": [""khuyến nghị 1"", ""khuyến nghị 2""],
-  ""nextSteps"": [""bước tiếp theo 1"", ""bước tiếp theo 2""],
-  ""urgency"": ""mức độ khẩn cấp (thấp/trung bình/cao)"",
-  ""disclaimer"": ""Lưu ý: Tham khảo ý kiến bác sĩ""
-}",
-                "medication" => @"Bạn là dược sĩ. Phân tích thông tin thuốc và trả về JSON với format:
-{
-  ""summary"": ""Tóm tắt thông tin thuốc"",
-  ""medicationName"": ""tên thuốc"",
-  ""dosage"": ""liều lượng"",
-  ""instructions"": [""hướng dẫn 1"", ""hướng dẫn 2""],
-  ""sideEffects"": [""tác dụng phụ nếu có""],
-  ""warnings"": [""cảnh báo quan trọng""],
-  ""disclaimer"": ""Lưu ý: Tuân thủ chỉ định bác sĩ""
-}",
-                "lab_value" => @"Bạn là chuyên gia xét nghiệm. Phân tích kết quả xét nghiệm và trả về JSON với format:
-{
-  ""summary"": ""Tóm tắt kết quả xét nghiệm"",
-  ""keyValues"": [""giá trị quan trọng 1"", ""giá trị quan trọng 2""],
-  ""normalRanges"": [""khoảng bình thường 1"", ""khoảng bình thường 2""],
-  ""abnormalities"": [""bất thường nếu có""],
-  ""recommendations"": [""khuyến nghị 1"", ""khuyến nghị 2""],
-  ""disclaimer"": ""Lưu ý: Tham khảo ý kiến bác sĩ""
-}",
-                _ => @"Bạn là trợ lý AI thông minh. Phân tích thông tin và trả về JSON với format:
-{
-  ""summary"": ""Tóm tắt nội dung"",
-  ""keyPoints"": [""điểm chính 1"", ""điểm chính 2""],
-  ""insights"": [""insight 1"", ""insight 2""],
-  ""recommendations"": [""khuyến nghị 1"", ""khuyến nghị 2""]
-}"
-            };
-        }
+            var tokenLimits = AIPromptConfigService.GetTokenLimits();
+            var maxInputChars = tokenLimits["maxInputChars"];
 
-        private static string GetInsightPrompt(string dataType)
-        {
-            return dataType switch
+            if (dataType == "lab_value" || dataType == "lab_result")
             {
-                "nutrition" => "Chỉ phân tích dữ liệu có sẵn. Không thêm thông tin không có trong dữ liệu. Trả về JSON theo format đã chỉ định:",
-                "medical" => "Chỉ phân tích dữ liệu có sẵn. Không thêm thông tin không có trong dữ liệu. Trả về JSON theo format đã chỉ định:",
-                "medication" => "Chỉ phân tích dữ liệu có sẵn. Không thêm thông tin không có trong dữ liệu. Trả về JSON theo format đã chỉ định:",
-                "lab_value" => "Chỉ phân tích dữ liệu có sẵn. Không thêm thông tin không có trong dữ liệu. Trả về JSON theo format đã chỉ định:",
-                _ => "Chỉ phân tích dữ liệu có sẵn. Không thêm thông tin không có trong dữ liệu. Trả về JSON theo format đã chỉ định:"
-            };
+                // For InBody reports, extract only key metrics
+                var lines = extractedText.Split('\n')
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Select(line => line.Trim())
+                    .ToList();
+
+                // Keep lines with important keywords
+                var importantKeywords = new[] {
+                    "Cân nặng", "Weight", "lbs", "kg",
+                    "BMI", "Body Mass Index",
+                    "PBF", "Percent Body Fat", "Body Fat", "Khối lượng béo",
+                    "SMM", "Skeletal Muscle Mass", "Khối lượng cơ",
+                    "BMR", "Basal Metabolic Rate", "Tỷ lệ trao đổi chất",
+                    "VFA", "Visceral Fat", "Mỡ nội tạng",
+                    "TBW", "Total Body Water", "Tổng lượng nước",
+                    "Protein", "Mineral", "Lean Body Mass",
+                    "Right Arm", "Left Arm", "Trunk", "Right Leg", "Left Leg",
+                    "Tay phải", "Tay trái", "Thân", "Chân phải", "Chân trái"
+                };
+
+                var importantLines = lines
+                    .Where(line => importantKeywords.Any(keyword => 
+                        line.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                // Limit based on config
+                var optimized = string.Join("\n", importantLines);
+                if (optimized.Length > maxInputChars)
+                {
+                    optimized = optimized.Substring(0, maxInputChars);
+                }
+
+                return string.IsNullOrWhiteSpace(optimized) ? extractedText : optimized;
+            }
+
+            // For other types, limit based on config (3x for detailed docs)
+            var otherLimit = maxInputChars * 3;
+            if (extractedText.Length > otherLimit)
+            {
+                return extractedText.Substring(0, otherLimit);
+            }
+
+            return extractedText;
         }
 
         private static bool IsValidInput(string extractedText, string prompt, string dataType)

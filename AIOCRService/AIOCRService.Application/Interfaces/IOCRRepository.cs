@@ -11,6 +11,9 @@ namespace AIOCRService.Application.Interfaces
         Task<OCRResult> CreateResultAsync(OCRResult result);
         Task<ProcessedData> CreateProcessedDataAsync(ProcessedData data);
         Task<IEnumerable<OCRRequest>> GetByUserIdAsync(Guid userId);
+        Task<IEnumerable<ProcessedData>> GetProcessedDataByUserIdAsync(Guid userId, bool latestOnly = true);
+        Task<IEnumerable<ProcessedData>> GetProcessedDataHistoryAsync(Guid userId, string dataType);
+        Task MarkPreviousVersionsAsOldAsync(Guid? ocrResultId, Guid userId, string dataType);
         Task UpdateAsync(OCRRequest request);
     }
 }

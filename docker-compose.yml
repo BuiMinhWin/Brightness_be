@@ -10,6 +10,7 @@ services:
       - "5433:5432"  # host:container
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./PersonalCoachAPI/Scripts:/scripts:ro  # Mount setup scripts
     command: >
       postgres -c listen_addresses='*' -c log_statement=all
     healthcheck:
@@ -183,11 +184,30 @@ services:
     env_file:
       - .env
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=5432;Database=BrightnessDb;Username=postgres;Password=12345;IncludeErrorDetail=true
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
       GoogleAI__Model: gemini-2.5-flash
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  personal-coach-api:
+    build:
+      context: .
+      dockerfile: PersonalCoachAPI/PersonalCoachAPI.Presentation/Dockerfile
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
+      GoogleAI__Model: gemini-2.5-flash
+    ports:
+      - "8091:8080"
     depends_on:
       postgres:
         condition: service_healthy

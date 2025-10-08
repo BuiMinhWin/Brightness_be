@@ -20,9 +20,9 @@ namespace PersonalCoachAPI.Domain.Entities
         public bool Completed { get; set; }
         public int? ActualSets { get; set; }
         public int? ActualReps { get; set; }
-        public decimal? ActualWeightKg { get; set; }
+        // public decimal? ActualWeightKg { get; set; }  // TODO: Add when implementing workout tracking
         public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        // public DateTime? UpdatedAt { get; set; }  // TODO: Add when implementing workout tracking
         
         // Navigation property
         public WorkoutScheduleDay ScheduleDay { get; set; } = null!;

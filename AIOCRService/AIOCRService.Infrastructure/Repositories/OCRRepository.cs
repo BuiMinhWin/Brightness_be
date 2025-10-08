@@ -63,6 +63,52 @@ namespace AIOCRService.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ProcessedData>> GetProcessedDataByUserIdAsync(Guid userId, bool latestOnly = true)
+        {
+            var query = _context.ProcessedData.Where(x => x.UserId == userId);
+            
+            if (latestOnly)
+            {
+                query = query.Where(x => x.IsLatest);
+            }
+            
+            return await query
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProcessedData>> GetProcessedDataHistoryAsync(Guid userId, string dataType)
+        {
+            return await _context.ProcessedData
+                .Where(x => x.UserId == userId && x.DataType == dataType)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task MarkPreviousVersionsAsOldAsync(Guid? ocrResultId, Guid userId, string dataType)
+        {
+            IQueryable<ProcessedData> query = _context.ProcessedData
+                .Where(x => x.UserId == userId && x.DataType == dataType && x.IsLatest);
+
+            // If OCRResultId is provided, only mark versions for that specific OCR request
+            if (ocrResultId.HasValue)
+            {
+                query = query.Where(x => x.OCRResultId == ocrResultId.Value);
+            }
+
+            var oldVersions = await query.ToListAsync();
+            
+            foreach (var old in oldVersions)
+            {
+                old.IsLatest = false;
+            }
+
+            if (oldVersions.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task UpdateAsync(OCRRequest request)
         {
             _context.OCRRequests.Update(request);

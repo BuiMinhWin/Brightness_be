@@ -40,13 +40,21 @@ namespace AIOCRService.Application.DTOs
     public class ProcessedDataDTO
     {
         public Guid Id { get; set; }
-        public Guid OCRResultId { get; set; }
+        public Guid? OCRResultId { get; set; } // Nullable for direct AI vision processing
         public Guid UserId { get; set; }
         public string DataType { get; set; } = string.Empty;
         public string ProcessedContent { get; set; } = string.Empty;
         public string Summary { get; set; } = string.Empty;
         public string Insights { get; set; } = string.Empty;
+        public bool IsLatest { get; set; } = true;
         public DateTime CreatedAt { get; set; }
+    }
+
+    public class AIVisionUploadRequest
+    {
+        public Guid UserId { get; set; }
+        public string Prompt { get; set; } = "Phân tích InBody";
+        public string DataType { get; set; } = "lab_value";
     }
 }
 
