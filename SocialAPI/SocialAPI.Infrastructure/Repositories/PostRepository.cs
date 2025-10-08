@@ -81,5 +81,28 @@ namespace SocialAPI.Infrastructure.Repositories
                 .Where(p => p.PostTags.Any(pt => pt.Tag.Slug == tagSlug))
                 .ToListAsync();
         }
+
+        public async Task UpdatePostReactionCountAsync(Guid postId, int reactionCount)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            if (post != null)
+            {
+                post.ReactionCount = reactionCount;
+                _context.Posts.Update(post);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdatePostCountsAsync(Guid postId, int reactionCount, int dislikeCount)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            if (post != null)
+            {
+                post.ReactionCount = reactionCount;
+                post.DislikeCount = dislikeCount;
+                _context.Posts.Update(post);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

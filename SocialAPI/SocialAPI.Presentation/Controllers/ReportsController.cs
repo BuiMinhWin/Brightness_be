@@ -56,7 +56,7 @@ namespace SocialAPI.Presentation.Controllers
             //var adminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var adminId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // dùng để test tạm thời
             await _reportService.ReviewReportAsync(reportId, reviewDto, adminId);
-            return NoContent();
+            return Ok("Update Status Success");
         }
 
         //[Authorize(Roles = "Admin")]
@@ -64,7 +64,7 @@ namespace SocialAPI.Presentation.Controllers
         public async Task<IActionResult> DeleteReport(Guid reportId)
         {
             await _reportService.DeleteReportAsync(reportId);
-            return NoContent();
+            return Ok("Delete Success");
         }
     }
 }

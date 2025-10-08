@@ -26,6 +26,7 @@ namespace SocialAPI.Infrastructure.Data
                 entity.Property(x => x.Visibility).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                entity.Property(x => x.ReactionCount).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<Comment>(entity =>
@@ -34,6 +35,7 @@ namespace SocialAPI.Infrastructure.Data
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                entity.Property(x => x.ReactionCount).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<Tag>(entity =>

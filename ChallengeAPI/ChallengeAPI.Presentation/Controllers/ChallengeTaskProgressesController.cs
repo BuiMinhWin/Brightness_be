@@ -64,7 +64,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeTaskProgressService.UpdateChallengeTaskProgressAsync(id, challengeTaskProgressDto);
-                return NoContent();
+                return Ok(new { message = "Updated successfully" });
             }
             catch (ArgumentException ex)
             {
@@ -78,7 +78,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeTaskProgressService.PatchChallengeTaskProgressAsync(id, patchData);
-                return NoContent();
+                return Ok(new { message = "Updated successfully" });
             }
             catch (ArgumentException ex)
             {

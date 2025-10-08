@@ -1,4 +1,5 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SocialAPI.Application.DTOs;
 using SocialAPI.Application.Interfaces;
 using SocialAPI.Domain.Entities;
@@ -13,11 +14,15 @@ namespace SocialAPI.Application.Services
     {
         private readonly ICommentRepository _commentRepository;
         private readonly IPostRepository _postRepository; // To check if post exists
+        private readonly IPostService _postService;
+        private readonly ILogger<CommentService> _logger;
 
-        public CommentService(ICommentRepository commentRepository, IPostRepository postRepository)
+        public CommentService(ICommentRepository commentRepository, IPostRepository postRepository, IPostService postService, ILogger<CommentService> logger)
         {
             _commentRepository = commentRepository;
             _postRepository = postRepository;
+            _postService = postService;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId)
@@ -54,7 +59,7 @@ namespace SocialAPI.Application.Services
             };
 
             var createdComment = await _commentRepository.CreateCommentAsync(comment);
-            return new CommentDTO(createdComment.Id, createdComment.PostId, createdComment.UserId, createdComment.ParentCommentId, createdComment.Content, createdComment.Status, createdComment.CreatedAt, createdComment.UpdatedAt, 0);
+            return new CommentDTO(createdComment.Id, createdComment.PostId, createdComment.UserId, createdComment.ParentCommentId, createdComment.Content, createdComment.Status, createdComment.CreatedAt, createdComment.UpdatedAt, createdComment.ReactionCount);
         }
 
         public async Task<CommentDTO> UpdateCommentAsync(Guid commentId, UpdateCommentDTO commentDto, Guid userId)
@@ -104,51 +109,72 @@ namespace SocialAPI.Application.Services
             await _commentRepository.DeleteCommentAsync(commentId);
         }
 
-        public async Task VoteCommentAsync(Guid commentId, Guid userId, string voteType)
-        {
-            var existingVote = await _commentRepository.GetCommentVoteAsync(commentId, userId);
-            if (existingVote != null)
-            {
-                if (existingVote.VoteType == voteType)
+                public async Task VoteCommentAsync(Guid commentId, Guid userId, string voteType)
                 {
-                    // User is casting the same vote again, so we cancel it
-                    await _commentRepository.RemoveCommentVoteAsync(existingVote);
+                    var existingVote = await _commentRepository.GetCommentVoteAsync(commentId, userId);
+                    if (existingVote != null)
+                    {
+                        if (existingVote.VoteType == voteType)
+                        {
+                            // User is casting the same vote again, so we cancel it
+                            await _commentRepository.RemoveCommentVoteAsync(existingVote);
+                        }
+                        else
+                        {
+                            // User is changing their vote
+                            existingVote.VoteType = voteType;
+                            await _commentRepository.UpdateCommentVoteAsync(existingVote);
+                        }
+                    }
+                    else
+                    {
+                        // New vote
+                        var newVote = new CommentVote
+                        {
+                            Id = Guid.NewGuid(),
+                            CommentId = commentId,
+                            UserId = userId,
+                            VoteType = voteType,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        await _commentRepository.AddCommentVoteAsync(newVote);
+                    }
+        
+                    await UpdateCommentReactionCountAsync(commentId);
                 }
-                else
+        
+                public async Task CancelCommentVoteAsync(Guid commentId, Guid userId)
                 {
-                    // User is changing their vote
-                    existingVote.VoteType = voteType;
-                    await _commentRepository.UpdateCommentVoteAsync(existingVote);
+                    var existingVote = await _commentRepository.GetCommentVoteAsync(commentId, userId);
+                    if (existingVote != null)
+                    {
+                        await _commentRepository.RemoveCommentVoteAsync(existingVote);
+                    }
+        
+                    await UpdateCommentReactionCountAsync(commentId);
                 }
-            }
-            else
-            {
-                // New vote
-                var newVote = new CommentVote
+        
+                public async Task UpdateCommentReactionCountAsync(Guid commentId)
                 {
-                    Id = Guid.NewGuid(),
-                    CommentId = commentId,
-                    UserId = userId,
-                    VoteType = voteType,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _commentRepository.AddCommentVoteAsync(newVote);
-            }
-        }
+                    var reactionCount = await CalculateReactions(commentId);
+                    _logger.LogInformation("Updating reaction count for comment {commentId} to {reactionCount}", commentId, reactionCount);
+                    await _commentRepository.UpdateCommentReactionCountAsync(commentId, reactionCount);
 
-        public async Task CancelCommentVoteAsync(Guid commentId, Guid userId)
-        {
-            var existingVote = await _commentRepository.GetCommentVoteAsync(commentId, userId);
-            if (existingVote != null)
-            {
-                await _commentRepository.RemoveCommentVoteAsync(existingVote);
-            }
-        }
+                    var comment = await _commentRepository.GetCommentByIdAsync(commentId);
+                    if (comment != null)
+                    {
+                        await _postService.UpdatePostReactionCountAsync(comment.PostId);
+                    }
+                }
+                private async Task<int> CalculateReactions(Guid commentId)
+                {
+                    // Lấy tất cả các lượt vote cho comment
+                    var votes = await _commentRepository.GetVotesForCommentAsync(commentId);
 
-        private async Task<int> CalculateReactions(Guid commentId)
-        {
-            var votes = await _commentRepository.GetVotesForCommentAsync(commentId);
-            return votes.Count(v => v.VoteType == "upvote") - votes.Count(v => v.VoteType == "downvote");
-        }
+                    // Vì bạn chỉ có nút "like", nên chỉ cần đếm số lượng voteType = "like"
+                    int likeCount = votes.Count(v => v.VoteType == "like");
+
+                    return likeCount;
+                }
     }
 }

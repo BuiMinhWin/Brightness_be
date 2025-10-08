@@ -3,10 +3,11 @@ using ChallengeAPI.Application.DTOs;
 using ChallengeAPI.Application.Repositories;
 using ChallengeAPI.Application.Services;
 using ChallengeAPI.Domain.Entities;
-using System.Text.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ChallengeAPI.Application.ServicesImpl
@@ -82,9 +83,7 @@ namespace ChallengeAPI.Application.ServicesImpl
         {
             var existingChallengeRule = await _challengeRuleRepository.GetByIdAsync(id);
             if (existingChallengeRule == null)
-            {
                 throw new ArgumentException("Challenge rule not found.");
-            }
 
             foreach (var kvp in patchData)
             {
@@ -98,23 +97,19 @@ namespace ChallengeAPI.Application.ServicesImpl
                         {
                             var challenge = await _challengeRepository.GetByIdAsync(challengeId);
                             if (challenge == null)
-                            {
                                 throw new ArgumentException("Challenge not found.");
-                            }
                             existingChallengeRule.ChallengeId = challengeId;
                         }
                         break;
+
                     case "howtoparticipate":
-                        if (value is JsonElement jsonElementHow)
-                        {
-                            existingChallengeRule.HowToParticipate = JsonSerializer.Deserialize<List<string>>(jsonElementHow.GetRawText());
-                        }
+                        if (value is JArray howArray)
+                            existingChallengeRule.HowToParticipate = howArray.ToObject<List<string>>();
                         break;
+
                     case "ruletext":
-                        if (value is JsonElement jsonElementRule)
-                        {
-                            existingChallengeRule.RuleText = JsonSerializer.Deserialize<List<string>>(jsonElementRule.GetRawText());
-                        }
+                        if (value is JArray ruleArray)
+                            existingChallengeRule.RuleText = ruleArray.ToObject<List<string>>();
                         break;
                 }
             }

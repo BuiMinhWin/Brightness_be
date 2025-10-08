@@ -17,5 +17,7 @@ namespace SocialAPI.Application.Interfaces
         Task<IEnumerable<PostVote>> GetVotesForPostAsync(Guid postId);
 
         Task<IEnumerable<Post>> GetPostsByTagAsync(string tagSlug);
+        Task UpdatePostReactionCountAsync(Guid postId, int reactionCount);
+        Task UpdatePostCountsAsync(Guid postId, int reactionCount, int dislikeCount);
     }
 }

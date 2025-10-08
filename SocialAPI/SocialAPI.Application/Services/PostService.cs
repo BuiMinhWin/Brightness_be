@@ -7,10 +7,12 @@ namespace SocialAPI.Application.Services
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public PostService(IPostRepository postRepository)
+        public PostService(IPostRepository postRepository, ICommentRepository commentRepository)
         {
             _postRepository = postRepository;
+            _commentRepository = commentRepository;
         }
 
         public async Task<PostDTO> CreatePostAsync(PostDTO postDto)
@@ -27,7 +29,7 @@ namespace SocialAPI.Application.Services
             };
 
             var createdPost = await _postRepository.CreatePostAsync(post);
-            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0);
+            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0, 0);
         }
 
         public async Task DeletePostAsync(Guid id)
@@ -39,7 +41,8 @@ namespace SocialAPI.Application.Services
         {
             var post = await _postRepository.GetPostByIdAsync(id);
             if (post == null) return null;
-            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, await CalculateReactions(post.Id));
+            var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
+            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount);
         }
 
         public async Task<IEnumerable<PostDTO>> GetPostsAsync()
@@ -48,7 +51,8 @@ namespace SocialAPI.Application.Services
             var postDtos = new List<PostDTO>();
             foreach (var post in posts)
             {
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, await CalculateReactions(post.Id)));
+                var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount));
             }
             return postDtos;
         }
@@ -66,7 +70,7 @@ namespace SocialAPI.Application.Services
 
             await _postRepository.UpdatePostAsync(post);
 
-            // Sử dụng positional constructor
+            var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
             return new PostDTO(
                 post.Id,
                 post.UserId,
@@ -76,7 +80,8 @@ namespace SocialAPI.Application.Services
                 post.Status,
                 post.CreatedAt,
                 post.UpdatedAt,
-                await CalculateReactions(post.Id)
+                reactionCount,
+                dislikeCount
             );
         }
 
@@ -92,6 +97,8 @@ namespace SocialAPI.Application.Services
 
             await _postRepository.UpdatePostAsync(post);
 
+            var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
+
             // Trả lại thông tin bài post đã cập nhật
             return new PostDTO(
                 post.Id,
@@ -102,7 +109,8 @@ namespace SocialAPI.Application.Services
                 post.Status,
                 post.CreatedAt,
                 post.UpdatedAt,
-                await CalculateReactions(post.Id)
+                reactionCount,
+                dislikeCount
             );
         }
 
@@ -136,6 +144,8 @@ namespace SocialAPI.Application.Services
                 };
                 await _postRepository.AddPostVoteAsync(newVote);
             }
+
+            await UpdatePostReactionCountAsync(postId);
         }
 
         public async Task CancelPostVoteAsync(Guid postId, Guid userId)
@@ -145,12 +155,26 @@ namespace SocialAPI.Application.Services
             {
                 await _postRepository.RemovePostVoteAsync(existingVote);
             }
+
+            await UpdatePostReactionCountAsync(postId);
         }
 
-        private async Task<int> CalculateReactions(Guid postId)
+        public async Task UpdatePostReactionCountAsync(Guid postId)
         {
-            var votes = await _postRepository.GetVotesForPostAsync(postId);
-            return votes.Count(v => v.VoteType == "upvote") - votes.Count(v => v.VoteType == "downvote");
+            var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(postId);
+            await _postRepository.UpdatePostCountsAsync(postId, reactionCount, dislikeCount);
+        }
+
+        private async Task<(int, int)> CalculateReactionsAndDislikes(Guid postId)
+        {
+            var postVotes = await _postRepository.GetVotesForPostAsync(postId);
+            var postReactionCount = postVotes.Count(v => v.VoteType == "like");
+            var postDislikeCount = postVotes.Count(v => v.VoteType == "dislike");
+
+            var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
+            var commentReactionCount = comments.Sum(c => c.ReactionCount);
+
+            return (postReactionCount, postDislikeCount);
         }
 
         public async Task<IEnumerable<PostDTO>> GetPostsByTagAsync(string tagSlug)
@@ -159,7 +183,8 @@ namespace SocialAPI.Application.Services
             var postDtos = new List<PostDTO>();
             foreach (var post in posts)
             {
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, await CalculateReactions(post.Id)));
+                var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount));
             }
             return postDtos;
         }

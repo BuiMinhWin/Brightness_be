@@ -50,6 +50,7 @@ namespace ChallengeAPI.Application.ServicesImpl
             };
 
             var createdChallengeTaskProgress = await _challengeTaskProgressRepository.AddAsync(challengeTaskProgress);
+            await UpdateParticipantTotalPointsAsync(participant.Id);
             return new ChallengeTaskProgressDTO(createdChallengeTaskProgress.Id, createdChallengeTaskProgress.ParticipantId, createdChallengeTaskProgress.ChallengeTaskId, createdChallengeTaskProgress.TargetDate, createdChallengeTaskProgress.Status, createdChallengeTaskProgress.ValidationData, createdChallengeTaskProgress.PointsEarned, createdChallengeTaskProgress.CompletedAt);
         }
 
@@ -105,6 +106,7 @@ namespace ChallengeAPI.Application.ServicesImpl
             }
 
             await _challengeTaskProgressRepository.UpdateAsync(existingChallengeTaskProgress);
+            await UpdateParticipantTotalPointsAsync(existingChallengeTaskProgress.ParticipantId);
         }
 
         public async Task PatchChallengeTaskProgressAsync(Guid id, Dictionary<string, object> patchData)
@@ -150,6 +152,7 @@ namespace ChallengeAPI.Application.ServicesImpl
             }
 
             await _challengeTaskProgressRepository.UpdateAsync(existingChallengeTaskProgress);
+            await UpdateParticipantTotalPointsAsync(existingChallengeTaskProgress.ParticipantId);
         }
 
         public async Task DeleteChallengeTaskProgressAsync(Guid id)
@@ -161,6 +164,20 @@ namespace ChallengeAPI.Application.ServicesImpl
             }
 
             await _challengeTaskProgressRepository.DeleteAsync(existingChallengeTaskProgress);
+            await UpdateParticipantTotalPointsAsync(existingChallengeTaskProgress.ParticipantId);
+        }
+
+        private async Task UpdateParticipantTotalPointsAsync(Guid participantId)
+        {
+            var progresses = await _challengeTaskProgressRepository.GetByParticipantIdAsync(participantId);
+            var totalPoints = progresses.Sum(p => p.PointsEarned ?? 0);
+
+            var participant = await _challengeParticipantRepository.GetByIdAsync(participantId);
+            if (participant != null)
+            {
+                participant.TotalPoints = totalPoints;
+                await _challengeParticipantRepository.UpdateAsync(participant);
+            }
         }
     }
 }
