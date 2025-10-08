@@ -206,5 +206,44 @@ docker-compose.prod.yml
 # Environment variables file
 .env
 
-# Backup files
-*.backup.json
+# VS Code files for those working on multiple tools
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+# Windows Installer files from build outputs
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+/.vs
+.vs/VSWorkspaceState.json
+.vs*/
+
+
+# Cache và temp Visual Studio
+*.vscode/
+*.vsidx
+*.dtbcache.v2
+*.futdcache.v2
+
+# DLL, PDB, EXE và các file build khác
+*.dll
+*.exe
+*.pdb
+*.cache
+*.db
+*.tmp
+*.v2
+*.vsix
+*.nupkg
