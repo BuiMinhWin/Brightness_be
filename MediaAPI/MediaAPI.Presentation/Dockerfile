@@ -15,6 +15,5 @@ RUN dotnet publish MediaAPI/MediaAPI.Presentation/MediaAPI.Presentation.csproj -
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8086
-EXPOSE 8086
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "MediaAPI.Presentation.dll"]

@@ -87,7 +87,20 @@ if (!migrationSucceeded)
 app.UserInfrastructurePolicy();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Authentication API V1");
+    });
+}
+else
+{
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Authentication API V1");
+    });
+}
 
 
 app.UseAuthentication();
@@ -95,6 +108,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.Logger.LogInformation("--- AUTHENTICATION API: NEW VERSION DEPLOYED ---");
 app.Run();
 
 static bool IsDatabaseStartingUp(Exception ex)

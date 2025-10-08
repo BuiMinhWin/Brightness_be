@@ -1,9 +1,6 @@
-﻿using Serilog;
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace BrightNess.Library.Logs
 {
@@ -11,13 +8,13 @@ namespace BrightNess.Library.Logs
     {
         public static void LogExceptionx(Exception ex)
         {
-            LogToFile(ex.Message);
-            LogToConsole(ex.Message);
-            LogToDebugger(ex.Message);
+            string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
+            if(!Directory.Exists(logPath))
+            {
+                Directory.CreateDirectory(logPath);
+            }
+            string filePath = Path.Combine(logPath, $"log-{DateTime.Now:yyyy-MM-dd}.txt");
+            File.AppendAllText(filePath, $"{DateTime.Now} | Exception: {ex.Message} | Stack Trace: {ex.StackTrace}" + Environment.NewLine);
         }
-
-        public static void LogToFile(string message) => Log.Information(message);
-        public static void LogToConsole(string message) => Log.Warning(message);
-        public static void LogToDebugger(string message) => Log.Debug(message);
     }
 }

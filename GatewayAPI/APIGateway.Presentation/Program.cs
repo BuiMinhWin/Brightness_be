@@ -1,11 +1,22 @@
+using APIGateway.Presentation.Middleware;
+using BrightNess.Library.DI;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
-
-using APIGateway.Presentation.Middleware;
 using Ocelot.Middleware;
-using BrightNess.Library.DI;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .WriteTo.Console()
+        .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+        .ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 builder.Configuration.AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 builder.Services.AddOcelot().AddCacheManager(x => x.WithDictionaryHandle());
@@ -22,6 +33,9 @@ builder.Services.AddCors(options =>
     });
 });
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
