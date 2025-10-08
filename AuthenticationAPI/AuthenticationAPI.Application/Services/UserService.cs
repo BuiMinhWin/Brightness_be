@@ -53,7 +53,7 @@ namespace AuthenticationAPI.Application.Services
                 : createResponse;
         }
 
-        public async Task<Response> LoginAsync(LoginDTO loginDTO)
+        public async Task<Response> LoginAsync(LoginDTO loginDTO, string? ipAddress = null)
         {
             var user = await _userRepository.GetByEmailAsync(loginDTO.email);
             if (user is null)
@@ -74,8 +74,18 @@ namespace AuthenticationAPI.Application.Services
                 Role = user.Role
             };
 
-            var token = _tokenService.GenerateToken(payload);
-            return new Response(true, token);
+            var tokens = _tokenService.GenerateAuthTokens(payload);
+            return new Response(true, "Login successfully", tokens);
+        }
+
+        public async Task<Response> RefreshTokenAsync(string refreshToken, string? ipAddress = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Response> RevokeRefreshTokenAsync(string refreshToken, string? ipAddress = null)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<GetUserDTO?> GetByIdAsync(Guid userId)
