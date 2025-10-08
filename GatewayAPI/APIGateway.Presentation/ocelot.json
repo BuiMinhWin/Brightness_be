@@ -61,7 +61,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8087 } ]
+      "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8080  } ]
     },
     {
       "UpstreamPathTemplate": "/ai-ocr/{everything}",
