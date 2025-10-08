@@ -28,6 +28,10 @@ namespace MediaAPI.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -35,6 +39,15 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<string>("Duration")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Likes")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Platform")
                         .HasMaxLength(100)
@@ -51,6 +64,9 @@ namespace MediaAPI.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("active");
 
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("text");
+
                     b.Property<string>("Title")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -62,9 +78,73 @@ namespace MediaAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Views")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.ToTable("media_items", (string)null);
+                });
+
+            modelBuilder.Entity("MediaAPI.Domain.Entities.UserLike", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MediaItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "MediaItemId");
+
+                    b.HasIndex("MediaItemId");
+
+                    b.ToTable("user_likes", (string)null);
+                });
+
+            modelBuilder.Entity("MediaAPI.Domain.Entities.UserView", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MediaItemId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "MediaItemId");
+
+                    b.HasIndex("MediaItemId");
+
+                    b.ToTable("user_views", (string)null);
+                });
+
+            modelBuilder.Entity("MediaAPI.Domain.Entities.UserLike", b =>
+                {
+                    b.HasOne("MediaAPI.Domain.Entities.MediaItem", "MediaItem")
+                        .WithMany("UserLikes")
+                        .HasForeignKey("MediaItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaItem");
+                });
+
+            modelBuilder.Entity("MediaAPI.Domain.Entities.UserView", b =>
+                {
+                    b.HasOne("MediaAPI.Domain.Entities.MediaItem", "MediaItem")
+                        .WithMany("UserViews")
+                        .HasForeignKey("MediaItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaItem");
+                });
+
+            modelBuilder.Entity("MediaAPI.Domain.Entities.MediaItem", b =>
+                {
+                    b.Navigation("UserLikes");
+
+                    b.Navigation("UserViews");
                 });
 #pragma warning restore 612, 618
         }

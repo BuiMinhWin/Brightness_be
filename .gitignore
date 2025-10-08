@@ -428,3 +428,22 @@ FodyWeavers.xsd
 *.msp
 /.vs
 .vs/VSWorkspaceState.json
+.vs*/
+
+
+# Cache và temp Visual Studio
+*.vscode/
+*.vsidx
+*.dtbcache.v2
+*.futdcache.v2
+
+# DLL, PDB, EXE và các file build khác
+*.dll
+*.exe
+*.pdb
+*.cache
+*.db
+*.tmp
+*.v2
+*.vsix
+*.nupkg
