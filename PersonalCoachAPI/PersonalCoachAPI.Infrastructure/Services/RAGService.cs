@@ -53,23 +53,27 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 // Semantic search using pgvector L2Distance
                 var results = await _context.ExerciseLibrary
                     .Where(x => x.EmbeddingVector != null)
-                    .OrderBy(x => x.EmbeddingVector!.L2Distance(queryVector))
+                    .Select(x => new
+                    {
+                        Exercise = x,
+                        Distance = x.EmbeddingVector!.L2Distance(queryVector)
+                    })
+                    .OrderBy(x => x.Distance)
                     .Take(topK)
                     .ToListAsync();
 
                 return results.Select(x => new ExerciseSearchResult
                 {
-                    Id = x.Id,
-                    ExerciseName = x.ExerciseName,
-                    ExerciseNameVi = x.ExerciseNameVi,
-                    Category = x.Category,
-                    DifficultyLevel = x.DifficultyLevel,
-                    TargetMuscles = JsonConvert.DeserializeObject<List<string>>(x.TargetMuscles) ?? new List<string>(),
-                    EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.EquipmentRequired) ?? new List<string>(),
-                    Description = x.DescriptionVi,
-                    VideoUrl = x.VideoUrl,
-                    SimilarityScore = x.EmbeddingVector != null ? 
-                        1.0 - (double)x.EmbeddingVector.L2Distance(queryVector) : 0.0
+                    Id = x.Exercise.Id,
+                    ExerciseName = x.Exercise.ExerciseName,
+                    ExerciseNameVi = x.Exercise.ExerciseNameVi,
+                    Category = x.Exercise.Category,
+                    DifficultyLevel = x.Exercise.DifficultyLevel,
+                    TargetMuscles = JsonConvert.DeserializeObject<List<string>>(x.Exercise.TargetMuscles) ?? new List<string>(),
+                    EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.Exercise.EquipmentRequired) ?? new List<string>(),
+                    Description = x.Exercise.DescriptionVi,
+                    VideoUrl = x.Exercise.VideoUrl,
+                    SimilarityScore = 1.0 - (double)x.Distance
                 }).ToList();
             }
             catch (Exception ex)
@@ -89,20 +93,51 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 var queryEmbedding = await GenerateEmbeddingAsync(searchQuery);
                 if (queryEmbedding == null || queryEmbedding.Length == 0)
                 {
-                    return new List<ExerciseSearchResult>();
+                    _logger.LogWarning("Failed to generate embedding, using fallback");
+                }
+                else
+                {
+                    var queryVector = new Vector(queryEmbedding);
+
+                    // Filter by fitness level and search
+                    var results = await _context.ExerciseLibrary
+                        .Where(x => x.EmbeddingVector != null && 
+                                   (x.DifficultyLevel == fitnessLevel || fitnessLevel == "all"))
+                        .Select(x => new
+                        {
+                            Exercise = x,
+                            Distance = x.EmbeddingVector!.L2Distance(queryVector)
+                        })
+                        .OrderBy(x => x.Distance)
+                        .Take(topK)
+                        .ToListAsync();
+
+                    if (results.Any())
+                    {
+                        return results.Select(x => new ExerciseSearchResult
+                        {
+                            Id = x.Exercise.Id,
+                            ExerciseName = x.Exercise.ExerciseName,
+                            ExerciseNameVi = x.Exercise.ExerciseNameVi,
+                            Category = x.Exercise.Category,
+                            DifficultyLevel = x.Exercise.DifficultyLevel,
+                            TargetMuscles = JsonConvert.DeserializeObject<List<string>>(x.Exercise.TargetMuscles) ?? new List<string>(),
+                            EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.Exercise.EquipmentRequired) ?? new List<string>(),
+                            Description = x.Exercise.DescriptionVi,
+                            VideoUrl = x.Exercise.VideoUrl,
+                            SimilarityScore = 1.0 - (double)x.Distance
+                        }).ToList();
+                    }
                 }
 
-                var queryVector = new Vector(queryEmbedding);
-
-                // Filter by fitness level and search
-                var results = await _context.ExerciseLibrary
-                    .Where(x => x.EmbeddingVector != null && 
-                               (x.DifficultyLevel == fitnessLevel || fitnessLevel == "all"))
-                    .OrderBy(x => x.EmbeddingVector!.L2Distance(queryVector))
+                // Fallback: simple filtering
+                _logger.LogInformation("Using fallback exercise selection");
+                var fallback = await _context.ExerciseLibrary
+                    .Where(x => x.DifficultyLevel == fitnessLevel || fitnessLevel == "all")
                     .Take(topK)
                     .ToListAsync();
 
-                return results.Select(x => new ExerciseSearchResult
+                return fallback.Select(x => new ExerciseSearchResult
                 {
                     Id = x.Id,
                     ExerciseName = x.ExerciseName,
@@ -113,8 +148,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.EquipmentRequired) ?? new List<string>(),
                     Description = x.DescriptionVi,
                     VideoUrl = x.VideoUrl,
-                    SimilarityScore = x.EmbeddingVector != null ? 
-                        1.0 - (double)x.EmbeddingVector.L2Distance(queryVector) : 0.0
+                    SimilarityScore = 0.5 // Default for fallback
                 }).ToList();
             }
             catch (Exception ex)
@@ -138,20 +172,24 @@ namespace PersonalCoachAPI.Infrastructure.Services
 
                 var results = await _context.HealthKnowledgeBase
                     .Where(x => x.EmbeddingVector != null)
-                    .OrderBy(x => x.EmbeddingVector!.L2Distance(queryVector))
+                    .Select(x => new
+                    {
+                        Knowledge = x,
+                        Distance = x.EmbeddingVector!.L2Distance(queryVector)
+                    })
+                    .OrderBy(x => x.Distance)
                     .Take(topK)
                     .ToListAsync();
 
                 return results.Select(x => new HealthKnowledgeResult
                 {
-                    Id = x.Id,
-                    Category = x.Category,
-                    Topic = x.Topic,
-                    Content = x.Content,
-                    ContentVi = x.ContentVi,
-                    Tags = JsonConvert.DeserializeObject<List<string>>(x.Tags) ?? new List<string>(),
-                    SimilarityScore = x.EmbeddingVector != null ? 
-                        1.0 - (double)x.EmbeddingVector.L2Distance(queryVector) : 0.0
+                    Id = x.Knowledge.Id,
+                    Category = x.Knowledge.Category,
+                    Topic = x.Knowledge.Topic,
+                    Content = x.Knowledge.Content,
+                    ContentVi = x.Knowledge.ContentVi,
+                    Tags = JsonConvert.DeserializeObject<List<string>>(x.Knowledge.Tags) ?? new List<string>(),
+                    SimilarityScore = 1.0 - (double)x.Distance
                 }).ToList();
             }
             catch (Exception ex)
@@ -263,21 +301,56 @@ namespace PersonalCoachAPI.Infrastructure.Services
 
         private async Task<UserContextSnapshot> CreateUserContextSnapshotAsync(Guid userId)
         {
-            var profile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-            var latestMetrics = await _context.UserHealthMetrics
+            // Get user info from AuthenticationAPI table
+            var authUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            
+            // Get body measurements from MeasurementAPI table
+            var latestBodyMeasurement = await _context.BodyMeasurements
                 .Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.MeasurementDate)
+                .OrderByDescending(x => x.RecordedAt)
                 .FirstOrDefaultAsync();
-            var preferences = await _context.UserPreferences.FirstOrDefaultAsync(x => x.UserId == userId);
+            
+            // Get ALL processed health data from AIOCRService
+            var allHealthData = await _context.ProcessedDataRecords
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+            
+            var latestInBodyData = allHealthData.FirstOrDefault(x => x.DataType == "lab_result");
+            var injuries = allHealthData.Where(x => x.DataType == "injury_history").ToList();
+            var allergies = allHealthData.Where(x => x.DataType == "allergy_test").ToList();
+            var medications = allHealthData.Where(x => x.DataType == "prescription").ToList();
+            var fitnessAssessments = allHealthData.Where(x => x.DataType == "fitness_assessment").ToList();
+            var workoutLogs = allHealthData.Where(x => x.DataType == "workout_log").Take(5).ToList();
+            var mealPlans = allHealthData.Where(x => x.DataType == "meal_plan").ToList();
+            
+            // Get our own tables (may not exist yet - graceful fallback)
+            UserProfile? profile = null;
+            UserHealthMetric? latestMetrics = null;
+            UserPreference? preferences = null;
+            
+            try
+            {
+                profile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+                latestMetrics = await _context.UserHealthMetrics
+                    .Where(x => x.UserId == userId)
+                    .OrderByDescending(x => x.MeasurementDate)
+                    .FirstOrDefaultAsync();
+                preferences = await _context.UserPreferences.FirstOrDefaultAsync(x => x.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not load user profile/metrics tables - they may not exist yet");
+            }
 
             var snapshot = new UserContextSnapshot
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                HealthSummary = BuildHealthSummary(profile, latestMetrics),
-                FitnessSummary = BuildFitnessSummary(profile, latestMetrics),
-                GoalsSummary = profile?.FitnessGoal ?? "No goals set",
-                ProgressSummary = "New user - no progress data yet",
+                HealthSummary = BuildHealthSummaryEnhanced(authUser, profile, latestMetrics, latestBodyMeasurement, latestInBodyData, injuries, allergies, medications),
+                FitnessSummary = BuildFitnessSummary(profile, latestMetrics, fitnessAssessments, workoutLogs),
+                GoalsSummary = profile?.FitnessGoal ?? latestBodyMeasurement?.Goal ?? "No goals set",
+                ProgressSummary = BuildProgressSummary(workoutLogs, allHealthData),
                 SnapshotDate = DateTime.UtcNow
             };
 
@@ -293,6 +366,69 @@ namespace PersonalCoachAPI.Infrastructure.Services
             await _context.SaveChangesAsync();
 
             return snapshot;
+        }
+
+        private static string BuildHealthSummaryEnhanced(
+            AuthUser? authUser, 
+            UserProfile? profile, 
+            UserHealthMetric? metrics, 
+            BodyMeasurement? bodyMeasure,
+            ProcessedData? inBodyData,
+            List<ProcessedData> injuries,
+            List<ProcessedData> allergies,
+            List<ProcessedData> medications)
+        {
+            var parts = new List<string>();
+
+            // Age from AuthUser
+            if (authUser?.DateOfBirth != null)
+            {
+                var age = DateTime.UtcNow.Year - authUser.DateOfBirth.Value.Year;
+                parts.Add($"Age: {age}");
+            }
+
+            // Gender from AuthUser or Profile
+            var gender = authUser?.Gender ?? profile?.Gender ?? "Unknown";
+            parts.Add($"Gender: {gender}");
+
+            // Height & Weight - prioritize latest data
+            var height = profile?.HeightCm ?? bodyMeasure?.HeightCm ?? 0;
+            var weight = profile?.CurrentWeightKg ?? bodyMeasure?.WeightKg ?? metrics?.WeightKg ?? 0;
+            
+            if (height > 0) parts.Add($"Height: {height}cm");
+            if (weight > 0) parts.Add($"Weight: {weight}kg");
+
+            // Body composition
+            var bodyFat = metrics?.BodyFatPercentage ?? bodyMeasure?.BodyFatPercent ?? 0;
+            if (bodyFat > 0) parts.Add($"Body Fat: {bodyFat}%");
+
+            // InBody insights from AI
+            if (!string.IsNullOrEmpty(inBodyData?.Insights))
+            {
+                parts.Add($"InBody AI: {inBodyData.Insights.Substring(0, Math.Min(200, inBodyData.Insights.Length))}");
+            }
+
+            // Add injury history
+            if (injuries.Any())
+            {
+                var injurySummaries = injuries.Select(i => i.Summary).Take(3);
+                parts.Add($"Injuries: {string.Join("; ", injurySummaries)}");
+            }
+
+            // Add allergies
+            if (allergies.Any())
+            {
+                var allergySummaries = allergies.Select(a => a.Summary);
+                parts.Add($"Allergies: {string.Join("; ", allergySummaries)}");
+            }
+
+            // Add medications
+            if (medications.Any())
+            {
+                parts.Add($"Medications: {medications.Count} active prescriptions");
+            }
+
+            return parts.Any() ? string.Join(", ", parts) : "No health data available";
         }
 
         private static string BuildHealthSummary(UserProfile? profile, UserHealthMetric? metrics)
@@ -312,11 +448,49 @@ namespace PersonalCoachAPI.Infrastructure.Services
             return summary;
         }
 
-        private static string BuildFitnessSummary(UserProfile? profile, UserHealthMetric? metrics)
+        private static string BuildFitnessSummary(
+            UserProfile? profile, 
+            UserHealthMetric? metrics,
+            List<ProcessedData> fitnessAssessments,
+            List<ProcessedData> workoutLogs)
         {
             if (profile == null) return "No fitness data available";
 
-            return $"Level: {profile.FitnessLevel}, Goal: {profile.FitnessGoal}";
+            var parts = new List<string>();
+            parts.Add($"Level: {profile.FitnessLevel}, Goal: {profile.FitnessGoal}");
+
+            if (fitnessAssessments.Any())
+            {
+                parts.Add($"Latest Assessment: {fitnessAssessments.First().Summary}");
+            }
+
+            if (workoutLogs.Any())
+            {
+                parts.Add($"Recent Training: {workoutLogs.Count} workouts logged");
+            }
+
+            return string.Join(", ", parts);
+        }
+
+        private static string BuildProgressSummary(
+            List<ProcessedData> workoutLogs,
+            List<ProcessedData> allHealthData)
+        {
+            var progressPhotos = allHealthData.Where(x => x.DataType == "progress_photo").Take(2).ToList();
+            
+            var parts = new List<string>();
+            
+            if (workoutLogs.Any())
+            {
+                parts.Add($"{workoutLogs.Count} recent workouts completed");
+            }
+
+            if (progressPhotos.Any())
+            {
+                parts.Add($"Progress tracked with {progressPhotos.Count} photos");
+            }
+
+            return parts.Any() ? string.Join(", ", parts) : "New user - no progress data yet";
         }
 
         private static string BuildGoalSearchQuery(string goal, string fitnessLevel)

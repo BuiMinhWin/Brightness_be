@@ -424,12 +424,31 @@ namespace PersonalCoachAPI.Infrastructure.Services
 
         private static string BuildAIPrompt(GenerateScheduleRequest request, UserContextResult userContext)
         {
+            var contextParts = new List<string>();
+            
+            if (!string.IsNullOrEmpty(userContext.HealthSummary))
+                contextParts.Add($"Health: {userContext.HealthSummary}");
+            
+            if (!string.IsNullOrEmpty(userContext.FitnessSummary))
+                contextParts.Add($"Fitness: {userContext.FitnessSummary}");
+            
+            if (!string.IsNullOrEmpty(userContext.GoalsSummary))
+                contextParts.Add($"Goals: {userContext.GoalsSummary}");
+
+            var userContextStr = contextParts.Any() 
+                ? string.Join("\n", contextParts) 
+                : "No personalization data available";
+
             return $@"Generate a {request.DurationDays}-day workout schedule for:
 Goal: {request.Goal}
 Level: {request.DifficultyLevel}
 Available Days: {string.Join(", ", request.AvailableDays)}
 Equipment: {string.Join(", ", request.EquipmentAvailable)}
-User Context: {userContext.FitnessSummary}";
+
+User Personalization:
+{userContextStr}
+
+IMPORTANT: Consider the user's health data (especially InBody metrics and AI insights) when designing the workout intensity, volume, and recovery periods.";
         }
     }
 }

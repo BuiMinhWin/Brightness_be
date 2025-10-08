@@ -1,5 +1,6 @@
 using AIOCRService.Application.DTOs;
 using AIOCRService.Application.Interfaces;
+using AIOCRService.Application.Helpers;
 using AIOCRService.Domain.Entities;
 using System.Text.Json;
 
@@ -37,7 +38,7 @@ namespace AIOCRService.Application.Services
             };
 
             var createdRequest = await _repository.CreateAsync(ocrRequest);
-            return MapToDTO(createdRequest);
+            return createdRequest.ToDTO();
         }
 
         public async Task<OCRResultDTO> ProcessImageAsync(Guid requestId)
@@ -95,7 +96,10 @@ namespace AIOCRService.Application.Services
                 result.ExtractedText, aiPrompt, dataType);
 
             // Parse the structured JSON response
-            var parsedResponse = ParseAIResponse(aiResponse);
+            var parsedResponse = AIResponseParser.ParseAIResponse(aiResponse);
+
+            // Mark all previous versions as not latest
+            await _repository.MarkPreviousVersionsAsOldAsync(resultId, result.OCRRequest.UserId, dataType);
 
             var processedData = new ProcessedData
             {
@@ -103,9 +107,44 @@ namespace AIOCRService.Application.Services
                 OCRResultId = resultId,
                 UserId = result.OCRRequest.UserId,
                 DataType = dataType,
-                ProcessedContent = aiResponse,
+                ProcessedContent = parsedResponse.CleanedJson,
                 Summary = parsedResponse.Summary,
                 Insights = parsedResponse.Insights,
+                IsLatest = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createdData = await _repository.CreateProcessedDataAsync(processedData);
+            return MapToDTO(createdData);
+        }
+
+        public async Task<ProcessedDataDTO> ProcessImageDirectlyWithAIAsync(Guid requestId, string aiPrompt)
+        {
+            var request = await _repository.GetRequestByIdAsync(requestId);
+            if (request == null)
+                throw new ArgumentException("OCR request not found");
+
+            // Process image directly with AI (no OCR step)
+            var dataType = DetermineDataType((OCRType)request.Type);
+            var aiResponse = await _externalAIService.ProcessImageDirectlyAsync(
+                request.ImageBase64, aiPrompt, dataType);
+
+            // Parse the structured JSON response
+            var parsedResponse = AIResponseParser.ParseAIResponse(aiResponse);
+
+            // Mark all previous versions for this request/dataType as not latest
+            await _repository.MarkPreviousVersionsAsOldAsync(null, request.UserId, dataType);
+
+            var processedData = new ProcessedData
+            {
+                Id = Guid.NewGuid(),
+                OCRResultId = null, // No OCR result since we processed image directly
+                UserId = request.UserId,
+                DataType = dataType,
+                ProcessedContent = parsedResponse.CleanedJson,
+                Summary = parsedResponse.Summary,
+                Insights = parsedResponse.Insights,
+                IsLatest = true,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -146,89 +185,18 @@ namespace AIOCRService.Application.Services
             return requests.Select(MapToDTO);
         }
 
-        private static string DetermineDataType(OCRType type)
+        public async Task<IEnumerable<ProcessedDataDTO>> GetProcessedDataHistoryAsync(Guid userId, string dataType)
         {
-            return type switch
-            {
-                OCRType.FoodLabel => "nutrition",
-                OCRType.MedicalDocument => "medical",
-                OCRType.Prescription => "medication",
-                OCRType.LabResult => "lab_value",
-                _ => "general"
-            };
+            var history = await _repository.GetProcessedDataHistoryAsync(userId, dataType);
+            return history.Select(MapToDTO);
         }
 
-        private static (string Summary, string Insights) ParseAIResponse(string aiResponse)
-        {
-            try
-            {
-                // Try to parse as JSON
-                var jsonResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(aiResponse);
-                
-                if (jsonResponse != null)
-                {
-                    string summary = jsonResponse.summary?.ToString() ?? "Không có tóm tắt";
-                    string insights = jsonResponse.recommendations?.ToString() ?? 
-                                    jsonResponse.insights?.ToString() ?? 
-                                    "Không có khuyến nghị";
-                    
-                    return (summary, insights);
-                }
-            }
-            catch
-            {
-                // If JSON parsing fails, use the response as is
-            }
+        private static string DetermineDataType(OCRType type) => type.ToDataType();
 
-            // Fallback: use the response as summary and create generic insights
-            return (aiResponse, "Dựa trên phân tích trên, hãy tham khảo ý kiến chuyên gia để được tư vấn chi tiết hơn.");
-        }
 
-        private static OCRRequestDTO MapToDTO(OCRRequest request)
-        {
-            return new OCRRequestDTO
-            {
-                Id = request.Id,
-                UserId = request.UserId,
-                FileName = request.FileName,
-                ContentType = request.ContentType,
-                FileSize = request.FileSize,
-                Type = request.Type,
-                Status = request.Status,
-                CreatedAt = request.CreatedAt,
-                ProcessedAt = request.ProcessedAt,
-                ErrorMessage = request.ErrorMessage
-            };
-        }
-
-        private static OCRResultDTO MapToDTO(OCRResult result)
-        {
-            return new OCRResultDTO
-            {
-                Id = result.Id,
-                OCRRequestId = result.OCRRequestId,
-                ExtractedText = result.ExtractedText,
-                StructuredData = result.StructuredData,
-                Confidence = result.Confidence,
-                Language = result.Language,
-                CreatedAt = result.CreatedAt
-            };
-        }
-
-        private static ProcessedDataDTO MapToDTO(ProcessedData data)
-        {
-            return new ProcessedDataDTO
-            {
-                Id = data.Id,
-                OCRResultId = data.OCRResultId,
-                UserId = data.UserId,
-                DataType = data.DataType,
-                ProcessedContent = data.ProcessedContent,
-                Summary = data.Summary,
-                Insights = data.Insights,
-                CreatedAt = data.CreatedAt
-            };
-        }
+        private static OCRRequestDTO MapToDTO(OCRRequest request) => request.ToDTO();
+        private static OCRResultDTO MapToDTO(OCRResult result) => result.ToDTO();
+        private static ProcessedDataDTO MapToDTO(ProcessedData data) => data.ToDTO();
     }
 }
 

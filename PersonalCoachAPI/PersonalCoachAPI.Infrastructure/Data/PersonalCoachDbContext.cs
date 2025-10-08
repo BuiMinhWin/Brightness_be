@@ -10,6 +10,7 @@ namespace PersonalCoachAPI.Infrastructure.Data
         {
         }
 
+        // PersonalCoach tables
         public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
         public DbSet<UserHealthMetric> UserHealthMetrics => Set<UserHealthMetric>();
         public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
@@ -20,6 +21,12 @@ namespace PersonalCoachAPI.Infrastructure.Data
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
         public DbSet<UserContextSnapshot> UserContextSnapshots => Set<UserContextSnapshot>();
         public DbSet<AIConversation> AIConversations => Set<AIConversation>();
+        
+        // Shared tables from other services (read-only access)
+        public DbSet<AuthUser> Users => Set<AuthUser>();
+        public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
+        public DbSet<OCRRequest> OCRRequests => Set<OCRRequest>();
+        public DbSet<ProcessedData> ProcessedDataRecords => Set<ProcessedData>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +34,9 @@ namespace PersonalCoachAPI.Infrastructure.Data
 
             // Enable pgvector extension
             modelBuilder.HasPostgresExtension("vector");
+
+            // Configure shared entities (read-only, no migrations)
+            ConfigureSharedEntities(modelBuilder);
 
             // UserProfile configuration
             modelBuilder.Entity<UserProfile>(entity =>
@@ -202,6 +212,37 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.SessionId);
                 entity.HasIndex(x => x.CreatedAt);
+            });
+        }
+
+        private static void ConfigureSharedEntities(ModelBuilder modelBuilder)
+        {
+            // AuthUser - from AuthenticationAPI (read-only, exclude from migrations)
+            modelBuilder.Entity<AuthUser>(entity =>
+            {
+                entity.ToTable("users", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // BodyMeasurement - from MeasurementAPI (read-only, exclude from migrations)
+            modelBuilder.Entity<BodyMeasurement>(entity =>
+            {
+                entity.ToTable("body_measurements", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // OCRRequest - from AIOCRService (read-only, exclude from migrations)
+            modelBuilder.Entity<OCRRequest>(entity =>
+            {
+                entity.ToTable("ocr_requests", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // ProcessedData - from AIOCRService (read-only, exclude from migrations)
+            modelBuilder.Entity<ProcessedData>(entity =>
+            {
+                entity.ToTable("processed_data", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
             });
         }
     }

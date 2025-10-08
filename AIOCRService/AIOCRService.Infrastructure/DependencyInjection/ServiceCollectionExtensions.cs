@@ -23,6 +23,7 @@ namespace AIOCRService.Infrastructure.DependencyInjection
 
             // Services
             services.AddScoped<IOCRService, OCRService>();
+            services.AddScoped<IUserHealthDataService, UserHealthDataService>();
 
             // External services
             services.AddHttpClient<IExternalOCRService, GoogleVisionOCRService>();
