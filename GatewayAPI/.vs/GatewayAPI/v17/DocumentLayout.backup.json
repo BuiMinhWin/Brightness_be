@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\gatewayapi\\apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|solutionrelative:apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{99CECA92-77D5-EADB-02C6-697E0DC7D852}|..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\listentoonlyapigateway.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -33,19 +37,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AttachSignature.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\Middleware\\AttachSignature.cs",
+              "RelativeDocumentMoniker": "APIGateway.Presentation\\Middleware\\AttachSignature.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\Middleware\\AttachSignature.cs",
+              "RelativeToolTip": "APIGateway.Presentation\\Middleware\\AttachSignature.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T11:34:50.366Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "ListenToOnlyAPIGateway.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "RelativeDocumentMoniker": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "RelativeToolTip": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-29T11:15:19.191Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "GlobalException.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
               "RelativeDocumentMoniker": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
@@ -58,7 +75,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\Program.cs",
               "RelativeDocumentMoniker": "APIGateway.Presentation\\Program.cs",

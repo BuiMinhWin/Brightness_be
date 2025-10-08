@@ -3,14 +3,18 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\gatewayapi\\apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|solutionrelative:apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\gatewayapi\\apigateway.presentation\\ocelot.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|solutionrelative:apigateway.presentation\\ocelot.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{99CECA92-77D5-EADB-02C6-697E0DC7D852}|..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\globalexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{99CECA92-77D5-EADB-02C6-697E0DC7D852}|..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\listentoonlyapigateway.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{99CECA92-77D5-EADB-02C6-697E0DC7D852}|..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\BrightNess.Library.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\brightness.sharedlibrarysolution\\brightness.library\\middleware\\globalexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\gatewayapi\\apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|solutionrelative:apigateway.presentation\\middleware\\attachsignature.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D7FF5855-4286-4CA9-8C40-906E08645EB5}|APIGateway.Presentation\\APIGateway.Presentation.csproj|c:\\users\\admin\\documents\\github\\brightness_be\\gatewayapi\\apigateway.presentation\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -24,7 +28,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 356,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -35,8 +39,29 @@
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "ocelot.json",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\ocelot.json",
+              "RelativeDocumentMoniker": "APIGateway.Presentation\\ocelot.json",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\ocelot.json",
+              "RelativeToolTip": "APIGateway.Presentation\\ocelot.json",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAALEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-10-08T06:08:36.495Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "AttachSignature.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\Middleware\\AttachSignature.cs",
               "RelativeDocumentMoniker": "APIGateway.Presentation\\Middleware\\AttachSignature.cs",
@@ -49,7 +74,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ListenToOnlyAPIGateway.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
               "RelativeDocumentMoniker": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\ListenToOnlyAPIGateway.cs",
@@ -62,20 +87,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "GlobalException.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
               "RelativeDocumentMoniker": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
               "RelativeToolTip": "..\\BrightNess.SharedLibrarySolution\\BrightNess.Library\\Middleware\\GlobalException.cs",
-              "ViewState": "AgIAADcAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADcAAAAAAAAAAAAQwEcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-29T11:15:06.356Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHub\\Brightness_be\\GatewayAPI\\APIGateway.Presentation\\Program.cs",
               "RelativeDocumentMoniker": "APIGateway.Presentation\\Program.cs",
@@ -83,8 +108,7 @@
               "RelativeToolTip": "APIGateway.Presentation\\Program.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAAoAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-28T15:20:12.397Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-28T15:20:12.397Z"
             }
           ]
         },
@@ -95,6 +119,22 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
         },
