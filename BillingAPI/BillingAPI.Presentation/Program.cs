@@ -3,8 +3,18 @@ using BillingAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using DotNetEnv;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load local .env into environment variables when running in Development.
+// This allows using a .env file for quick local testing while production uses env vars or a secrets manager.
+if (builder.Environment.IsDevelopment())
+{
+    // DotNetEnv will quietly ignore if no .env file is present.
+    Env.Load();
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -56,6 +66,32 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddBillingInfrastructure(builder.Configuration);
+
+// Bind PaymentGateway options from configuration (appsettings, env vars, user-secrets, etc.)
+builder.Services.Configure<BillingAPI.Presentation.PaymentGatewayOptions>(builder.Configuration.GetSection("PaymentGateway"));
+
+// Validate / provide fallback for ApiKey and fail-fast in non-development.
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IOptions<BillingAPI.Presentation.PaymentGatewayOptions>>().Value;
+    // First check bound value, then explicit env var fallback (supports PAYMENT_GATEWAY__APIKEY naming)
+    if (string.IsNullOrWhiteSpace(cfg.ApiKey))
+    {
+        var fallback = builder.Configuration["PAYMENT_GATEWAY__APIKEY"] ?? builder.Configuration["PaymentGateway:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(fallback))
+        {
+            cfg.ApiKey = fallback;
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(cfg.ApiKey) && !builder.Environment.IsDevelopment())
+    {
+        // Fail fast in production if no API key provided.
+        throw new InvalidOperationException("PaymentGateway:ApiKey is not configured. Set PAYMENT_GATEWAY__APIKEY or configure a secrets provider for production.");
+    }
+
+    return cfg;
+});
 
 var app = builder.Build();
 

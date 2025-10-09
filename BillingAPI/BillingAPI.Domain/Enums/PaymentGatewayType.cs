@@ -2,7 +2,6 @@
 {
     public enum PaymentGatewayType
     {
-        VnPay = 1,
         PayOs = 2
     }
 }

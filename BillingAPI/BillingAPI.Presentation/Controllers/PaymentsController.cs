@@ -27,21 +27,6 @@ namespace BillingAPI.Presentation.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("vnpay/callback")]
-        public async Task<IActionResult> VnPayCallbackAsync()
-        {
-            var queryParameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var pair in Request.Query)
-            {
-                queryParameters[pair.Key] = pair.Value.ToString();
-            }
-
-            var callbackRequest = new VnPayCallbackRequest(queryParameters, HttpContext.Connection.RemoteIpAddress?.ToString());
-            var result = await _paymentService.HandleVnPayCallbackAsync(callbackRequest);
-            return result is null ? BadRequest("Invalid VNPay callback") : Ok(result);
-        }
-
-        [AllowAnonymous]
         [HttpPost("payos/webhook")]
         public async Task<IActionResult> PayOsWebhookAsync()
         {

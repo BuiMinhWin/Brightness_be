@@ -17,7 +17,6 @@ namespace BillingAPI.Infrastructure.DependencyInjection
         {
             SharedServiceContainer.AddSharedServices<BillingDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "BillingApi");
 
-            services.Configure<VnPayOptions>(configuration.GetSection(VnPayOptions.SectionName));
             services.Configure<PayOsOptions>(configuration.GetSection(PayOsOptions.SectionName));
 
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
@@ -28,7 +27,6 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IPaymentService, PaymentService>();
 
-            services.AddScoped<IVnPayGateway, VnPayGateway>();
             services.AddHttpClient<IPayOsGateway, PayOsGateway>();
 
             return services;
