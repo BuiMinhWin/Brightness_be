@@ -31,6 +31,7 @@ Cấu hình Postgres:
 Tạo database BrightnessDb.
 
 Cập nhật chuỗi kết nối trong AuthenticationAPI/AuthenticationAPI.Presentation/appsettings.json và appsettings.Development.json nếu user/pass khác mặc định (Username=postgres;Password=postgres).
+S? d?ng file .env (v� d? ConnectionStrings__BrightnessDb ho?c c�c bi?n DB_HOST/DB_PORT/DB_USER/DB_PASSWORD) thay v� ch?nh s?a appsettings.* d? c?u h�nh th�ng tin nh?y c?m.
 
 Chạy migration & cập nhật database
 cd AuthenticationAPI/AuthenticationAPI.Infrastructure

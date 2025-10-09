@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+using BrightNess.Library.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using NutritionAPI.Infrastructure.Data;
 using NutritionAPI.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -112,3 +115,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+

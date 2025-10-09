@@ -1,3 +1,4 @@
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using PersonalCoachAPI.Application.Interfaces;
 using PersonalCoachAPI.Infrastructure.Data;
@@ -5,8 +6,7 @@ using PersonalCoachAPI.Infrastructure.Services;
 using Pgvector.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Load environment variables from .env file
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container
@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add Database Context
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetRequiredConnectionString("DefaultConnection");
 builder.Services.AddDbContext<PersonalCoachDbContext>(options =>
 {
     options.UseNpgsql(connectionString, npgsqlOptions =>
@@ -63,3 +63,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

@@ -11,12 +11,14 @@ COPY ["PersonalCoachAPI/PersonalCoachAPI.Presentation/PersonalCoachAPI.Presentat
 COPY ["PersonalCoachAPI/PersonalCoachAPI.Application/PersonalCoachAPI.Application.csproj", "PersonalCoachAPI/PersonalCoachAPI.Application/"]
 COPY ["PersonalCoachAPI/PersonalCoachAPI.Infrastructure/PersonalCoachAPI.Infrastructure.csproj", "PersonalCoachAPI/PersonalCoachAPI.Infrastructure/"]
 COPY ["PersonalCoachAPI/PersonalCoachAPI.Domain/PersonalCoachAPI.Domain.csproj", "PersonalCoachAPI/PersonalCoachAPI.Domain/"]
+COPY ["BrightNess.SharedLibrarySolution/BrightNess.Library/BrightNess.Library.csproj", "BrightNess.SharedLibrarySolution/BrightNess.Library/"]
 
 # Restore dependencies
 RUN dotnet restore "PersonalCoachAPI/PersonalCoachAPI.Presentation/PersonalCoachAPI.Presentation.csproj"
 
 # Copy everything else
 COPY PersonalCoachAPI/ PersonalCoachAPI/
+COPY BrightNess.SharedLibrarySolution/ BrightNess.SharedLibrarySolution/
 
 # Build
 WORKDIR "/src/PersonalCoachAPI/PersonalCoachAPI.Presentation"

@@ -1,3 +1,4 @@
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ namespace PersonalCoachAPI.Scripts
             Console.WriteLine("========================================");
             Console.WriteLine();
 
+            EnvironmentConfiguration.TryLoadDotEnv();
             var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -189,7 +191,7 @@ namespace PersonalCoachAPI.Scripts
                 .ConfigureServices((context, services) =>
                 {
                     var configuration = context.Configuration;
-                    var connectionString = configuration.GetConnectionString("DefaultConnection");
+                    var connectionString = configuration.GetRequiredConnectionString("DefaultConnection");
 
                     services.AddDbContext<EmbeddingDbContext>(options =>
                     {

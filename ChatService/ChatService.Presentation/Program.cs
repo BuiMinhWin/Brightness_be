@@ -1,10 +1,13 @@
-﻿using ChatService.Infrastructure.Data;
+using BrightNess.Library.Configuration;
+using ChatService.Infrastructure.Data;
 using ChatService.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -112,3 +115,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+

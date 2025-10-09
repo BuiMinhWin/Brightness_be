@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PersonalCoachAPI.Domain\PersonalCoachAPI.Domain.csproj" />
     <ProjectReference Include="..\PersonalCoachAPI.Application\PersonalCoachAPI.Application.csproj" />
+    <ProjectReference Include="..\..\BrightNess.SharedLibrarySolution\BrightNess.Library\BrightNess.Library.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

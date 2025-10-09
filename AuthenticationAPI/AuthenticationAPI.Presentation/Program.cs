@@ -1,13 +1,16 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using Npgsql;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.DependencyInjection;
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 
@@ -102,7 +105,6 @@ else
     });
 }
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -121,7 +123,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-
-
-
 

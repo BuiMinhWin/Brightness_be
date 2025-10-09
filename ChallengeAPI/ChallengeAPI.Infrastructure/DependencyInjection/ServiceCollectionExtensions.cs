@@ -1,16 +1,12 @@
-﻿using ChallengeAPI.Application.Repositories;
+using BrightNess.Library.Configuration;
+using ChallengeAPI.Application.Repositories;
 using ChallengeAPI.Application.Services;
-using ChallengeAPI.Infrastructure.Data;
-using ChallengeAPI.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using ChallengeAPI.Infrastructure.Data;
-using ChallengeAPI.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using ChallengeAPI.Application.ServicesImpl;
+using ChallengeAPI.Infrastructure.Data;
+using ChallengeAPI.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChallengeAPI.Infrastructure.DependencyInjection
 {
@@ -18,8 +14,9 @@ namespace ChallengeAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChallengeInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
             services.AddDbContext<ChallengeDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("BrightnessDb")));
+                options.UseNpgsql(connectionString));
 
             services.AddScoped<IChallengeService, ChallengeService>();
             services.AddScoped<IChallengeRepository, ChallengeRepository>();

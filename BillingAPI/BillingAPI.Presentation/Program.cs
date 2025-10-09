@@ -1,20 +1,14 @@
-﻿using BillingAPI.Infrastructure.Data;
+using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.DependencyInjection;
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Npgsql;
-using DotNetEnv;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Load local .env into environment variables when running in Development.
-// This allows using a .env file for quick local testing while production uses env vars or a secrets manager.
-if (builder.Environment.IsDevelopment())
-{
-    // DotNetEnv will quietly ignore if no .env file is present.
-    Env.Load();
-}
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -62,7 +56,6 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-
 });
 
 builder.Services.AddBillingInfrastructure(builder.Configuration);

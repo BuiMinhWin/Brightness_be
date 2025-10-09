@@ -1,12 +1,13 @@
+using BrightNess.Library.Configuration;
 using ChallengeAPI.Infrastructure.Data;
 using ChallengeAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Globalization;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     {
@@ -15,12 +16,10 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddChallengeInfrastructure(builder.Configuration);
-builder.Configuration.GetConnectionString("BrightnessDb");
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
-
 
 await using var scope = app.Services.CreateAsyncScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<ChallengeDbContext>();
@@ -28,8 +27,6 @@ const int maxRetryAttempts = 15;
 var delay = TimeSpan.FromSeconds(2);
 var migrationSucceeded = false;
 Exception? lastException = null;
-
-
 
 for (var attempt = 1; attempt <= maxRetryAttempts; attempt++)
 {
@@ -65,9 +62,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();
-
-
-// Custom converter
 
 static bool IsDatabaseStartingUp(Exception ex)
 {

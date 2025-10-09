@@ -1,4 +1,5 @@
 using APIGateway.Presentation.Middleware;
+using BrightNess.Library.Configuration;
 using BrightNess.Library.DI;
 using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
@@ -6,6 +7,8 @@ using Ocelot.Middleware;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Host.UseSerilog((context, configuration) =>
 {

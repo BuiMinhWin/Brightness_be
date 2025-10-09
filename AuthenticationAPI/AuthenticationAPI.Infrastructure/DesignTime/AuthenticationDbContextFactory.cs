@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using AuthenticationAPI.Infrastructure.Data;
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ namespace AuthenticationAPI.Infrastructure.DesignTime
         public AuthenticationDbContext CreateDbContext(string[] args)
         {
             var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            EnvironmentConfiguration.TryLoadDotEnv();
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", "AuthenticationAPI.Presentation"))
@@ -21,7 +23,7 @@ namespace AuthenticationAPI.Infrastructure.DesignTime
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AuthenticationDbContext>();
-            optionsBuilder.UseNpgsql(configuration.GetConnectionString("BrightnessDb"));
+            optionsBuilder.UseNpgsql(configuration.GetRequiredConnectionString("BrightnessDb"));
 
             return new AuthenticationDbContext(optionsBuilder.Options);
         }

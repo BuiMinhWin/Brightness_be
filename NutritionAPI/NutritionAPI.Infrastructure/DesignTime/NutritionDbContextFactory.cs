@@ -1,4 +1,5 @@
 using System.IO;
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -11,8 +12,7 @@ namespace NutritionAPI.Infrastructure.DesignTime
         public NutritionDbContext CreateDbContext(string[] args)
         {
             var configuration = BuildConfiguration();
-            var connectionString = configuration.GetConnectionString("BrightnessDb")
-                                   ?? throw new InvalidOperationException("Connection string 'BrightnessDb' not found.");
+            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
 
             var optionsBuilder = new DbContextOptionsBuilder<NutritionDbContext>();
             optionsBuilder.UseNpgsql(connectionString);
@@ -23,6 +23,7 @@ namespace NutritionAPI.Infrastructure.DesignTime
         private static IConfiguration BuildConfiguration()
         {
             var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "NutritionAPI.Presentation");
+            EnvironmentConfiguration.TryLoadDotEnv();
             return new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: false)

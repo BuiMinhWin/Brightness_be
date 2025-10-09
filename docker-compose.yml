@@ -45,6 +45,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,6 +60,9 @@ services:
       dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     ports:
       - "8088:5000"
     depends_on:
@@ -80,6 +86,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,6 +102,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -106,6 +118,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -119,6 +134,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -132,6 +150,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -145,6 +166,12 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      PaymentGateways__PayOs__ClientId: ${PAYMENTGATEWAYS__PAYOS__CLIENTID}
+      PaymentGateways__PayOs__ApiKey: ${PAYMENTGATEWAYS__PAYOS__APIKEY}
+      PaymentGateways__PayOs__ChecksumKey: ${PAYMENTGATEWAYS__PAYOS__CHECKSUMKEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -158,6 +185,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -171,6 +201,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -189,6 +222,9 @@ services:
       GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
       GoogleAI__Model: gemini-2.5-flash
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     depends_on:
       postgres:
         condition: service_healthy
@@ -206,6 +242,9 @@ services:
       ConnectionStrings__DefaultConnection: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
       GoogleAI__Model: gemini-2.5-flash
+      Authentication__Key: ${AUTHENTICATION__KEY}
+      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
+      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     ports:
       - "8091:8080"
     depends_on:

@@ -1,17 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+using BrightNess.Library.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using SocialAPI.Application.DependencyInjection;
 using SocialAPI.Infrastructure.Data;
 using SocialAPI.Infrastructure.DependencyInjection;
-using SocialAPI.Application.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSocialInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
-builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -50,11 +52,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 
 app.MapControllers();
 
@@ -70,3 +69,4 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
+
