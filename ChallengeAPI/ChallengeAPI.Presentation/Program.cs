@@ -2,7 +2,9 @@ using BrightNess.Library.Configuration;
 using ChallengeAPI.Infrastructure.Data;
 using ChallengeAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Npgsql;
+using System.Collections.Generic;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,15 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
         options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter { DateTimeFormat = "dd-MM-yyyy" });
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Challenge API",
+        Version = "v1"
+    });
+});
 builder.Services.AddChallengeInfrastructure(builder.Configuration);
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -49,13 +59,29 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
-if (app.Environment.IsDevelopment())
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+app.UseSwagger(cfg =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Challenge API v1");
+});
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
@@ -73,4 +99,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-
