@@ -56,6 +56,12 @@ namespace BillingAPI.Application.Services
                 return new Response(false, "Subscription plan is inactive");
             }
 
+            var dueDate = request.DueDate ?? DateTime.UtcNow.AddDays(3);
+            if (dueDate.Kind == DateTimeKind.Unspecified)
+            {
+                dueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
+            }
+
             var invoice = new Invoice
             {
                 Id = Guid.NewGuid(),
@@ -66,7 +72,7 @@ namespace BillingAPI.Application.Services
                 Status = "pending",
                 InvoiceCode = GenerateInvoiceCode(),
                 CreatedAt = DateTime.UtcNow,
-                DueDate = (request.DueDate ?? DateTime.UtcNow.AddDays(3)).ToUniversalTime(),
+                DueDate = dueDate.ToUniversalTime(),
                 Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim()
             };
 

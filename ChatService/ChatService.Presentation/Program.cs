@@ -60,6 +60,46 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddChatInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        if (!jwtSettings.Exists() || string.IsNullOrWhiteSpace(jwtSettings["Key"]))
+        {
+            jwtSettings = builder.Configuration.GetSection("Authentication");
+        }
+
+        var signingKey = jwtSettings["Key"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException("JWT signing key is not configured. Set Jwt:Key or Authentication:Key.");
+        }
+
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

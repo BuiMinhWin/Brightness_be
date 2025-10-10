@@ -1,12 +1,14 @@
 using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.DependencyInjection;
-
 using BrightNess.Library.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using System.Collections.Generic;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddSecretsManager();
@@ -89,6 +91,45 @@ builder.Services.AddSingleton(sp =>
     return cfg;
 });
 
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        if (!jwtSettings.Exists() || string.IsNullOrWhiteSpace(jwtSettings["Key"]))
+        {
+            jwtSettings = builder.Configuration.GetSection("Authentication");
+        }
+
+        var signingKey = jwtSettings["Key"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException("JWT signing key is not configured. Set Jwt:Key or Authentication:Key.");
+        }
+
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
+    });
+
 var app = builder.Build();
 
 await using var scope = app.Services.CreateAsyncScope();
@@ -144,7 +185,6 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint(swaggerJsonEndpoint, "Billing API v1");
 });
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 

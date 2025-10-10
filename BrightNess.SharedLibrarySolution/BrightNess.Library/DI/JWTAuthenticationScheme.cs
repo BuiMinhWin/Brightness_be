@@ -18,10 +18,32 @@ namespace BrightNess.Library.DI
                 })
                 .AddJwtBearer(options =>
                 {
-                    var jwtSection = config.GetSection("Authentication");
-                    var key = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
-                    string issuer = jwtSection["Issuer"]!;
-                    string audience = jwtSection["Audience"]!;
+                    var jwtSection = config.GetSection("Jwt");
+                    if (!jwtSection.Exists() || string.IsNullOrWhiteSpace(jwtSection["Key"]))
+                    {
+                        jwtSection = config.GetSection("Authentication");
+                    }
+
+                    var keyValue = jwtSection["Key"];
+                    var issuer = jwtSection["Issuer"];
+                    var audience = jwtSection["Audience"];
+
+                    if (string.IsNullOrWhiteSpace(keyValue))
+                    {
+                        throw new InvalidOperationException("JWT signing key is not configured. Set Jwt:Key or Authentication:Key.");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(issuer))
+                    {
+                        throw new InvalidOperationException("JWT issuer is not configured. Set Jwt:Issuer or Authentication:Issuer.");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(audience))
+                    {
+                        throw new InvalidOperationException("JWT audience is not configured. Set Jwt:Audience or Authentication:Audience.");
+                    }
+
+                    var key = Encoding.UTF8.GetBytes(keyValue);
 
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
