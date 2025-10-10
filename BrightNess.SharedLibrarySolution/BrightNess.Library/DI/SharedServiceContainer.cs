@@ -39,7 +39,7 @@ namespace BrightNess.Library.DI
             services.Configure<JwtOptions>(config.GetSection("Authentication"));
             services.AddSingleton<ITokenService, TokenService>();
 
-            JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
+            // JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
 
             var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>();
             allowedOrigins = allowedOrigins?
