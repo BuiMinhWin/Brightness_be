@@ -1,3 +1,8 @@
+x-cors-origins: &cors_origins
+  Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS__0}
+  Cors__AllowedOrigins__1: ${CORS_ALLOWED_ORIGINS__1}
+  Cors__AllowedOrigins__2: ${CORS_ALLOWED_ORIGINS__2}
+
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -43,11 +48,14 @@ services:
       context: .
       dockerfile: AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /auth
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +67,7 @@ services:
       context: .
       dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -84,11 +93,14 @@ services:
       context: .
       dockerfile: MeasurementAPI/MeasurementAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /measurement/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /measurement
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,11 +112,14 @@ services:
       context: .
       dockerfile: WorkoutAPI/WorkoutAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /workout/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /workout
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,11 +131,14 @@ services:
       context: .
       dockerfile: NutritionAPI/NutritionAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /nutrition/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /nutrition
     depends_on:
       postgres:
         condition: service_healthy
@@ -132,11 +150,14 @@ services:
       context: .
       dockerfile: ChallengeAPI/ChallengeAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /challenge/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /challenge
     depends_on:
       postgres:
         condition: service_healthy
@@ -148,11 +169,14 @@ services:
       context: .
       dockerfile: SocialAPI/SocialAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /social/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /social
     depends_on:
       postgres:
         condition: service_healthy
@@ -164,11 +188,14 @@ services:
       context: .
       dockerfile: BillingAPI/BillingAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /billing/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /billing
       PaymentGateways__PayOs__ClientId: ${PAYMENTGATEWAYS__PAYOS__CLIENTID}
       PaymentGateways__PayOs__ApiKey: ${PAYMENTGATEWAYS__PAYOS__APIKEY}
       PaymentGateways__PayOs__ChecksumKey: ${PAYMENTGATEWAYS__PAYOS__CHECKSUMKEY}
@@ -183,11 +210,14 @@ services:
       context: .
       dockerfile: MediaAPI/MediaAPI.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /media/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /media
     depends_on:
       postgres:
         condition: service_healthy
@@ -199,11 +229,14 @@ services:
       context: .
       dockerfile: ChatService/ChatService.Presentation/Dockerfile
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /chat/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /chat
     depends_on:
       postgres:
         condition: service_healthy
@@ -217,6 +250,7 @@ services:
     env_file:
       - .env
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
@@ -225,6 +259,9 @@ services:
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Swagger__JsonEndpoint: /ai-ocr/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /ai-ocr
+      
     depends_on:
       postgres:
         condition: service_healthy
@@ -238,6 +275,7 @@ services:
     env_file:
       - .env
     environment:
+      <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__DefaultConnection: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
@@ -245,8 +283,8 @@ services:
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
-    ports:
-      - "8091:8080"
+      Swagger__JsonEndpoint: /coach/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /coach
     depends_on:
       postgres:
         condition: service_healthy

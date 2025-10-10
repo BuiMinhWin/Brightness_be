@@ -4,8 +4,10 @@ using ChatService.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -90,16 +92,31 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
-if (app.Environment.IsDevelopment())
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+app.UseSwagger(cfg =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Chat Service API v1");
+});
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
@@ -115,4 +132,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-

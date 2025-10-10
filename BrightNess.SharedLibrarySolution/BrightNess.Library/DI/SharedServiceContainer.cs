@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
+using System.Linq;
 
 namespace BrightNess.Library.DI
 {
@@ -41,6 +42,11 @@ namespace BrightNess.Library.DI
             JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
 
             var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            allowedOrigins = allowedOrigins?
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .Select(origin => origin.TrimEnd('/'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
             services.AddCors(options =>
             {

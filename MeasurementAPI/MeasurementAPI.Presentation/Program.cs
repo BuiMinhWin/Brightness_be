@@ -4,8 +4,10 @@ using MeasurementAPI.Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -91,8 +93,27 @@ if (!migrationSucceeded)
 
 app.UseMeasurementInfrastructure();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+app.UseSwagger(cfg =>
+{
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Measurement API v1");
+});
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -112,4 +133,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-

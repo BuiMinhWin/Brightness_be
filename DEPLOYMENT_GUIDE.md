@@ -190,3 +190,16 @@ Ghi chú:
 - Không commit .env chứa secrets.
 - Ứng dụng đọc PaymentGateway:ApiKey từ appsettings/user-secrets/.env/env vars.
 - Nếu thiếu ApiKey ở môi trường non-Development, app sẽ fail-fast.
+
+Service Đường dẫn Swagger qua Gateway
+Authentication http://localhost:8088/auth/swagger/index.html
+Measurement http://localhost:8088/measurement/swagger/index.html
+Workout http://localhost:8088/workout/swagger/index.html
+Nutrition http://localhost:8088/nutrition/swagger/index.html
+Challenge http://localhost:8088/challenge/swagger/index.html
+Social http://localhost:8088/social/swagger/index.html
+Billing http://localhost:8088/billing/swagger/index.html
+Media http://localhost:8088/media/swagger/index.html
+Chat http://localhost:8088/chat/swagger/index.html
+AI OCR http://localhost:8088/ai-ocr/swagger/index.html
+Personal Coach http://localhost:8088/coach/swagger/index.html

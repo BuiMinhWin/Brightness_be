@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.DependencyInjection;
@@ -9,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -89,21 +91,27 @@ if (!migrationSucceeded)
 
 app.UserInfrastructurePolicy();
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-if (app.Environment.IsDevelopment())
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+app.UseSwagger(cfg =>
 {
-    app.UseSwaggerUI(c =>
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Authentication API V1");
-    });
-}
-else
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+
+app.UseSwaggerUI(c =>
 {
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Authentication API V1");
-    });
-}
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Authentication API V1");
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -123,4 +131,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-
