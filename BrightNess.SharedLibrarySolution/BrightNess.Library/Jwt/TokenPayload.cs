@@ -9,6 +9,7 @@ namespace BrightNess.Library.Jwt
 {
     public class TokenPayload
     {
+        public string? Id { get; set; } // Thêm thuộc tính Id
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? Role { get; set; }
@@ -17,6 +18,7 @@ namespace BrightNess.Library.Jwt
         public IEnumerable<Claim> ToClaims()
         {
             var claims = new List<Claim>();
+            if (!string.IsNullOrWhiteSpace(Id)) claims.Add(new Claim(ClaimTypes.NameIdentifier, Id!)); // Thêm Id vào claims
             if (!string.IsNullOrWhiteSpace(Name)) claims.Add(new Claim(ClaimTypes.Name, Name!));
             if (!string.IsNullOrWhiteSpace(Email)) claims.Add(new Claim(ClaimTypes.Email, Email!));
             if (!string.IsNullOrWhiteSpace(Role)) claims.Add(new Claim(ClaimTypes.Role, Role!));

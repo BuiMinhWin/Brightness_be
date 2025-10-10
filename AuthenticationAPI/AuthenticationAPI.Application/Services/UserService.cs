@@ -69,6 +69,7 @@ namespace AuthenticationAPI.Application.Services
 
             var payload = new TokenPayload
             {
+                Id = user.Id.ToString(), // Thêm Id của user vào payload
                 Name = user.FullName ?? user.UserName,
                 Email = user.Email,
                 Role = user.Role

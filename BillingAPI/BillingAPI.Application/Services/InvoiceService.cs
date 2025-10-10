@@ -66,7 +66,7 @@ namespace BillingAPI.Application.Services
                 Status = "pending",
                 InvoiceCode = GenerateInvoiceCode(),
                 CreatedAt = DateTime.UtcNow,
-                DueDate = request.DueDate ?? DateTime.UtcNow.AddDays(3),
+                DueDate = (request.DueDate ?? DateTime.UtcNow.AddDays(3)).ToUniversalTime(),
                 Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim()
             };
 

@@ -1,5 +1,6 @@
 using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.DependencyInjection;
+
 using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -117,6 +118,8 @@ if (!migrationSucceeded)
 {
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
+
+
 
 app.UseBillingInfrastructure();
 

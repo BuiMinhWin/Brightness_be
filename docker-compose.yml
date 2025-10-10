@@ -2,6 +2,7 @@ x-cors-origins: &cors_origins
   Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS__0}
   Cors__AllowedOrigins__1: ${CORS_ALLOWED_ORIGINS__1}
   Cors__AllowedOrigins__2: ${CORS_ALLOWED_ORIGINS__2}
+  Cors__AllowedOrigins__3: ${CORS_ALLOWED_ORIGINS__3}
 
 services:
   postgres:
