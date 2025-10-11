@@ -33,6 +33,12 @@ namespace BillingAPI.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Payment?> FindByTransactionIdAsync(string transactionId)
+        {
+            return await Context.Payments
+                .FirstOrDefaultAsync(p => p.TransactionId == transactionId);
+        }
+
         public override async Task<Payment?> FindByIdAsync(Guid id)
         {
             return await Context.Payments

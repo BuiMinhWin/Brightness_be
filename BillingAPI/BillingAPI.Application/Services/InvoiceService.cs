@@ -76,7 +76,16 @@ namespace BillingAPI.Application.Services
                 Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim()
             };
 
-            return await _invoiceRepository.CreateAsync(invoice);
+            var createResult = await _invoiceRepository.CreateAsync(invoice);
+            
+            // Trả về invoice data trong Response.Data để frontend có thể access invoice.id
+            if (createResult.Flag)
+            {
+                var invoiceDto = MapToDto(invoice);
+                return new Response(true, createResult.Message, invoiceDto);
+            }
+            
+            return createResult;
         }
 
         public async Task<Response> MarkAsPaidAsync(Guid invoiceId, string? transactionId = null)

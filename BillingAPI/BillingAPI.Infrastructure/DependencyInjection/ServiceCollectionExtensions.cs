@@ -27,7 +27,7 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IPaymentService, PaymentService>();
 
-            services.AddHttpClient<IPayOsGateway, PayOsGateway>();
+            services.AddScoped<IPayOsGateway, PayOsGateway>();
 
             return services;
         }

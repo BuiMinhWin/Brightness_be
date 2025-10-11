@@ -24,31 +24,35 @@ namespace BrightNess.Library.Middleware
             {
                 await next(context);
 
-                //check if response is too many request :492 status code
-                if (context.Response.StatusCode == StatusCodes.Status429TooManyRequests)
+                // Kiểm tra xem response đã bắt đầu chưa
+                if (!context.Response.HasStarted)
                 {
-                    title = "Warning";
-                    message = "Too many request made.";
-                    statusCode = (int)StatusCodes.Status429TooManyRequests;
-                    await ModifyHeader(context, title, message, statusCode);
-                }
+                    //check if response is too many request :429 status code
+                    if (context.Response.StatusCode == StatusCodes.Status429TooManyRequests)
+                    {
+                        title = "Warning";
+                        message = "Too many request made.";
+                        statusCode = (int)StatusCodes.Status429TooManyRequests;
+                        await ModifyHeader(context, title, message, statusCode);
+                    }
 
-                // if response is unauthorized// 401 status code
-                if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
-                {
-                    title = "ALert";
-                    message = "You are not authorized to access";
-                    statusCode = (int)StatusCodes.Status401Unauthorized;
-                    await ModifyHeader(context, title, message, statusCode);
-                }
+                    // if response is unauthorized// 401 status code
+                    else if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+                    {
+                        title = "Alert";
+                        message = "You are not authorized to access";
+                        statusCode = (int)StatusCodes.Status401Unauthorized;
+                        await ModifyHeader(context, title, message, statusCode);
+                    }
 
-                //If response is forbidden //403 status code
-                if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
-                {
-                    title = "Out of Access";
-                    message = "You are not permission to access";
-                    statusCode = (int)StatusCodes.Status403Forbidden;
-                    await ModifyHeader(context, title, message, statusCode);
+                    //If response is forbidden //403 status code
+                    else if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+                    {
+                        title = "Out of Access";
+                        message = "You are not permission to access";
+                        statusCode = (int)StatusCodes.Status403Forbidden;
+                        await ModifyHeader(context, title, message, statusCode);
+                    }
                 }
             }
             catch (Exception e)
@@ -63,16 +67,28 @@ namespace BrightNess.Library.Middleware
                     message = "Request timeout... try again";
                     statusCode = StatusCodes.Status408RequestTimeout;
                 }
-                //if exception is caught 
-                //if none of the excep then do the default bien
-                await ModifyHeader(context, title, message, statusCode);
+                
+                // Chỉ ghi response nếu chưa bắt đầu
+                if (!context.Response.HasStarted)
+                {
+                    await ModifyHeader(context, title, message, statusCode);
+                }
             }
-
         }
 
         private async Task ModifyHeader(HttpContext context, string title, string message, int statusCode)
         {
+            // Kiểm tra lần nữa để đảm bảo an toàn
+            if (context.Response.HasStarted)
+            {
+                return;
+            }
+
+            // Clear response trước khi ghi mới
+            context.Response.Clear();
+            context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
+            
             await context.Response.WriteAsync(JsonSerializer.Serialize(new ProblemDetails()
             {
                 Detail = message,

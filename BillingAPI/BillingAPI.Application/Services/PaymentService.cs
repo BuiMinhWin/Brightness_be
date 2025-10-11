@@ -43,6 +43,7 @@ namespace BillingAPI.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            // The gateway now modifies the payment object (sets TransactionId), so we pass it and then update it.
             GatewayPaymentResult gatewayResult = request.Gateway switch
             {
                 PaymentGatewayType.PayOs => await _payOsGateway.CreatePaymentAsync(invoice, payment, request.ReturnUrl, request.CancelUrl),
@@ -50,7 +51,9 @@ namespace BillingAPI.Application.Services
             };
 
             payment.CheckoutUrl = gatewayResult.PaymentUrl;
-            payment.TransactionId = gatewayResult.TransactionId;
+            // The actual transactionId from PayOS is different from our internal orderCode
+            // We keep our internal orderCode in payment.TransactionId and don't overwrite it here.
+            // If needed, a new field could be added for the gateway's specific transaction ID.
             payment.ExpiredAt = gatewayResult.ExpiredAt;
 
             var createResponse = await _paymentRepository.CreateAsync(payment);
@@ -82,24 +85,27 @@ namespace BillingAPI.Application.Services
                 return null;
             }
 
-            var orderCode = webhookRequest.Data["orderCode"]?.ToString();
-            if (string.IsNullOrWhiteSpace(orderCode) || !Guid.TryParse(orderCode, out var paymentId))
+            var orderCodeStr = webhookRequest.Data["orderCode"]?.ToString();
+            if (string.IsNullOrWhiteSpace(orderCodeStr))
             {
                 return null;
             }
 
-            var payment = await _paymentRepository.FindByIdAsync(paymentId);
+            // Find the payment by the numeric orderCode stored in TransactionId
+            var payment = await _paymentRepository.FindByTransactionIdAsync(orderCodeStr);
             if (payment is null)
             {
                 return null;
             }
 
             var status = webhookRequest.Data["status"]?.ToString()?.ToLowerInvariant();
-            var transactionId = webhookRequest.Data["transactionId"]?.ToString();
-            var shouldMarkSuccess = status is "paid" or "completed";
+            // The actual transaction ID from PayOS, which is different from our orderCode
+            var gatewayTransactionId = webhookRequest.Data["paymentLinkId"]?.ToString();
+            var shouldMarkSuccess = status is "PAID"; // PayOS uses "PAID" for success
 
             payment.PaymentStatus = shouldMarkSuccess ? "success" : status ?? payment.PaymentStatus;
-            payment.TransactionId = transactionId ?? payment.TransactionId;
+            // Optionally, store the gateway's transaction ID if you have a field for it.
+            // For now, we'll just use our internal one for marking the invoice as paid.
             payment.RawGatewayPayload = webhookRequest.RawBody;
             payment.UpdatedAt = DateTime.UtcNow;
 
@@ -107,7 +113,7 @@ namespace BillingAPI.Application.Services
 
             if (shouldMarkSuccess)
             {
-                await _invoiceService.MarkAsPaidAsync(payment.InvoiceId, payment.TransactionId);
+                await _invoiceService.MarkAsPaidAsync(payment.InvoiceId, gatewayTransactionId ?? payment.TransactionId);
             }
 
             return new PaymentStatusResponse(
@@ -116,7 +122,7 @@ namespace BillingAPI.Application.Services
                 payment.Gateway,
                 payment.PaymentStatus,
                 shouldMarkSuccess ? DateTime.UtcNow : null,
-                payment.TransactionId
+                gatewayTransactionId ?? payment.TransactionId
             );
         }
 
