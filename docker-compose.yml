@@ -86,7 +86,6 @@ services:
       - media-api
       - chat-service
       - ai-ocr-service
-      - personal-coach-api
     networks:
       - app_network
 
@@ -287,8 +286,6 @@ services:
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
       Swagger__JsonEndpoint: /coach/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /coach
-    ports:
-      - "8091:8080"
     depends_on:
       postgres:
         condition: service_healthy

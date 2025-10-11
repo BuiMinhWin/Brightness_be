@@ -403,11 +403,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Insights");
 
-                    b.Property<bool>("IsLatest")
-                        .HasColumnType("boolean")
-                        .HasColumnName("IsLatest");
-
-                    b.Property<Guid?>("OCRResultId")
+                    b.Property<Guid>("OCRResultId")
                         .HasColumnType("uuid")
                         .HasColumnName("OCRResultId");
 
@@ -790,6 +786,9 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.Property<int?>("ActualSets")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("ActualWeightKg")
+                        .HasColumnType("numeric");
+
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean");
 
@@ -835,6 +834,9 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.Property<string>("TargetMuscles")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("VideoUrl")
                         .IsRequired()
