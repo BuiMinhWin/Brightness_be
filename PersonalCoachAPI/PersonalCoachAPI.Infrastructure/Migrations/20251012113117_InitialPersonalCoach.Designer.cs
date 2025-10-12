@@ -13,7 +13,7 @@ using Pgvector;
 namespace PersonalCoachAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(PersonalCoachDbContext))]
-    [Migration("20251012111048_InitialPersonalCoach")]
+    [Migration("20251012113117_InitialPersonalCoach")]
     partial class InitialPersonalCoach
     {
         /// <inheritdoc />
