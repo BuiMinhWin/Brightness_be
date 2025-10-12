@@ -1,11 +1,13 @@
-﻿using AuthenticationAPI.Application.Interfaces;
+using AuthenticationAPI.Application.Interfaces;
 using AuthenticationAPI.Application.Services;
+using AuthenticationAPI.Infrastructure.Caching;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.Repositories;
 using BrightNess.Library.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace AuthenticationAPI.Infrastructure.DependencyInjection
 {
@@ -14,6 +16,8 @@ namespace AuthenticationAPI.Infrastructure.DependencyInjection
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration config)
         {
             SharedServiceContainer.AddSharedServices<AuthenticationDbContext>(services, config, config["MySerilog:FileName"] ?? "AuthenticationApi");
+
+            ConfigureRedis(services, config);
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -26,6 +30,20 @@ namespace AuthenticationAPI.Infrastructure.DependencyInjection
         {
             SharedServiceContainer.UseSharedPolicies(app);
             return app;
+        }
+
+        private static void ConfigureRedis(IServiceCollection services, IConfiguration configuration)
+        {
+            var redisConnection = configuration.GetConnectionString("Redis") ?? configuration["Redis:ConnectionString"];
+
+            if (string.IsNullOrWhiteSpace(redisConnection))
+            {
+                services.AddSingleton<IRefreshTokenCacheService, NoOpRefreshTokenCacheService>();
+                return;
+            }
+
+            services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnection));
+            services.AddSingleton<IRefreshTokenCacheService, RefreshTokenCacheService>();
         }
     }
 }

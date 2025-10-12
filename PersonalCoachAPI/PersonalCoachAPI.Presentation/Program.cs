@@ -1,6 +1,7 @@
 using BrightNess.Library.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PersonalCoachAPI.Application.Interfaces;
@@ -149,6 +150,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
 var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+// Apply pending migrations automatically on startup (especially in Docker)
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PersonalCoachDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseSwagger(cfg =>
 {
