@@ -156,13 +156,6 @@ var app = builder.Build();
 var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
 var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
 
-// Apply pending migrations automatically on startup (especially in Docker)
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<PersonalCoachDbContext>();
-    dbContext.Database.Migrate();
-}
-
 app.UseSwagger(cfg =>
 {
     if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))

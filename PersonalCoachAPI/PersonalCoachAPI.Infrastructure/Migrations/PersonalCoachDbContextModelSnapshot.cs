@@ -32,12 +32,10 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.Property<string>("ContextUsed")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("MessageContent")
                         .IsRequired()
@@ -45,12 +43,11 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.Property<string>("MessageType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RagResults")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("SessionId")
                         .HasColumnType("uuid");
@@ -60,13 +57,10 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("SessionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ai_conversations", (string)null);
+                    b.ToTable("ai_conversations", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.AuthUser", b =>

@@ -209,22 +209,6 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasIndex(x => x.EmbeddingVector).HasMethod("ivfflat");
             });
 
-            // AIConversation configuration
-            modelBuilder.Entity<AIConversation>(entity =>
-            {
-                entity.ToTable("ai_conversations");
-                entity.HasKey(x => x.Id);
-                entity.Property(x => x.MessageType).HasMaxLength(50);
-                entity.Property(x => x.MessageContent).HasColumnType("text");
-                entity.Property(x => x.ContextUsed).HasColumnType("jsonb");
-                entity.Property(x => x.RagResults).HasColumnType("jsonb");
-                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
-                
-                entity.HasIndex(x => x.UserId);
-                entity.HasIndex(x => x.SessionId);
-                entity.HasIndex(x => x.CreatedAt);
-            });
-
             // WorkoutFeedback configuration
             modelBuilder.Entity<WorkoutFeedback>(entity =>
             {
@@ -298,6 +282,13 @@ namespace PersonalCoachAPI.Infrastructure.Data
             modelBuilder.Entity<ProcessedData>(entity =>
             {
                 entity.ToTable("processed_data", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // AIConversation - shared table (read-only, exclude from migrations)
+            modelBuilder.Entity<AIConversation>(entity =>
+            {
+                entity.ToTable("ai_conversations", t => t.ExcludeFromMigrations());
                 entity.HasKey(x => x.Id);
             });
         }
