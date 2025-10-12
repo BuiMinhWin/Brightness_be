@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PersonalCoachAPI.Application.Interfaces;
 using PersonalCoachAPI.Infrastructure.Data;
+using PersonalCoachAPI.Infrastructure.Repositories;
 using PersonalCoachAPI.Infrastructure.Services;
 using Pgvector.EntityFrameworkCore;
 using System;
@@ -113,6 +114,10 @@ builder.Services.AddHttpClient();
 // Add Application Services
 builder.Services.AddScoped<IRAGService, RAGService>();
 builder.Services.AddScoped<IAIScheduleService, AIScheduleService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
+// Add Repositories
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?
     .Where(origin => !string.IsNullOrWhiteSpace(origin))
@@ -174,5 +179,39 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Database migration on startup
+await using var scope = app.Services.CreateAsyncScope();
+var dbContext = scope.ServiceProvider.GetRequiredService<PersonalCoachDbContext>();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+const int maxRetryAttempts = 15;
+var delay = TimeSpan.FromSeconds(2);
+var migrationSucceeded = false;
+Exception? lastException = null;
+
+for (var attempt = 1; attempt <= maxRetryAttempts; attempt++)
+{
+    try
+    {
+        logger.LogInformation("Attempting database migration (attempt {Attempt}/{MaxAttempts})", attempt, maxRetryAttempts);
+        await dbContext.Database.MigrateAsync();
+        logger.LogInformation("Database migration completed successfully");
+        migrationSucceeded = true;
+        break;
+    }
+    catch (Exception ex) when (attempt < maxRetryAttempts)
+    {
+        lastException = ex;
+        logger.LogWarning(ex, "PostgreSQL is not ready yet (attempt {Attempt}/{MaxAttempts}). Waiting {Delay} before retry.", attempt, maxRetryAttempts, delay);
+        await Task.Delay(delay);
+    }
+}
+
+if (!migrationSucceeded)
+{
+    logger.LogError(lastException, "Database migration failed after {MaxAttempts} attempts", maxRetryAttempts);
+    throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
+}
 
 app.Run();

@@ -58,6 +58,7 @@ namespace AIOCRService.Infrastructure.Data
                 entity.Property(x => x.ProcessedContent).HasColumnType("text");
                 entity.Property(x => x.Summary).HasColumnType("text");
                 entity.Property(x => x.Insights).HasColumnType("text");
+                entity.Property(x => x.IsLatest).HasDefaultValue(true).HasColumnName("is_latest");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 
                 entity.HasOne(x => x.OCRResult)
@@ -67,6 +68,7 @@ namespace AIOCRService.Infrastructure.Data
                     
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.DataType);
+                entity.HasIndex(x => x.IsLatest);
             });
         }
     }
