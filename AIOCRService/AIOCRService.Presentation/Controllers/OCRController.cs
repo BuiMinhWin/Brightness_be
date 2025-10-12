@@ -408,6 +408,7 @@ namespace AIOCRService.Presentation.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
     }
 
     public class AIProcessRequest
@@ -415,4 +416,5 @@ namespace AIOCRService.Presentation.Controllers
         public string Prompt { get; set; } = string.Empty;
     }
 }
+
 
