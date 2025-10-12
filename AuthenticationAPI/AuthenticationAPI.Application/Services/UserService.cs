@@ -10,10 +10,16 @@ using BrightNess.Library.Responses;
 
 namespace AuthenticationAPI.Application.Services
 {
-    public class UserService(IUserRepository userRepository, ITokenService tokenService) : IUserService
+    public class UserService(
+        IUserRepository userRepository,
+        ITokenService tokenService,
+        IRefreshTokenRepository refreshTokenRepository,
+        IRefreshTokenCacheService refreshTokenCacheService) : IUserService
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly ITokenService _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+        private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
+        private readonly IRefreshTokenCacheService _refreshTokenCache = refreshTokenCacheService ?? throw new ArgumentNullException(nameof(refreshTokenCacheService));
 
         public async Task<Response> RegisterAsync(UserDTO userDTO)
         {
@@ -76,17 +82,133 @@ namespace AuthenticationAPI.Application.Services
             };
 
             var tokens = _tokenService.GenerateAuthTokens(payload);
+
+            var revokeExistingResult = await _refreshTokenRepository.RevokeActiveTokensAsync(user.Id, tokens.RefreshToken, ipAddress);
+            if (!revokeExistingResult.Flag)
+            {
+                return new Response(false, "Unable to revoke existing sessions", revokeExistingResult.Message);
+            }
+
+            await _refreshTokenCache.RemoveTokensByUserAsync(user.Id);
+
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = tokens.RefreshToken,
+                ExpiresAt = tokens.RefreshTokenExpiresAt,
+                CreatedAt = DateTime.UtcNow,
+                CreatedByIp = ipAddress
+            };
+
+            var saveTokenResult = await _refreshTokenRepository.CreateAsync(refreshToken);
+            if (!saveTokenResult.Flag)
+            {
+                return new Response(false, "Unable to persist refresh token", saveTokenResult.Message);
+            }
+
+            await _refreshTokenCache.CacheTokenAsync(refreshToken);
+
             return new Response(true, "Login successfully", tokens);
         }
 
         public async Task<Response> RefreshTokenAsync(string refreshToken, string? ipAddress = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return new Response(false, "Refresh token is required");
+            }
+
+            var existingToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            if (existingToken is null)
+            {
+                return new Response(false, "Refresh token not found");
+            }
+
+            if (!existingToken.IsActive)
+            {
+                return new Response(false, "Refresh token is inactive or expired");
+            }
+
+            var user = existingToken.User;
+            var payload = new TokenPayload
+            {
+                Id = user.Id.ToString(),
+                Name = user.FullName ?? user.UserName,
+                Email = user.Email,
+                Role = user.Role
+            };
+
+            var tokens = _tokenService.GenerateAuthTokens(payload);
+
+            var replacementToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = tokens.RefreshToken,
+                ExpiresAt = tokens.RefreshTokenExpiresAt,
+                CreatedAt = DateTime.UtcNow,
+                CreatedByIp = ipAddress
+            };
+
+            var createResponse = await _refreshTokenRepository.CreateAsync(replacementToken);
+            if (!createResponse.Flag)
+            {
+                return new Response(false, "Unable to issue refresh token", createResponse.Message);
+            }
+
+            existingToken.RevokedAt = DateTime.UtcNow;
+            existingToken.RevokedByIp = ipAddress;
+            existingToken.ReplacedByToken = replacementToken.Token;
+
+            var revokeResponse = await _refreshTokenRepository.UpdateAsync(existingToken);
+            if (!revokeResponse.Flag)
+            {
+                return new Response(false, "Failed to update refresh token state", revokeResponse.Message);
+            }
+
+            await _refreshTokenCache.RemoveTokenAsync(refreshToken);
+            await _refreshTokenCache.CacheTokenAsync(replacementToken);
+
+            return new Response(true, "Token refreshed successfully", tokens);
         }
 
         public async Task<Response> RevokeRefreshTokenAsync(string refreshToken, string? ipAddress = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return new Response(false, "Refresh token is required");
+            }
+
+            var existingToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            if (existingToken is null)
+            {
+                return new Response(false, "Refresh token not found");
+            }
+
+            if (existingToken.RevokedAt is not null)
+            {
+                return new Response(false, "Refresh token has already been revoked");
+            }
+
+            if (DateTime.UtcNow >= existingToken.ExpiresAt)
+            {
+                return new Response(false, "Refresh token has already expired");
+            }
+
+            existingToken.RevokedAt = DateTime.UtcNow;
+            existingToken.RevokedByIp = ipAddress;
+
+            var revokeResponse = await _refreshTokenRepository.UpdateAsync(existingToken);
+            return revokeResponse.Flag
+                ? await HandleSuccessfulRevokeAsync(existingToken)
+                : new Response(false, "Failed to revoke refresh token", revokeResponse.Message);
+        }
+
+        private async Task<Response> HandleSuccessfulRevokeAsync(RefreshToken token)
+        {
+            await _refreshTokenCache.RemoveTokenAsync(token.Token);
+            return new Response(true, "Refresh token revoked successfully");
         }
 
         public async Task<GetUserDTO?> GetByIdAsync(Guid userId)

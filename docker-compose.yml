@@ -28,6 +28,17 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: redis:8.2-alpine
+    restart: always
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -57,9 +68,12 @@ services:
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
       Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /auth
+      Redis__ConnectionString: redis:6379
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - app_network
 
@@ -302,3 +316,4 @@ volumes:
   postgres_data: {}
   pgadmin_data: {}
   pgdata: {}
+  redis_data: {}
