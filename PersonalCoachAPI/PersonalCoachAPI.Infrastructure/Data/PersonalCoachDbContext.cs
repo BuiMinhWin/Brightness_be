@@ -253,12 +253,16 @@ namespace PersonalCoachAPI.Infrastructure.Data
             {
                 entity.ToTable("schedule_edit_history");
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.EditType).HasMaxLength(50);
-                entity.Property(x => x.EditDescription).HasMaxLength(500);
-                entity.Property(x => x.BeforeValue).HasColumnType("jsonb");
-                entity.Property(x => x.AfterValue).HasColumnType("jsonb");
-                entity.Property(x => x.EditSource).HasMaxLength(50);
-                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.UserId).HasColumnName("user_id");
+                entity.Property(x => x.ScheduleId).HasColumnName("schedule_id");
+                entity.Property(x => x.ScheduleDayId).HasColumnName("schedule_day_id");
+                entity.Property(x => x.EditType).HasMaxLength(50).HasColumnName("edit_type");
+                entity.Property(x => x.EditDescription).HasMaxLength(500).HasColumnName("edit_description");
+                entity.Property(x => x.BeforeValue).HasColumnType("jsonb").HasColumnName("before_value");
+                entity.Property(x => x.AfterValue).HasColumnType("jsonb").HasColumnName("after_value");
+                entity.Property(x => x.EditSource).HasMaxLength(50).HasColumnName("edit_source");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'").HasColumnName("created_at");
                 
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.ScheduleId);

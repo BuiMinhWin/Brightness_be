@@ -752,7 +752,8 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 }).Where(d => d >= 0).ToList();
 
                 int workoutDayCount = completedDays.Count;
-                int dayNumber = request.FromDayNumber;
+                // Start from the next day number after completed days
+                int dayNumber = completedDays.Any() ? completedDays.Max(d => d.DayNumber) + 1 : request.FromDayNumber;
                 var lastCompletedDate = completedDays.Any() 
                     ? completedDays.Max(d => d.Date) 
                     : DateTime.UtcNow.Date;
