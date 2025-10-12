@@ -17,6 +17,8 @@ namespace PersonalCoachAPI.Infrastructure.Data
         public DbSet<WorkoutSchedule> WorkoutSchedules => Set<WorkoutSchedule>();
         public DbSet<WorkoutScheduleDay> WorkoutScheduleDays => Set<WorkoutScheduleDay>();
         public DbSet<WorkoutScheduleExercise> WorkoutScheduleExercises => Set<WorkoutScheduleExercise>();
+        public DbSet<WorkoutFeedback> WorkoutFeedbacks => Set<WorkoutFeedback>();
+        public DbSet<ScheduleEditHistory> ScheduleEditHistories => Set<ScheduleEditHistory>();
         public DbSet<ExerciseLibrary> ExerciseLibrary => Set<ExerciseLibrary>();
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
         public DbSet<UserContextSnapshot> UserContextSnapshots => Set<UserContextSnapshot>();
@@ -88,9 +90,17 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.Property(x => x.DifficultyLevel).HasMaxLength(50);
                 entity.Property(x => x.Status).HasMaxLength(50);
                 entity.Property(x => x.AiGenerationPrompt).HasColumnType("text");
+                entity.Property(x => x.RegenerationReason).HasMaxLength(100);
+                entity.Property(x => x.Version).HasColumnName("version");
+                entity.Property(x => x.ParentScheduleId).HasColumnName("parent_schedule_id");
+                entity.Property(x => x.RegeneratedFromDay).HasColumnName("regenerated_from_day");
+                entity.Property(x => x.RegenerationReason).HasColumnName("regeneration_reason");
+                entity.Property(x => x.IsLatest).HasColumnName("is_latest");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.Status);
+                entity.HasIndex(x => new { x.UserId, x.IsLatest });
+                entity.HasIndex(x => x.ParentScheduleId);
             });
 
             // WorkoutScheduleDay configuration
@@ -100,6 +110,7 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.DayType).HasMaxLength(50);
                 entity.Property(x => x.FocusArea).HasMaxLength(100);
+                entity.Property(x => x.Status).HasMaxLength(50);
                 entity.Property(x => x.UserNotes).HasColumnType("text");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 
@@ -211,6 +222,47 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.SessionId);
+                entity.HasIndex(x => x.CreatedAt);
+            });
+
+            // WorkoutFeedback configuration
+            modelBuilder.Entity<WorkoutFeedback>(entity =>
+            {
+                entity.ToTable("workout_feedbacks");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.FeedbackType).HasMaxLength(50);
+                entity.Property(x => x.DifficultyRating).HasMaxLength(50);
+                entity.Property(x => x.ExerciseFeedback).HasMaxLength(100);
+                entity.Property(x => x.Notes).HasColumnType("text");
+                entity.Property(x => x.ContextTags).HasColumnType("jsonb");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasOne(x => x.Schedule)
+                    .WithMany(x => x.Feedbacks)
+                    .HasForeignKey(x => x.ScheduleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.ScheduleDayId);
+                entity.HasIndex(x => x.DifficultyRating);
+            });
+
+            // ScheduleEditHistory configuration
+            modelBuilder.Entity<ScheduleEditHistory>(entity =>
+            {
+                entity.ToTable("schedule_edit_history");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.EditType).HasMaxLength(50);
+                entity.Property(x => x.EditDescription).HasMaxLength(500);
+                entity.Property(x => x.BeforeValue).HasColumnType("jsonb");
+                entity.Property(x => x.AfterValue).HasColumnType("jsonb");
+                entity.Property(x => x.EditSource).HasMaxLength(50);
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.EditType);
                 entity.HasIndex(x => x.CreatedAt);
             });
         }

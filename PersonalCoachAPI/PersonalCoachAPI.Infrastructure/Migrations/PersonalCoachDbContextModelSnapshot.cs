@@ -751,6 +751,9 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<int>("EstimatedDuration")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FocusArea")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -761,6 +764,11 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

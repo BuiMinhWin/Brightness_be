@@ -11,6 +11,8 @@ namespace PersonalCoachAPI.Domain.Entities
         public DateTime Date { get; set; }
         public string DayType { get; set; } = "workout"; // workout, rest, active_recovery
         public string FocusArea { get; set; } = string.Empty; // upper_body, lower_body, cardio, full_body
+        public int EstimatedDuration { get; set; } // in minutes
+        public string Status { get; set; } = "scheduled"; // scheduled, completed, skipped
         public bool Completed { get; set; }
         public DateTime? CompletionDate { get; set; }
         public string UserNotes { get; set; } = string.Empty;

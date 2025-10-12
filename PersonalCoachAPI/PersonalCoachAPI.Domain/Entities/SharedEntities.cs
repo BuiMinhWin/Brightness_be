@@ -137,9 +137,6 @@ namespace PersonalCoachAPI.Domain.Entities
         [Column("Insights")]
         public string Insights { get; set; } = string.Empty;
         
-        [Column("IsLatest")]
-        public bool IsLatest { get; set; } = true;
-        
         [Column("CreatedAt")]
         public DateTime CreatedAt { get; set; }
     }

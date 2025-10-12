@@ -158,6 +158,153 @@ namespace PersonalCoachAPI.Infrastructure.Services
             }
         }
 
+        public async Task<List<ExerciseSearchResult>> SearchExercisesByGoalAsync(string goal, string fitnessLevel, List<string> availableEquipment, int topK = 10)
+        {
+            try
+            {
+                // Build search query based on goal
+                var searchQuery = BuildGoalSearchQuery(goal, fitnessLevel);
+                
+                var queryEmbedding = await GenerateEmbeddingAsync(searchQuery);
+                if (queryEmbedding == null || queryEmbedding.Length == 0)
+                {
+                    _logger.LogWarning("Failed to generate embedding, using fallback");
+                }
+                else
+                {
+                    var queryVector = new Vector(queryEmbedding);
+
+                    // Filter by fitness level, available equipment, and search
+                    var results = await _context.ExerciseLibrary
+                        .Where(x => x.EmbeddingVector != null && 
+                                   (x.DifficultyLevel == fitnessLevel || fitnessLevel == "all"))
+                        .Select(x => new
+                        {
+                            Exercise = x,
+                            Distance = x.EmbeddingVector!.L2Distance(queryVector)
+                        })
+                        .OrderBy(x => x.Distance)
+                        .Take(topK * 2) // Get more results to filter by equipment
+                        .ToListAsync();
+
+                    if (results.Any())
+                    {
+                        var filteredResults = results
+                            .Where(x => IsEquipmentCompatible(x.Exercise.EquipmentRequired, availableEquipment))
+                            .Take(topK)
+                            .Select(x => new ExerciseSearchResult
+                            {
+                                Id = x.Exercise.Id,
+                                ExerciseName = x.Exercise.ExerciseName,
+                                ExerciseNameVi = x.Exercise.ExerciseNameVi,
+                                Category = x.Exercise.Category,
+                                DifficultyLevel = x.Exercise.DifficultyLevel,
+                                TargetMuscles = JsonConvert.DeserializeObject<List<string>>(x.Exercise.TargetMuscles) ?? new List<string>(),
+                                EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.Exercise.EquipmentRequired) ?? new List<string>(),
+                                Description = x.Exercise.DescriptionVi,
+                                VideoUrl = x.Exercise.VideoUrl,
+                                SimilarityScore = 1.0 - (double)x.Distance
+                            }).ToList();
+
+                        return filteredResults;
+                    }
+                }
+
+                // Fallback: return exercises without embedding search
+                var fallbackResults = await _context.ExerciseLibrary
+                    .Where(x => x.DifficultyLevel == fitnessLevel || fitnessLevel == "all")
+                    .Where(x => IsEquipmentCompatible(x.EquipmentRequired, availableEquipment))
+                    .Take(topK)
+                    .Select(x => new ExerciseSearchResult
+                    {
+                        Id = x.Id,
+                        ExerciseName = x.ExerciseName,
+                        ExerciseNameVi = x.ExerciseNameVi,
+                        Category = x.Category,
+                        DifficultyLevel = x.DifficultyLevel,
+                        TargetMuscles = JsonConvert.DeserializeObject<List<string>>(x.TargetMuscles) ?? new List<string>(),
+                        EquipmentRequired = JsonConvert.DeserializeObject<List<string>>(x.EquipmentRequired) ?? new List<string>(),
+                        Description = x.DescriptionVi,
+                        VideoUrl = x.VideoUrl,
+                        SimilarityScore = 0.5 // Default similarity score for fallback
+                    })
+                    .ToListAsync();
+
+                return fallbackResults;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching exercises with equipment filter");
+                return new List<ExerciseSearchResult>();
+            }
+        }
+
+        private bool IsEquipmentCompatible(string exerciseEquipmentJson, List<string> availableEquipment)
+        {
+            try
+            {
+                var exerciseEquipment = JsonConvert.DeserializeObject<List<string>>(exerciseEquipmentJson) ?? new List<string>();
+                
+                // If exercise requires no equipment, it's always compatible
+                if (!exerciseEquipment.Any())
+                    return true;
+
+                // Normalize available equipment (handle plurals, synonyms, case-insensitivity)
+                var normalizedAvailable = availableEquipment.Select(NormalizeEquipmentName).ToList();
+
+                // Check if all required equipment is available (normalized comparison)
+                return exerciseEquipment.All(equipment => 
+                {
+                    var normalizedRequired = NormalizeEquipmentName(equipment);
+                    return normalizedAvailable.Any(available => 
+                        string.Equals(normalizedRequired, available, StringComparison.OrdinalIgnoreCase));
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error checking equipment compatibility");
+                return true; // Default to compatible if there's an error
+            }
+        }
+
+        private string NormalizeEquipmentName(string equipment)
+        {
+            var normalized = equipment.ToLower().Trim();
+            
+            // Handle plurals - remove trailing 's'
+            if (normalized.EndsWith("s") && normalized.Length > 3)
+            {
+                // Don't remove 's' from words like "straps", "press"
+                if (!normalized.EndsWith("ss") && !normalized.EndsWith("ness"))
+                {
+                    normalized = normalized.TrimEnd('s');
+                }
+            }
+            
+            // Handle synonyms and variations
+            var synonymMap = new Dictionary<string, string>
+            {
+                {"resistance band", "band"},
+                {"bike", "bicycle"},
+                {"stationary bike", "bicycle"},
+                {"pull-up bar", "pull-up bar"},
+                {"pullup bar", "pull-up bar"},
+                {"yoga mat", "mat"},
+                {"exercise mat", "mat"},
+            };
+            
+            // Check if there's a synonym mapping
+            foreach (var (key, value) in synonymMap)
+            {
+                if (normalized.Contains(key))
+                {
+                    return value;
+                }
+            }
+            
+            return normalized;
+        }
+
         public async Task<List<HealthKnowledgeResult>> SearchHealthKnowledgeAsync(string query, int topK = 5)
         {
             try
@@ -215,13 +362,23 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     snapshot = await CreateUserContextSnapshotAsync(userId);
                 }
 
+                // Get recent workout feedback for adaptive personalization
+                var recentFeedback = await _context.WorkoutFeedbacks
+                    .Where(f => f.UserId == userId)
+                    .OrderByDescending(f => f.CreatedAt)
+                    .Take(10)
+                    .ToListAsync();
+
+                // Build feedback summary
+                var feedbackSummary = BuildFeedbackSummary(recentFeedback);
+
                 return new UserContextResult
                 {
                     UserId = userId,
                     HealthSummary = snapshot.HealthSummary,
                     FitnessSummary = snapshot.FitnessSummary,
                     GoalsSummary = snapshot.GoalsSummary,
-                    ProgressSummary = snapshot.ProgressSummary,
+                    ProgressSummary = snapshot.ProgressSummary + "\n" + feedbackSummary,
                     SnapshotDate = snapshot.SnapshotDate,
                     SimilarityScore = 1.0
                 };
@@ -231,6 +388,43 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 _logger.LogError(ex, "Error getting user context");
                 return new UserContextResult { UserId = userId };
             }
+        }
+
+        private string BuildFeedbackSummary(List<WorkoutFeedback> feedbacks)
+        {
+            if (!feedbacks.Any()) return "No workout feedback yet.";
+
+            var summary = new List<string>();
+            summary.Add("Recent Workout Feedback:");
+
+            var tooHardCount = feedbacks.Count(f => f.DifficultyRating == "too_hard" || f.DifficultyRating == "could_not_complete");
+            var tooEasyCount = feedbacks.Count(f => f.DifficultyRating == "too_easy");
+            var justRightCount = feedbacks.Count(f => f.DifficultyRating == "just_right");
+
+            if (tooHardCount > 0) summary.Add($"- {tooHardCount} workouts felt too hard");
+            if (tooEasyCount > 0) summary.Add($"- {tooEasyCount} workouts felt too easy");
+            if (justRightCount > 0) summary.Add($"- {justRightCount} workouts felt just right");
+
+            var avgEnergy = feedbacks.Where(f => f.EnergyLevel.HasValue).Average(f => (double?)f.EnergyLevel) ?? 0;
+            if (avgEnergy > 0) summary.Add($"- Average energy level: {avgEnergy:F1}/5");
+
+            var avgSoreness = feedbacks.Where(f => f.SorenessLevel.HasValue).Average(f => (double?)f.SorenessLevel) ?? 0;
+            if (avgSoreness > 0) summary.Add($"- Average soreness: {avgSoreness:F1}/5");
+
+            // Include specific notes from recent feedback
+            var notesWithContext = feedbacks
+                .Where(f => !string.IsNullOrEmpty(f.Notes))
+                .Take(3)
+                .Select(f => $"- Day {f.DayNumber}: {f.Notes}")
+                .ToList();
+
+            if (notesWithContext.Any())
+            {
+                summary.Add("Recent Notes:");
+                summary.AddRange(notesWithContext);
+            }
+
+            return string.Join("\n", summary);
         }
 
         public async Task UpdateUserContextAsync(Guid userId)
