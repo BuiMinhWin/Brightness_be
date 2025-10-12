@@ -120,6 +120,9 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 // Add Repositories
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
+// Add Database Seeder
+builder.Services.AddScoped<DatabaseSeederService>();
+
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?
     .Where(origin => !string.IsNullOrWhiteSpace(origin))
     .Select(origin => origin.TrimEnd('/'))
@@ -213,6 +216,17 @@ if (!migrationSucceeded)
 {
     logger.LogError(lastException, "Database migration failed after {MaxAttempts} attempts", maxRetryAttempts);
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
+}
+
+// Seed database after successful migration
+try
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeederService>();
+    await seeder.SeedAsync();
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Error seeding database. Application will continue but database may be empty.");
 }
 
 app.Run();

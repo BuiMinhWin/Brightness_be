@@ -26,4 +26,8 @@ RUN dotnet publish "PersonalCoachAPI.Presentation.csproj" -c Release -o /app/pub
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy seed data
+COPY ["PersonalCoachAPI/SeedData", "SeedData/"]
+
 ENTRYPOINT ["dotnet", "PersonalCoachAPI.Presentation.dll"]
