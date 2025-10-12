@@ -12,6 +12,7 @@ namespace PersonalCoachAPI.Application.DTOs
         public List<string> AvailableDays { get; set; } = new();
         public List<string> EquipmentAvailable { get; set; } = new();
         public string? AdditionalNotes { get; set; }
+        public bool StartFromToday { get; set; } = false;
     }
 
     public class ModifyDayRequest
@@ -30,6 +31,13 @@ namespace PersonalCoachAPI.Application.DTOs
         public string? Reason { get; set; }
     }
 
+    public class CompleteExerciseRequest
+    {
+        public bool Completed { get; set; }
+        public int? ActualSets { get; set; }
+        public int? ActualReps { get; set; }
+    }
+
     // Response DTOs
     public class WorkoutScheduleResponse
     {
@@ -44,7 +52,9 @@ namespace PersonalCoachAPI.Application.DTOs
 
     public class ScheduleDayDetail
     {
+        public Guid ScheduleDayId { get; set; }
         public int DayNumber { get; set; }
+        public DateTime Date { get; set; }
         public string DayType { get; set; } = string.Empty;
         public string FocusArea { get; set; } = string.Empty;
         public int EstimatedDuration { get; set; }
@@ -53,6 +63,7 @@ namespace PersonalCoachAPI.Application.DTOs
 
     public class ExerciseDetail
     {
+        public Guid ExerciseId { get; set; }
         public string ExerciseName { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public int Sets { get; set; }
@@ -60,6 +71,9 @@ namespace PersonalCoachAPI.Application.DTOs
         public int RestSeconds { get; set; }
         public string? Notes { get; set; }
         public string? VideoUrl { get; set; }
+        public bool Completed { get; set; }
+        public int? ActualSets { get; set; }
+        public int? ActualReps { get; set; }
     }
 
     public class ModifiedDayResponse
@@ -82,5 +96,96 @@ namespace PersonalCoachAPI.Application.DTOs
     {
         public int DayNumber { get; set; }
         public List<string> Changes { get; set; } = new();
+    }
+
+    // Feedback DTOs
+    public class SubmitWorkoutFeedbackRequest
+    {
+        public Guid ScheduleId { get; set; }
+        public Guid ScheduleDayId { get; set; }
+        public int DayNumber { get; set; }
+        public string DifficultyRating { get; set; } = string.Empty; // "too_easy", "just_right", "too_hard", "could_not_complete"
+        public int? EnergyLevel { get; set; } // 1-5
+        public int? SorenessLevel { get; set; } // 1-5
+        public bool? TookLongerThanExpected { get; set; }
+        public int? ActualDurationMinutes { get; set; }
+        public string? Notes { get; set; }
+        public List<string>? ContextTags { get; set; } // ["busy_day", "not_enough_sleep", etc.]
+    }
+
+    public class RegenerateScheduleRequest
+    {
+        public Guid CurrentScheduleId { get; set; }
+        public int FromDayNumber { get; set; }
+        public string Reason { get; set; } = string.Empty; // "too_hard", "too_easy", "busy", "injury", "user_request"
+        public string? AdditionalNotes { get; set; }
+        public bool PreserveCompleted { get; set; } = true;
+        public string? NewDifficultyLevel { get; set; } // Optional: override difficulty
+        public List<string>? NewAvailableDays { get; set; } // Optional: change available days
+    }
+
+    public class EditWorkoutDayRequest
+    {
+        public Guid ScheduleDayId { get; set; }
+        public string? NewFocusArea { get; set; }
+        public List<EditExerciseRequest>? ModifiedExercises { get; set; }
+        public List<Guid>? ExercisesToRemove { get; set; }
+        public List<AddExerciseRequest>? ExercisesToAdd { get; set; }
+    }
+
+    public class EditExerciseRequest
+    {
+        public Guid ExerciseId { get; set; }
+        public int? NewSets { get; set; }
+        public string? NewReps { get; set; }
+        public int? NewRestSeconds { get; set; }
+        public string? NewNotes { get; set; }
+    }
+
+    public class AddExerciseRequest
+    {
+        public string ExerciseName { get; set; } = string.Empty;
+        public int Sets { get; set; }
+        public string Reps { get; set; } = string.Empty;
+        public int RestSeconds { get; set; }
+        public int OrderIndex { get; set; }
+    }
+
+    // Response DTOs
+    public class ScheduleHistoryResponse
+    {
+        public List<ScheduleVersionInfo> Versions { get; set; } = new();
+        public ScheduleAnalytics Analytics { get; set; } = new();
+    }
+
+    public class ScheduleVersionInfo
+    {
+        public Guid ScheduleId { get; set; }
+        public int Version { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsLatest { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public int TotalDays { get; set; }
+        public int CompletedDays { get; set; }
+        public int CompletionPercentage { get; set; }
+        public string? RegenerationReason { get; set; }
+    }
+
+    public class ScheduleAnalytics
+    {
+        public int TotalWorkoutsCompleted { get; set; }
+        public int TotalWorkoutsPlanned { get; set; }
+        public int OverallCompletionRate { get; set; }
+        public Dictionary<string, int> CompletionByFocusArea { get; set; } = new();
+        public List<string> MostCompletedExercises { get; set; } = new();
+        public double AverageDifficulty { get; set; }
+        public List<FeedbackSummary> RecentFeedback { get; set; } = new();
+    }
+
+    public class FeedbackSummary
+    {
+        public DateTime Date { get; set; }
+        public string DifficultyRating { get; set; } = string.Empty;
+        public string? Notes { get; set; }
     }
 }

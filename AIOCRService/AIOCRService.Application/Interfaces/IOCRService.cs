@@ -7,10 +7,12 @@ namespace AIOCRService.Application.Interfaces
         Task<OCRRequestDTO> CreateOCRRequestAsync(CreateOCRRequestDTO request);
         Task<OCRResultDTO> ProcessImageAsync(Guid requestId);
         Task<ProcessedDataDTO> ProcessWithAIAsync(Guid resultId, string aiPrompt);
+        Task<ProcessedDataDTO> ProcessImageDirectlyWithAIAsync(Guid requestId, string aiPrompt);
         Task<OCRRequestDTO> GetOCRRequestAsync(Guid requestId);
         Task<OCRResultDTO> GetOCRResultAsync(Guid resultId);
         Task<ProcessedDataDTO> GetProcessedDataAsync(Guid processedDataId);
         Task<IEnumerable<OCRRequestDTO>> GetUserOCRRequestsAsync(Guid userId);
+        Task<IEnumerable<ProcessedDataDTO>> GetProcessedDataHistoryAsync(Guid userId, string dataType);
     }
 }
 

@@ -11,5 +11,6 @@ namespace BillingAPI.Application.Interfaces
     {
         Task<Payment?> GetLatestForInvoiceAsync(Guid invoiceId, PaymentGatewayType gateway);
         Task<IEnumerable<Payment>> GetPendingPaymentsAsync(DateTime referenceDate);
+        Task<Payment?> FindByTransactionIdAsync(string transactionId);
     }
 }

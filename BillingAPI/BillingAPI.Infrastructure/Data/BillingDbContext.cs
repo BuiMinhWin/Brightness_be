@@ -78,7 +78,7 @@ namespace BillingAPI.Infrastructure.Data
 
         private static PaymentGatewayType ParseGateway(string value)
         {
-            return Enum.TryParse<PaymentGatewayType>(value, out var parsed) ? parsed : PaymentGatewayType.VnPay;
+            return Enum.TryParse<PaymentGatewayType>(value, out var parsed) ? parsed : PaymentGatewayType.PayOs;
         }
     }
 }

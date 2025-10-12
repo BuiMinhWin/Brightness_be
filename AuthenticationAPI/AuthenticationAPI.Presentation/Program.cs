@@ -1,13 +1,18 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Npgsql;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.DependencyInjection;
+using BrightNess.Library.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 
@@ -16,6 +21,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Authentication API",
+        Version = "v1",
+        Description = "User authentication, registration, and JWT token management"
+    });
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -54,6 +66,43 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddInfrastructureService(builder.Configuration);
 
+var authSection = builder.Configuration.GetSection("Authentication");
+var jwtKey = authSection["Key"] ?? throw new InvalidOperationException("Authentication:Key is not configured.");
+var jwtIssuer = authSection["Issuer"] ?? throw new InvalidOperationException("Authentication:Issuer is not configured.");
+var jwtAudience = authSection["Audience"] ?? throw new InvalidOperationException("Authentication:Audience is not configured.");
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
+    });
+
 var app = builder.Build();
 
 await using var scope = app.Services.CreateAsyncScope();
@@ -86,22 +135,27 @@ if (!migrationSucceeded)
 
 app.UserInfrastructurePolicy();
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Authentication API V1");
-    });
-}
-else
-{
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Authentication API V1");
-    });
-}
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
 
+app.UseSwagger(cfg =>
+{
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Authentication API V1");
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -121,7 +175,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-
-
-
-

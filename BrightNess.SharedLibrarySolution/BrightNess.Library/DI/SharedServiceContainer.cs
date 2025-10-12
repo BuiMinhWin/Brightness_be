@@ -1,3 +1,4 @@
+using BrightNess.Library.Configuration;
 using BrightNess.Library.Jwt;
 using BrightNess.Library.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
+using System.Linq;
 
 namespace BrightNess.Library.DI
 {
@@ -16,9 +18,11 @@ namespace BrightNess.Library.DI
         public static IServiceCollection AddSharedServices<TContext>(this IServiceCollection services,
             IConfiguration config, string fileName) where TContext : DbContext
         {
+            var connectionString = config.GetRequiredConnectionString("BrightnessDb");
+
             services.AddDbContext<TContext>(options =>
                 options.UseNpgsql(
-                    config.GetConnectionString("BrightnessDb"),
+                    connectionString,
                     npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
 
             Log.Logger = new LoggerConfiguration()
@@ -35,9 +39,14 @@ namespace BrightNess.Library.DI
             services.Configure<JwtOptions>(config.GetSection("Authentication"));
             services.AddSingleton<ITokenService, TokenService>();
 
-            JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
+            // JWTAuthenticationScheme.AddJWTAuthenticationScheme(services, config);
 
             var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            allowedOrigins = allowedOrigins?
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .Select(origin => origin.TrimEnd('/'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
             services.AddCors(options =>
             {

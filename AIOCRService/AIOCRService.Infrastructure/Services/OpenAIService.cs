@@ -94,6 +94,12 @@ namespace AIOCRService.Infrastructure.Services
             }
         }
 
+        public Task<string> ProcessImageDirectlyAsync(string imageBase64, string prompt, string dataType)
+        {
+            // OpenAI doesn't support this yet, use GoogleAI instead
+            throw new NotImplementedException("OpenAI doesn't support direct image processing. Use GoogleAI service instead.");
+        }
+
         public async Task<string> GenerateSummaryAsync(string content)
         {
             var prompt = "Tóm tắt ngắn gọn nội dung sau bằng tiếng Việt:";

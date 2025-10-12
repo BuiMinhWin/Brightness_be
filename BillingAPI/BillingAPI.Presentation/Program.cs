@@ -1,10 +1,19 @@
-﻿using BillingAPI.Infrastructure.Data;
+using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.DependencyInjection;
+using BrightNess.Library.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using System.Collections.Generic;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -52,10 +61,74 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-
 });
 
 builder.Services.AddBillingInfrastructure(builder.Configuration);
+
+// Bind PaymentGateway options from configuration (appsettings, env vars, user-secrets, etc.)
+builder.Services.Configure<BillingAPI.Presentation.PaymentGatewayOptions>(builder.Configuration.GetSection("PaymentGateway"));
+
+// Validate / provide fallback for ApiKey and fail-fast in non-development.
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IOptions<BillingAPI.Presentation.PaymentGatewayOptions>>().Value;
+    // First check bound value, then explicit env var fallback (supports PAYMENT_GATEWAY__APIKEY naming)
+    if (string.IsNullOrWhiteSpace(cfg.ApiKey))
+    {
+        var fallback = builder.Configuration["PAYMENT_GATEWAY__APIKEY"] ?? builder.Configuration["PaymentGateway:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(fallback))
+        {
+            cfg.ApiKey = fallback;
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(cfg.ApiKey) && !builder.Environment.IsDevelopment())
+    {
+        // Fail fast in production if no API key provided.
+        throw new InvalidOperationException("PaymentGateway:ApiKey is not configured. Set PAYMENT_GATEWAY__APIKEY or configure a secrets provider for production.");
+    }
+
+    return cfg;
+});
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        if (!jwtSettings.Exists() || string.IsNullOrWhiteSpace(jwtSettings["Key"]))
+        {
+            jwtSettings = builder.Configuration.GetSection("Authentication");
+        }
+
+        var signingKey = jwtSettings["Key"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException("JWT signing key is not configured. Set Jwt:Key or Authentication:Key.");
+        }
+
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
+    });
 
 var app = builder.Build();
 
@@ -87,20 +160,31 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
+
+
 app.UseBillingInfrastructure();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
 
-app.UseHttpsRedirection();
+app.UseSwagger(cfg =>
+{
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Billing API v1");
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -118,4 +202,3 @@ static bool IsDatabaseStartingUp(Exception ex)
         _ => false
     };
 }
-

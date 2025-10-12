@@ -10,16 +10,25 @@ namespace PersonalCoachAPI.Infrastructure.Data
         {
         }
 
+        // PersonalCoach tables
         public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
         public DbSet<UserHealthMetric> UserHealthMetrics => Set<UserHealthMetric>();
         public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
         public DbSet<WorkoutSchedule> WorkoutSchedules => Set<WorkoutSchedule>();
         public DbSet<WorkoutScheduleDay> WorkoutScheduleDays => Set<WorkoutScheduleDay>();
         public DbSet<WorkoutScheduleExercise> WorkoutScheduleExercises => Set<WorkoutScheduleExercise>();
+        public DbSet<WorkoutFeedback> WorkoutFeedbacks => Set<WorkoutFeedback>();
+        public DbSet<ScheduleEditHistory> ScheduleEditHistories => Set<ScheduleEditHistory>();
         public DbSet<ExerciseLibrary> ExerciseLibrary => Set<ExerciseLibrary>();
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
         public DbSet<UserContextSnapshot> UserContextSnapshots => Set<UserContextSnapshot>();
         public DbSet<AIConversation> AIConversations => Set<AIConversation>();
+        
+        // Shared tables from other services (read-only access)
+        public DbSet<AuthUser> Users => Set<AuthUser>();
+        public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
+        public DbSet<OCRRequest> OCRRequests => Set<OCRRequest>();
+        public DbSet<ProcessedData> ProcessedDataRecords => Set<ProcessedData>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +36,9 @@ namespace PersonalCoachAPI.Infrastructure.Data
 
             // Enable pgvector extension
             modelBuilder.HasPostgresExtension("vector");
+
+            // Configure shared entities (read-only, no migrations)
+            ConfigureSharedEntities(modelBuilder);
 
             // UserProfile configuration
             modelBuilder.Entity<UserProfile>(entity =>
@@ -78,9 +90,17 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.Property(x => x.DifficultyLevel).HasMaxLength(50);
                 entity.Property(x => x.Status).HasMaxLength(50);
                 entity.Property(x => x.AiGenerationPrompt).HasColumnType("text");
+                entity.Property(x => x.RegenerationReason).HasMaxLength(100);
+                entity.Property(x => x.Version).HasColumnName("version");
+                entity.Property(x => x.ParentScheduleId).HasColumnName("parent_schedule_id");
+                entity.Property(x => x.RegeneratedFromDay).HasColumnName("regenerated_from_day");
+                entity.Property(x => x.RegenerationReason).HasColumnName("regeneration_reason");
+                entity.Property(x => x.IsLatest).HasColumnName("is_latest");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.Status);
+                entity.HasIndex(x => new { x.UserId, x.IsLatest });
+                entity.HasIndex(x => x.ParentScheduleId);
             });
 
             // WorkoutScheduleDay configuration
@@ -90,6 +110,7 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.DayType).HasMaxLength(50);
                 entity.Property(x => x.FocusArea).HasMaxLength(100);
+                entity.Property(x => x.Status).HasMaxLength(50);
                 entity.Property(x => x.UserNotes).HasColumnType("text");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 
@@ -202,6 +223,82 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.SessionId);
                 entity.HasIndex(x => x.CreatedAt);
+            });
+
+            // WorkoutFeedback configuration
+            modelBuilder.Entity<WorkoutFeedback>(entity =>
+            {
+                entity.ToTable("workout_feedbacks");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.FeedbackType).HasMaxLength(50);
+                entity.Property(x => x.DifficultyRating).HasMaxLength(50);
+                entity.Property(x => x.ExerciseFeedback).HasMaxLength(100);
+                entity.Property(x => x.Notes).HasColumnType("text");
+                entity.Property(x => x.ContextTags).HasColumnType("jsonb");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasOne(x => x.Schedule)
+                    .WithMany(x => x.Feedbacks)
+                    .HasForeignKey(x => x.ScheduleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.ScheduleDayId);
+                entity.HasIndex(x => x.DifficultyRating);
+            });
+
+            // ScheduleEditHistory configuration
+            modelBuilder.Entity<ScheduleEditHistory>(entity =>
+            {
+                entity.ToTable("schedule_edit_history");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.UserId).HasColumnName("user_id");
+                entity.Property(x => x.ScheduleId).HasColumnName("schedule_id");
+                entity.Property(x => x.ScheduleDayId).HasColumnName("schedule_day_id");
+                entity.Property(x => x.EditType).HasMaxLength(50).HasColumnName("edit_type");
+                entity.Property(x => x.EditDescription).HasMaxLength(500).HasColumnName("edit_description");
+                entity.Property(x => x.BeforeValue).HasColumnType("jsonb").HasColumnName("before_value");
+                entity.Property(x => x.AfterValue).HasColumnType("jsonb").HasColumnName("after_value");
+                entity.Property(x => x.EditSource).HasMaxLength(50).HasColumnName("edit_source");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'").HasColumnName("created_at");
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.EditType);
+                entity.HasIndex(x => x.CreatedAt);
+            });
+        }
+
+        private static void ConfigureSharedEntities(ModelBuilder modelBuilder)
+        {
+            // AuthUser - from AuthenticationAPI (read-only, exclude from migrations)
+            modelBuilder.Entity<AuthUser>(entity =>
+            {
+                entity.ToTable("users", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // BodyMeasurement - from MeasurementAPI (read-only, exclude from migrations)
+            modelBuilder.Entity<BodyMeasurement>(entity =>
+            {
+                entity.ToTable("body_measurements", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // OCRRequest - from AIOCRService (read-only, exclude from migrations)
+            modelBuilder.Entity<OCRRequest>(entity =>
+            {
+                entity.ToTable("ocr_requests", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
+            });
+
+            // ProcessedData - from AIOCRService (read-only, exclude from migrations)
+            modelBuilder.Entity<ProcessedData>(entity =>
+            {
+                entity.ToTable("processed_data", t => t.ExcludeFromMigrations());
+                entity.HasKey(x => x.Id);
             });
         }
     }

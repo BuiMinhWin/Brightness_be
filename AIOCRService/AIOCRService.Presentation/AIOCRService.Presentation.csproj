@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

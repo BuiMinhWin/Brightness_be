@@ -17,6 +17,29 @@ namespace PersonalCoachAPI.Application.Interfaces
         
         // Get schedule details
         Task<WorkoutScheduleResponse> GetScheduleAsync(Guid scheduleId);
+        
+        // Get all schedules for a user
+        Task<List<WorkoutScheduleResponse>> GetUserSchedulesAsync(Guid userId);
+        
+        // Mark exercise as completed
+        Task MarkExerciseCompleteAsync(Guid exerciseId, bool completed, int? actualSets, int? actualReps);
+        
+        // New Full Suite Features
+        
+        // Submit workout feedback
+        Task SubmitWorkoutFeedbackAsync(SubmitWorkoutFeedbackRequest request);
+        
+        // Regenerate schedule from specific day forward
+        Task<WorkoutScheduleResponse> RegenerateScheduleFromDayAsync(RegenerateScheduleRequest request);
+        
+        // Edit individual workout day
+        Task<ScheduleDayDetail> EditWorkoutDayAsync(EditWorkoutDayRequest request);
+        
+        // Get schedule history and versions
+        Task<ScheduleHistoryResponse> GetScheduleHistoryAsync(Guid userId);
+        
+        // Get analytics for user's workout patterns
+        Task<ScheduleAnalytics> GetScheduleAnalyticsAsync(Guid userId);
     }
 }
 

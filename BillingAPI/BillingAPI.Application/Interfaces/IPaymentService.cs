@@ -10,7 +10,6 @@ namespace BillingAPI.Application.Interfaces
     public interface IPaymentService
     {
         Task<PaymentSessionResponse?> InitiateAsync(InitiatePaymentRequest request);
-        Task<PaymentStatusResponse?> HandleVnPayCallbackAsync(VnPayCallbackRequest callbackRequest);
         Task<PaymentStatusResponse?> HandlePayOsWebhookAsync(PayOsWebhookRequest webhookRequest);
         Task<Response> MarkAsFailedAsync(Guid paymentId, string? reason = null);
     }

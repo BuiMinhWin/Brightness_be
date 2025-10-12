@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AIOCRService.Domain\AIOCRService.Domain.csproj" />
     <ProjectReference Include="..\AIOCRService.Application\AIOCRService.Application.csproj" />
+    <ProjectReference Include="..\..\BrightNess.SharedLibrarySolution\BrightNess.Library\BrightNess.Library.csproj" />
   </ItemGroup>
 
 </Project>

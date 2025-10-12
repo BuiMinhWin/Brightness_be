@@ -1,10 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+using BrightNess.Library.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 using NutritionAPI.Infrastructure.Data;
 using NutritionAPI.Infrastructure.DependencyInjection;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddSecretsManager();
+EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -55,6 +60,46 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddNutritionInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        if (!jwtSettings.Exists() || string.IsNullOrWhiteSpace(jwtSettings["Key"]))
+        {
+            jwtSettings = builder.Configuration.GetSection("Authentication");
+        }
+
+        var signingKey = jwtSettings["Key"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException("JWT signing key is not configured. Set Jwt:Key or Authentication:Key.");
+        }
+
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -87,16 +132,32 @@ if (!migrationSucceeded)
     throw new InvalidOperationException($"Database migration failed because PostgreSQL was not ready after {maxRetryAttempts} attempts.", lastException);
 }
 
-if (app.Environment.IsDevelopment())
+var swaggerJsonEndpoint = builder.Configuration["Swagger:JsonEndpoint"] ?? "/swagger/v1/swagger.json";
+var swaggerGatewayPrefix = builder.Configuration["Swagger:GatewayPrefix"]?.TrimEnd('/');
+
+app.UseSwagger(cfg =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    if (!string.IsNullOrWhiteSpace(swaggerGatewayPrefix))
+    {
+        cfg.PreSerializeFilters.Add((document, _) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = swaggerGatewayPrefix }
+            };
+        });
+    }
+});
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint(swaggerJsonEndpoint, "Nutrition API v1");
+});
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

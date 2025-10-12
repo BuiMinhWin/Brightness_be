@@ -56,6 +56,12 @@ namespace BillingAPI.Application.Services
                 return new Response(false, "Subscription plan is inactive");
             }
 
+            var dueDate = request.DueDate ?? DateTime.UtcNow.AddDays(3);
+            if (dueDate.Kind == DateTimeKind.Unspecified)
+            {
+                dueDate = DateTime.SpecifyKind(dueDate, DateTimeKind.Utc);
+            }
+
             var invoice = new Invoice
             {
                 Id = Guid.NewGuid(),
@@ -66,11 +72,20 @@ namespace BillingAPI.Application.Services
                 Status = "pending",
                 InvoiceCode = GenerateInvoiceCode(),
                 CreatedAt = DateTime.UtcNow,
-                DueDate = request.DueDate ?? DateTime.UtcNow.AddDays(3),
+                DueDate = dueDate.ToUniversalTime(),
                 Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim()
             };
 
-            return await _invoiceRepository.CreateAsync(invoice);
+            var createResult = await _invoiceRepository.CreateAsync(invoice);
+            
+            // Trả về invoice data trong Response.Data để frontend có thể access invoice.id
+            if (createResult.Flag)
+            {
+                var invoiceDto = MapToDto(invoice);
+                return new Response(true, createResult.Message, invoiceDto);
+            }
+            
+            return createResult;
         }
 
         public async Task<Response> MarkAsPaidAsync(Guid invoiceId, string? transactionId = null)

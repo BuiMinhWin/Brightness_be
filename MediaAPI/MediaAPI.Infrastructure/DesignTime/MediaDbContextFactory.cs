@@ -1,8 +1,9 @@
 using System.IO;
+using BrightNess.Library.Configuration;
+using MediaAPI.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using MediaAPI.Infrastructure.Data;
 
 namespace MediaAPI.Infrastructure.DesignTime
 {
@@ -11,8 +12,7 @@ namespace MediaAPI.Infrastructure.DesignTime
         public MediaDbContext CreateDbContext(string[] args)
         {
             var configuration = BuildConfiguration();
-            var connectionString = configuration.GetConnectionString("BrightnessDb")
-                                   ?? throw new InvalidOperationException("Connection string 'BrightnessDb' not found.");
+            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
 
             var optionsBuilder = new DbContextOptionsBuilder<MediaDbContext>();
             optionsBuilder.UseNpgsql(connectionString);
@@ -23,6 +23,7 @@ namespace MediaAPI.Infrastructure.DesignTime
         private static IConfiguration BuildConfiguration()
         {
             var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "MediaAPI.Presentation");
+            EnvironmentConfiguration.TryLoadDotEnv();
             return new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: false)
