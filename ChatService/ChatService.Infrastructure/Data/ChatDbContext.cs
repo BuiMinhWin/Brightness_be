@@ -59,18 +59,21 @@ namespace ChatService.Infrastructure.Data
             {
                 entity.ToTable("users");
                 entity.HasKey(x => x.Id);
+                entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
 
             modelBuilder.Entity<BodyMeasurement>(entity =>
             {
                 entity.ToTable("body_measurements");
                 entity.HasKey(x => x.Id);
+                entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
 
             modelBuilder.Entity<SubscriptionPlan>(entity =>
             {
                 entity.ToTable("subscription_plans");
                 entity.HasKey(x => x.Id);
+                entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
         }
     }

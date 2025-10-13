@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,23 +11,6 @@ namespace ChatService.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "body_measurements",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    HeightCm = table.Column<decimal>(type: "numeric", nullable: true),
-                    WeightKg = table.Column<decimal>(type: "numeric", nullable: true),
-                    BodyFatPercent = table.Column<decimal>(type: "numeric", nullable: true),
-                    Goal = table.Column<string>(type: "text", nullable: true),
-                    RecordedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_body_measurements", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "chat_messages",
                 columns: table => new
@@ -72,35 +55,6 @@ namespace ChatService.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "subscription_plans",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_subscription_plans", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "users",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false),
-                    username = table.Column<string>(type: "text", nullable: false),
-                    full_name = table.Column<string>(type: "text", nullable: true),
-                    date_of_birth = table.Column<DateOnly>(type: "date", nullable: true),
-                    gender = table.Column<string>(type: "text", nullable: true),
-                    subscription_plan_id = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_users", x => x.id);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_chat_messages_session_id",
                 table: "chat_messages",
@@ -116,19 +70,11 @@ namespace ChatService.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "body_measurements");
-
-            migrationBuilder.DropTable(
                 name: "chat_messages");
 
             migrationBuilder.DropTable(
                 name: "conversation_summaries");
-
-            migrationBuilder.DropTable(
-                name: "subscription_plans");
-
-            migrationBuilder.DropTable(
-                name: "users");
         }
     }
 }
+

@@ -42,11 +42,20 @@ namespace MediaAPI.Infrastructure.Repositories
         public async Task<IEnumerable<MediaItem>> GetAllAsync(int pageNumber, int pageSize)
         {
             return await _context.MediaItems
+                .Where(i => i.Status == "active")
+                .OrderByDescending(i => i.CreatedAt)
                 .Include(i => i.UserLikes)
                 .Include(i => i.UserViews)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _context.MediaItems
+                .Where(i => i.Status == "active")
+                .CountAsync();
         }
 
         public async Task<MediaItem?> GetByIdAsync(Guid id)

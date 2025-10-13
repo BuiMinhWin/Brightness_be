@@ -22,42 +22,6 @@ namespace ChatService.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ChatService.Domain.Entities.BodyMeasurement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("Id");
-
-                    b.Property<decimal?>("BodyFatPercent")
-                        .HasColumnType("numeric")
-                        .HasColumnName("BodyFatPercent");
-
-                    b.Property<string>("Goal")
-                        .HasColumnType("text")
-                        .HasColumnName("Goal");
-
-                    b.Property<decimal?>("HeightCm")
-                        .HasColumnType("numeric")
-                        .HasColumnName("HeightCm");
-
-                    b.Property<DateTime>("RecordedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("RecordedAt");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("UserId");
-
-                    b.Property<decimal?>("WeightKg")
-                        .HasColumnType("numeric")
-                        .HasColumnName("WeightKg");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("body_measurements", (string)null);
-                });
-
             modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -166,61 +130,6 @@ namespace ChatService.Infrastructure.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("conversation_summaries", (string)null);
-                });
-
-            modelBuilder.Entity("ChatService.Domain.Entities.SubscriptionPlan", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("subscription_plans", (string)null);
-                });
-
-            modelBuilder.Entity("ChatService.Domain.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .HasColumnType("date")
-                        .HasColumnName("date_of_birth");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("text")
-                        .HasColumnName("full_name");
-
-                    b.Property<string>("Gender")
-                        .HasColumnType("text")
-                        .HasColumnName("gender");
-
-                    b.Property<Guid?>("SubscriptionPlanId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("subscription_plan_id");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("username");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>
