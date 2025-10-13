@@ -39,11 +39,31 @@ namespace MediaAPI.Infrastructure.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<IEnumerable<MediaItem>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<IEnumerable<MediaItem>> GetAllAsync(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null)
         {
-            return await _context.MediaItems
-                .Where(i => i.Status == "active")
-                .OrderByDescending(i => i.CreatedAt)
+            var query = _context.MediaItems
+                .Where(i => i.Status == "active");
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                query = query.Where(i => 
+                    (i.Title != null && i.Title.ToLower().Contains(searchQuery.ToLower())) ||
+                    (i.Description != null && i.Description.ToLower().Contains(searchQuery.ToLower())) ||
+                    (i.Category != null && i.Category.ToLower().Contains(searchQuery.ToLower()))
+                );
+            }
+
+            // Apply sorting
+            query = sortBy?.ToLower() switch
+            {
+                "views" => query.OrderByDescending(i => i.Views),
+                "likes" => query.OrderByDescending(i => i.Likes),
+                "title" => query.OrderBy(i => i.Title),
+                _ => query.OrderByDescending(i => i.CreatedAt) // default: date
+            };
+
+            return await query
                 .Include(i => i.UserLikes)
                 .Include(i => i.UserViews)
                 .Skip((pageNumber - 1) * pageSize)
@@ -51,11 +71,22 @@ namespace MediaAPI.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<int> GetTotalCountAsync()
+        public async Task<int> GetTotalCountAsync(string? searchQuery = null)
         {
-            return await _context.MediaItems
-                .Where(i => i.Status == "active")
-                .CountAsync();
+            var query = _context.MediaItems
+                .Where(i => i.Status == "active");
+
+            // Apply search filter to count as well
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                query = query.Where(i => 
+                    (i.Title != null && i.Title.ToLower().Contains(searchQuery.ToLower())) ||
+                    (i.Description != null && i.Description.ToLower().Contains(searchQuery.ToLower())) ||
+                    (i.Category != null && i.Category.ToLower().Contains(searchQuery.ToLower()))
+                );
+            }
+
+            return await query.CountAsync();
         }
 
         public async Task<MediaItem?> GetByIdAsync(Guid id)

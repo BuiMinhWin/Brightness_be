@@ -57,10 +57,10 @@ namespace MediaAPI.Application.Services
             return await _mediaRepository.UpdateAsync(mediaItem);
         }
 
-        public async Task<PaginatedMediaResponse> GetAllVideosAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedMediaResponse> GetAllVideosAsync(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null)
         {
-            var mediaItems = await _mediaRepository.GetAllAsync(pageNumber, pageSize);
-            var totalCount = await _mediaRepository.GetTotalCountAsync();
+            var mediaItems = await _mediaRepository.GetAllAsync(pageNumber, pageSize, searchQuery, sortBy);
+            var totalCount = await _mediaRepository.GetTotalCountAsync(searchQuery);
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             var items = mediaItems.Select(item => new MediaItemDTO(

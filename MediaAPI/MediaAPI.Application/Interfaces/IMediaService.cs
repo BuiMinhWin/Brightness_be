@@ -8,7 +8,7 @@ namespace MediaAPI.Application.Interfaces
 {
     public interface IMediaService
     {
-        Task<PaginatedMediaResponse> GetAllVideosAsync(int pageNumber, int pageSize);
+        Task<PaginatedMediaResponse> GetAllVideosAsync(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null);
         Task<MediaItemDTO?> GetVideoByIdAsync(Guid id);
         Task<MediaItemDTO> CreateVideoAsync(CreateMediaItemRequest createRequest);
         Task<bool> UpdateVideoAsync(Guid id, UpdateMediaItemRequest updateRequest);

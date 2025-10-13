@@ -7,8 +7,8 @@ namespace MediaAPI.Application.Interfaces
 {
     public interface IMediaRepository
     {
-        Task<IEnumerable<MediaItem>> GetAllAsync(int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsync();
+        Task<IEnumerable<MediaItem>> GetAllAsync(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null);
+        Task<int> GetTotalCountAsync(string? searchQuery = null);
         Task<MediaItem?> GetByIdAsync(Guid id);
         Task<MediaItem> AddAsync(MediaItem entity);
         Task<bool> UpdateAsync(MediaItem entity);
