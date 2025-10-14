@@ -23,6 +23,49 @@ namespace ChatService.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<int?>("TokenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("token_count");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("chat_messages", (string)null);
+                });
+
             modelBuilder.Entity("ChatService.Domain.Entities.ChatSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -55,6 +98,61 @@ namespace ChatService.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("chat_sessions", "chat");
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.ConversationSummary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("SummaryText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("summary_text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("conversation_summaries", (string)null);
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("ChatService.Domain.Entities.ChatSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.ConversationSummary", b =>
+                {
+                    b.HasOne("ChatService.Domain.Entities.ChatSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
                 });
 #pragma warning restore 612, 618
         }

@@ -245,6 +245,8 @@ services:
     build:
       context: .
       dockerfile: ChatService/ChatService.Presentation/Dockerfile
+    env_file:
+      - .env
     environment:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
@@ -254,6 +256,12 @@ services:
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
       Swagger__JsonEndpoint: /chat/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /chat
+      GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
+      MESSAGE_LIMITS_FREE_DAILY: ${MESSAGE_LIMITS_FREE_DAILY:-10}
+      MESSAGE_LIMITS_FREE_MONTHLY: ${MESSAGE_LIMITS_FREE_MONTHLY:-100}
+      MESSAGE_LIMITS_PREMIUM_DAILY: ${MESSAGE_LIMITS_PREMIUM_DAILY:-100}
+      MESSAGE_LIMITS_PREMIUM_MONTHLY: ${MESSAGE_LIMITS_PREMIUM_MONTHLY:-1000}
+      CONVERSATION_SUMMARIZATION_THRESHOLD: ${CONVERSATION_SUMMARIZATION_THRESHOLD:-10}
     depends_on:
       postgres:
         condition: service_healthy
