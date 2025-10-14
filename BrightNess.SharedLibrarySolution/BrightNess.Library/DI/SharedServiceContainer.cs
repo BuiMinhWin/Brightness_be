@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Serilog;
 using System;
 using System.Linq;
@@ -17,25 +16,14 @@ namespace BrightNess.Library.DI
         private const string DefaultCorsPolicy = "DefaultCorsPolicy";
 
         public static IServiceCollection AddSharedServices<TContext>(this IServiceCollection services,
-            IConfiguration config,
-            string fileName,
-            string? schema = null,
-            Action<NpgsqlDbContextOptionsBuilder>? configureNpgsql = null) where TContext : DbContext
+            IConfiguration config, string fileName) where TContext : DbContext
         {
             var connectionString = config.GetRequiredConnectionString("BrightnessDb");
 
             services.AddDbContext<TContext>(options =>
                 options.UseNpgsql(
                     connectionString,
-                    npgsqlOptions =>
-                    {
-                        npgsqlOptions.EnableRetryOnFailure();
-                        if (!string.IsNullOrWhiteSpace(schema))
-                        {
-                            npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", schema);
-                        }
-                        configureNpgsql?.Invoke(npgsqlOptions);
-                    }));
+                    npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()

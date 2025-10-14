@@ -19,13 +19,9 @@ namespace MediaAPI.Presentation.Controllers
 
       
         [HttpGet]
-        public async Task<IActionResult> GetAllVideos(
-            int pageNumber = 1, 
-            int pageSize = 10,
-            string? search = null,
-            string? sortBy = null)
+        public async Task<IActionResult> GetAllVideos(int pageNumber = 1, int pageSize = 10)
         {
-            var videos = await _mediaService.GetAllVideosAsync(pageNumber, pageSize, search, sortBy);
+            var videos = await _mediaService.GetAllVideosAsync(pageNumber, pageSize);
             return Ok(videos);
         }
 

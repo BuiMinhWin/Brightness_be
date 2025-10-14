@@ -17,7 +17,6 @@ namespace MediaAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("media")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -86,7 +85,7 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("media_items", "media");
+                    b.ToTable("media_items", (string)null);
                 });
 
             modelBuilder.Entity("MediaAPI.Domain.Entities.UserLike", b =>
@@ -101,7 +100,7 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.HasIndex("MediaItemId");
 
-                    b.ToTable("user_likes", "media");
+                    b.ToTable("user_likes", (string)null);
                 });
 
             modelBuilder.Entity("MediaAPI.Domain.Entities.UserView", b =>
@@ -116,7 +115,7 @@ namespace MediaAPI.Infrastructure.Migrations
 
                     b.HasIndex("MediaItemId");
 
-                    b.ToTable("user_views", "media");
+                    b.ToTable("user_views", (string)null);
                 });
 
             modelBuilder.Entity("MediaAPI.Domain.Entities.UserLike", b =>

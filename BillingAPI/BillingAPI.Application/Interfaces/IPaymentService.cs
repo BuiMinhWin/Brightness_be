@@ -12,7 +12,5 @@ namespace BillingAPI.Application.Interfaces
         Task<PaymentSessionResponse?> InitiateAsync(InitiatePaymentRequest request);
         Task<PaymentStatusResponse?> HandlePayOsWebhookAsync(PayOsWebhookRequest webhookRequest);
         Task<Response> MarkAsFailedAsync(Guid paymentId, string? reason = null);
-        Task<PaymentStatusResponse?> GetPaymentStatusAsync(Guid paymentId);
-        Task<PaymentStatusResponse?> CheckAndUpdatePaymentStatusAsync(Guid paymentId);
     }
 }

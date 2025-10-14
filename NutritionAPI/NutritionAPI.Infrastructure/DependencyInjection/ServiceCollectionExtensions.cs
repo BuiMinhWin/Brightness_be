@@ -9,11 +9,7 @@ namespace NutritionAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddNutritionInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<NutritionDbContext>(
-                services,
-                configuration,
-                configuration["MySerilog:FileName"] ?? "NutritionApi",
-                schema: "nutrition");
+            SharedServiceContainer.AddSharedServices<NutritionDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "NutritionApi");
 
             return services;
         }

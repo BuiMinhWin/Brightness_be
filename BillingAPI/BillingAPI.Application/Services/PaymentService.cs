@@ -79,15 +79,10 @@ namespace BillingAPI.Application.Services
                 return null;
             }
 
-            // Validate webhook signature (skip validation if signature is explicitly "test" for Postman testing)
-            var isTestMode = webhookRequest.Signature?.ToLowerInvariant() == "test";
-            if (!isTestMode)
+            var isValid = await _payOsGateway.ValidateWebhookAsync(webhookRequest.RawBody, webhookRequest.Signature);
+            if (!isValid)
             {
-                var isValid = await _payOsGateway.ValidateWebhookAsync(webhookRequest.RawBody, webhookRequest.Signature);
-                if (!isValid)
-                {
-                    return null;
-                }
+                return null;
             }
 
             var orderCodeStr = webhookRequest.Data["orderCode"]?.ToString();
@@ -150,102 +145,6 @@ namespace BillingAPI.Application.Services
             }
 
             return await _paymentRepository.UpdateAsync(payment);
-        }
-
-        public async Task<PaymentStatusResponse?> GetPaymentStatusAsync(Guid paymentId)
-        {
-            var payment = await _paymentRepository.FindByIdAsync(paymentId);
-            if (payment is null)
-            {
-                return null;
-            }
-
-            // Determine paidAt based on payment status
-            DateTime? paidAt = payment.PaymentStatus == "completed" || payment.PaymentStatus == "success"
-                ? payment.UpdatedAt
-                : null;
-
-            return new PaymentStatusResponse(
-                payment.Id,
-                payment.InvoiceId,
-                payment.Gateway,
-                payment.PaymentStatus,
-                paidAt,
-                payment.TransactionId
-            );
-        }
-
-        public async Task<PaymentStatusResponse?> CheckAndUpdatePaymentStatusAsync(Guid paymentId)
-        {
-            var payment = await _paymentRepository.FindByIdAsync(paymentId);
-            if (payment is null)
-            {
-                return null;
-            }
-
-            // If already completed or failed, return current status
-            if (payment.PaymentStatus == "completed" || payment.PaymentStatus == "failed")
-            {
-                DateTime? paidAt = payment.PaymentStatus == "completed" ? payment.UpdatedAt : null;
-                return new PaymentStatusResponse(
-                    payment.Id,
-                    payment.InvoiceId,
-                    payment.Gateway,
-                    payment.PaymentStatus,
-                    paidAt,
-                    payment.TransactionId
-                );
-            }
-
-            // Check status with PayOS
-            if (payment.Gateway == PaymentGatewayType.PayOs && !string.IsNullOrEmpty(payment.TransactionId))
-            {
-                var payosStatus = await _payOsGateway.GetPaymentLinkInfoAsync(payment.TransactionId);
-                if (payosStatus is not null)
-                {
-                    // Update payment based on PayOS status  
-                    payment.PaymentStatus = payosStatus.PaymentStatus;
-                    payment.UpdatedAt = DateTime.UtcNow;
-
-                    // Store gateway transaction ID in RawGatewayPayload if completed
-                    if (payosStatus.PaymentStatus == "completed")
-                    {
-                        if (!string.IsNullOrEmpty(payosStatus.TransactionId))
-                        {
-                            payment.RawGatewayPayload = string.IsNullOrEmpty(payment.RawGatewayPayload)
-                                ? $"Gateway TransactionId: {payosStatus.TransactionId}"
-                                : $"{payment.RawGatewayPayload}\nGateway TransactionId: {payosStatus.TransactionId}";
-                        }
-                        await _paymentRepository.UpdateAsync(payment);
-                        await _invoiceService.MarkAsPaidAsync(payment.InvoiceId, payosStatus.TransactionId ?? payment.TransactionId);
-                    }
-                    else
-                    {
-                        await _paymentRepository.UpdateAsync(payment);
-                    }
-
-                    DateTime? paidAt = payosStatus.PaymentStatus == "completed" ? payosStatus.PaidAt : null;
-                    return new PaymentStatusResponse(
-                        payment.Id,
-                        payment.InvoiceId,
-                        payment.Gateway,
-                        payment.PaymentStatus,
-                        paidAt,
-                        payment.TransactionId
-                    );
-                }
-            }
-
-            // Return current status if unable to check with gateway
-            DateTime? currentPaidAt = payment.PaymentStatus == "completed" ? payment.UpdatedAt : null;
-            return new PaymentStatusResponse(
-                payment.Id,
-                payment.InvoiceId,
-                payment.Gateway,
-                payment.PaymentStatus,
-                currentPaidAt,
-                payment.TransactionId
-            );
         }
     }
 }

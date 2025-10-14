@@ -17,7 +17,6 @@ namespace AIOCRService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("aiocr")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -80,7 +79,7 @@ namespace AIOCRService.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ocr_requests", "aiocr");
+                    b.ToTable("ocr_requests", (string)null);
                 });
 
             modelBuilder.Entity("AIOCRService.Domain.Entities.OCRResult", b =>
@@ -119,7 +118,7 @@ namespace AIOCRService.Infrastructure.Migrations
 
                     b.HasIndex("OCRRequestId");
 
-                    b.ToTable("ocr_results", "aiocr");
+                    b.ToTable("ocr_results", (string)null);
                 });
 
             modelBuilder.Entity("AIOCRService.Domain.Entities.ProcessedData", b =>
@@ -142,13 +141,7 @@ namespace AIOCRService.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsLatest")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_latest");
-
-                    b.Property<Guid?>("OCRResultId")
+                    b.Property<Guid>("OCRResultId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ProcessedContent")
@@ -166,13 +159,11 @@ namespace AIOCRService.Infrastructure.Migrations
 
                     b.HasIndex("DataType");
 
-                    b.HasIndex("IsLatest");
-
                     b.HasIndex("OCRResultId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("processed_data", "aiocr");
+                    b.ToTable("processed_data", (string)null);
                 });
 
             modelBuilder.Entity("AIOCRService.Domain.Entities.OCRResult", b =>
@@ -191,7 +182,8 @@ namespace AIOCRService.Infrastructure.Migrations
                     b.HasOne("AIOCRService.Domain.Entities.OCRResult", "OCRResult")
                         .WithMany()
                         .HasForeignKey("OCRResultId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("OCRResult");
                 });

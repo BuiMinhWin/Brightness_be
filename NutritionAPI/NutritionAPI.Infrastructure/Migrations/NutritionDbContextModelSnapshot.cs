@@ -17,7 +17,6 @@ namespace NutritionAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("nutrition")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -59,7 +58,7 @@ namespace NutritionAPI.Infrastructure.Migrations
 
                     b.HasIndex("MealLogId");
 
-                    b.ToTable("meal_foods", "nutrition");
+                    b.ToTable("meal_foods", (string)null);
                 });
 
             modelBuilder.Entity("NutritionAPI.Domain.Entities.MealLog", b =>
@@ -101,7 +100,7 @@ namespace NutritionAPI.Infrastructure.Migrations
 
                     b.HasIndex("NutritionPlanId");
 
-                    b.ToTable("meal_logs", "nutrition");
+                    b.ToTable("meal_logs", (string)null);
                 });
 
             modelBuilder.Entity("NutritionAPI.Domain.Entities.NutritionPlan", b =>
@@ -151,7 +150,7 @@ namespace NutritionAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("nutrition_plans", "nutrition");
+                    b.ToTable("nutrition_plans", (string)null);
                 });
 
             modelBuilder.Entity("NutritionAPI.Domain.Entities.MealFood", b =>

@@ -17,7 +17,6 @@ namespace ChallengeAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("challenge")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -55,7 +54,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("achievements", "challenge");
+                    b.ToTable("achievements", (string)null);
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.Challenge", b =>
@@ -108,7 +107,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenges", "challenge");
+                    b.ToTable("challenges", (string)null);
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeParticipant", b =>
@@ -147,7 +146,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenge_participants", "challenge");
+                    b.ToTable("challenge_participants", (string)null);
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeRule", b =>
@@ -169,7 +168,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("challenge_rules", "challenge");
+                    b.ToTable("challenge_rules", (string)null);
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTaskProgress", b =>
@@ -203,7 +202,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenge_task_progress", "challenge");
+                    b.ToTable("challenge_task_progress", (string)null);
                 });
 
             modelBuilder.Entity("ChallengeTask", b =>

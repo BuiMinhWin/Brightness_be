@@ -13,7 +13,6 @@ namespace MeasurementAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema("measurement");
 
             ConfigureBodyMeasurement(modelBuilder.Entity<BodyMeasurement>());
             ConfigureMeasurementDevice(modelBuilder.Entity<MeasurementDevice>());

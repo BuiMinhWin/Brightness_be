@@ -18,7 +18,6 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("personalcoach")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -58,7 +57,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ai_conversations", "personalcoach", t =>
+                    b.ToTable("ai_conversations", null, t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -117,7 +116,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("users", "authentication", t =>
+                    b.ToTable("users", null, t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -180,7 +179,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("body_measurements", "measurement", t =>
+                    b.ToTable("body_measurements", null, t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -282,7 +281,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
 
-                    b.ToTable("exercise_library", "personalcoach");
+                    b.ToTable("exercise_library", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.HealthKnowledgeBase", b =>
@@ -337,7 +336,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
 
-                    b.ToTable("health_knowledge_base", "personalcoach");
+                    b.ToTable("health_knowledge_base", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.OCRRequest", b =>
@@ -371,7 +370,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ocr_requests", "aiocr", t =>
+                    b.ToTable("ocr_requests", null, t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -418,7 +417,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("processed_data", "aiocr", t =>
+                    b.ToTable("processed_data", null, t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -485,7 +484,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("schedule_edit_history", "personalcoach");
+                    b.ToTable("schedule_edit_history", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.UserContextSnapshot", b =>
@@ -534,7 +533,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_context_snapshots", "personalcoach");
+                    b.ToTable("user_context_snapshots", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.UserHealthMetric", b =>
@@ -596,7 +595,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_health_metrics", "personalcoach");
+                    b.ToTable("user_health_metrics", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.UserPreference", b =>
@@ -654,7 +653,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_preferences", "personalcoach");
+                    b.ToTable("user_preferences", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.UserProfile", b =>
@@ -710,7 +709,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("user_profiles", "personalcoach");
+                    b.ToTable("user_profiles", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutFeedback", b =>
@@ -781,7 +780,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("workout_feedbacks", "personalcoach");
+                    b.ToTable("workout_feedbacks", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutSchedule", b =>
@@ -868,7 +867,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "IsLatest");
 
-                    b.ToTable("workout_schedules", "personalcoach");
+                    b.ToTable("workout_schedules", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutScheduleDay", b =>
@@ -934,7 +933,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleId", "DayNumber");
 
-                    b.ToTable("workout_schedule_days", "personalcoach");
+                    b.ToTable("workout_schedule_days", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutScheduleExercise", b =>
@@ -1009,7 +1008,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
 
                     b.HasIndex("ScheduleDayId");
 
-                    b.ToTable("workout_schedule_exercises", "personalcoach");
+                    b.ToTable("workout_schedule_exercises", (string)null);
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutFeedback", b =>

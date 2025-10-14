@@ -13,11 +13,7 @@ namespace SocialAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddSocialInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<SocialDbContext>(
-                services,
-                configuration,
-                configuration["MySerilog:FileName"] ?? "SocialApi",
-                schema: "social");
+            SharedServiceContainer.AddSharedServices<SocialDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "SocialApi");
 
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IPostService, PostService>();

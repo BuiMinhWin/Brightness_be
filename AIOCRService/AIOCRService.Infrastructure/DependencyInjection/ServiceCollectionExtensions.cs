@@ -4,7 +4,6 @@ using AIOCRService.Infrastructure.Data;
 using AIOCRService.Infrastructure.Repositories;
 using AIOCRService.Infrastructure.Services;
 using BrightNess.Library.Configuration;
-using BrightNess.Library.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,11 +16,9 @@ namespace AIOCRService.Infrastructure.DependencyInjection
         public static IServiceCollection AddAIOCRInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Database
-            SharedServiceContainer.AddSharedServices<AIOCRDbContext>(
-                services,
-                configuration,
-                configuration["MySerilog:FileName"] ?? "AIOCRService",
-                schema: "aiocr");
+            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
+            services.AddDbContext<AIOCRDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
             // Repositories
             services.AddScoped<IOCRRepository, OCRRepository>();

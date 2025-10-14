@@ -17,7 +17,6 @@ namespace SocialAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("social")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -64,7 +63,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("comments", "social");
+                    b.ToTable("comments", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.CommentVote", b =>
@@ -91,7 +90,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("comment_votes", "social");
+                    b.ToTable("comment_votes", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.Post", b =>
@@ -140,7 +139,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("posts", "social");
+                    b.ToTable("posts", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.PostImage", b =>
@@ -169,7 +168,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("post_images", "social");
+                    b.ToTable("post_images", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.PostTag", b =>
@@ -184,7 +183,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("post_tags", "social");
+                    b.ToTable("post_tags", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.PostVote", b =>
@@ -211,7 +210,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("post_votes", "social");
+                    b.ToTable("post_votes", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.Report", b =>
@@ -257,7 +256,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("reports", "social");
+                    b.ToTable("reports", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.Tag", b =>
@@ -283,7 +282,7 @@ namespace SocialAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tags", "social");
+                    b.ToTable("tags", (string)null);
                 });
 
             modelBuilder.Entity("SocialAPI.Domain.Entities.Comment", b =>

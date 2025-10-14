@@ -10,15 +10,11 @@ using BrightNess.Library.Responses;
 
 namespace BillingAPI.Application.Services
 {
-    public class InvoiceService(
-        IInvoiceRepository invoiceRepository,
-        ISubscriptionPlanRepository planRepository,
-        IUserSubscriptionService userSubscriptionService)
+    public class InvoiceService(IInvoiceRepository invoiceRepository, ISubscriptionPlanRepository planRepository)
         : IInvoiceService
     {
         private readonly IInvoiceRepository _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
         private readonly ISubscriptionPlanRepository _planRepository = planRepository ?? throw new ArgumentNullException(nameof(planRepository));
-        private readonly IUserSubscriptionService _userSubscriptionService = userSubscriptionService ?? throw new ArgumentNullException(nameof(userSubscriptionService));
 
         public async Task<IEnumerable<InvoiceDTO>> GetAllAsync(Guid? userId = null, string? status = null)
         {
@@ -81,14 +77,14 @@ namespace BillingAPI.Application.Services
             };
 
             var createResult = await _invoiceRepository.CreateAsync(invoice);
-
+            
             // Trả về invoice data trong Response.Data để frontend có thể access invoice.id
             if (createResult.Flag)
             {
                 var invoiceDto = MapToDto(invoice);
                 return new Response(true, createResult.Message, invoiceDto);
             }
-
+            
             return createResult;
         }
 
@@ -115,17 +111,7 @@ namespace BillingAPI.Application.Services
                     : $"{invoice.Notes}\nPaid via transaction {transactionId}";
             }
 
-            var updateResult = await _invoiceRepository.UpdateAsync(invoice);
-
-            // Update user subscription after successful payment
-            if (updateResult.Flag && invoice.UserExternalId.HasValue)
-            {
-                await _userSubscriptionService.UpdateUserSubscriptionAsync(
-                    invoice.UserExternalId.Value,
-                    invoice.SubscriptionPlanId);
-            }
-
-            return updateResult;
+            return await _invoiceRepository.UpdateAsync(invoice);
         }
 
         public async Task<Response> CancelAsync(Guid invoiceId, string? reason = null)

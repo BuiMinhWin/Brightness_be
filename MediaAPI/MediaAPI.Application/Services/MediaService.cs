@@ -57,18 +57,10 @@ namespace MediaAPI.Application.Services
             return await _mediaRepository.UpdateAsync(mediaItem);
         }
 
-        public async Task<PaginatedMediaResponse> GetAllVideosAsync(int pageNumber, int pageSize, string? searchQuery = null, string? sortBy = null)
+        public async Task<IEnumerable<MediaItemDTO>> GetAllVideosAsync(int pageNumber, int pageSize)
         {
-            var mediaItems = await _mediaRepository.GetAllAsync(pageNumber, pageSize, searchQuery, sortBy);
-            var totalCount = await _mediaRepository.GetTotalCountAsync(searchQuery);
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            var items = mediaItems.Select(item => new MediaItemDTO(
-                item.Id, item.Title, item.Description, item.Url, item.Thumbnail,
-                item.Views, item.Likes, item.Category, item.Duration, item.Platform,
-                item.Source, item.Status, item.CreatedAt, item.UpdatedAt));
-
-            return new PaginatedMediaResponse(items, totalCount, pageNumber, pageSize, totalPages);
+            var mediaItems = await _mediaRepository.GetAllAsync(pageNumber, pageSize);
+            return mediaItems.Select(item => new MediaItemDTO(item.Id, item.Title, item.Description, item.Url, item.Thumbnail, item.Views, item.Likes, item.Category, item.Duration, item.Platform, item.Source, item.Status, item.CreatedAt, item.UpdatedAt));
         }
 
         public async Task<MediaItemDTO?> GetVideoByIdAsync(Guid id)

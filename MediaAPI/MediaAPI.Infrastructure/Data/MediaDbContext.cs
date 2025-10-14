@@ -12,7 +12,6 @@ namespace MediaAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema("media");
 
             modelBuilder.Entity<MediaItem>(entity =>
             {

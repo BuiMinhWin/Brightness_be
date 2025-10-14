@@ -26,20 +26,6 @@ namespace BillingAPI.Presentation.Controllers
             return session is null ? BadRequest("Unable to initiate payment") : Ok(session);
         }
 
-        [HttpGet("{paymentId:guid}/status")]
-        public async Task<IActionResult> GetPaymentStatusAsync(Guid paymentId)
-        {
-            var status = await _paymentService.GetPaymentStatusAsync(paymentId);
-            return status is null ? NotFound("Payment not found") : Ok(status);
-        }
-
-        [HttpPost("{paymentId:guid}/check-status")]
-        public async Task<IActionResult> CheckAndUpdatePaymentStatusAsync(Guid paymentId)
-        {
-            var status = await _paymentService.CheckAndUpdatePaymentStatusAsync(paymentId);
-            return status is null ? NotFound("Payment not found") : Ok(status);
-        }
-
         [AllowAnonymous]
         [HttpPost("payos/webhook")]
         public async Task<IActionResult> PayOsWebhookAsync()

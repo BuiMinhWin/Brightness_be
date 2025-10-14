@@ -11,11 +11,9 @@ namespace AuthenticationAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema("authentication");
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("users");
                 entity.HasKey(u => u.Id);
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasIndex(u => u.UserName).IsUnique();
@@ -30,7 +28,6 @@ namespace AuthenticationAPI.Infrastructure.Data
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
-                entity.ToTable("refresh_tokens");
                 entity.HasKey(t => t.Id);
                 entity.HasIndex(t => t.Token).IsUnique();
                 entity.Property(t => t.Token).IsRequired();

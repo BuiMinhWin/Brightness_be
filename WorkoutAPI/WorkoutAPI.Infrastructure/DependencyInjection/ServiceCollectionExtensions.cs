@@ -9,11 +9,7 @@ namespace WorkoutAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddWorkoutInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<WorkoutDbContext>(
-                services,
-                configuration,
-                configuration["MySerilog:FileName"] ?? "WorkoutApi",
-                schema: "workout");
+            SharedServiceContainer.AddSharedServices<WorkoutDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "WorkoutApi");
 
             return services;
         }

@@ -17,7 +17,6 @@ namespace WorkoutAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("workout")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -62,7 +61,7 @@ namespace WorkoutAPI.Infrastructure.Migrations
 
                     b.HasIndex("WorkoutSessionId");
 
-                    b.ToTable("session_exercises", "workout");
+                    b.ToTable("session_exercises", (string)null);
                 });
 
             modelBuilder.Entity("WorkoutAPI.Domain.Entities.WorkoutPlan", b =>
@@ -100,7 +99,7 @@ namespace WorkoutAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("workout_plans", "workout");
+                    b.ToTable("workout_plans", (string)null);
                 });
 
             modelBuilder.Entity("WorkoutAPI.Domain.Entities.WorkoutSession", b =>
@@ -133,7 +132,7 @@ namespace WorkoutAPI.Infrastructure.Migrations
 
                     b.HasIndex("WorkoutPlanId");
 
-                    b.ToTable("workout_sessions", "workout");
+                    b.ToTable("workout_sessions", (string)null);
                 });
 
             modelBuilder.Entity("WorkoutAPI.Domain.Entities.SessionExercise", b =>

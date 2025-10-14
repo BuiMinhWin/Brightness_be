@@ -17,7 +17,6 @@ namespace AuthenticationAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("authentication")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -72,7 +71,7 @@ namespace AuthenticationAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("refresh_tokens", "authentication");
+                    b.ToTable("refresh_tokens");
                 });
 
             modelBuilder.Entity("AuthenticationAPI.Domain.Entities.User", b =>
@@ -149,7 +148,7 @@ namespace AuthenticationAPI.Infrastructure.Migrations
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("users", "authentication");
+                    b.ToTable("users");
                 });
 
             modelBuilder.Entity("AuthenticationAPI.Domain.Entities.RefreshToken", b =>

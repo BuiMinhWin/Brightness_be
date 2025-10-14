@@ -17,7 +17,6 @@ namespace MeasurementAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("measurement")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -104,7 +103,7 @@ namespace MeasurementAPI.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "RecordedAt");
 
-                    b.ToTable("body_measurements", "measurement");
+                    b.ToTable("body_measurements", (string)null);
                 });
 
             modelBuilder.Entity("MeasurementAPI.Domain.Entities.MeasurementDevice", b =>
@@ -176,7 +175,7 @@ namespace MeasurementAPI.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("\"SerialNumber\" IS NOT NULL");
 
-                    b.ToTable("measurement_devices", "measurement");
+                    b.ToTable("measurement_devices", (string)null);
                 });
 
             modelBuilder.Entity("MeasurementAPI.Domain.Entities.BodyMeasurement", b =>
