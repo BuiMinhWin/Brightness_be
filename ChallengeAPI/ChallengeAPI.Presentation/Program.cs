@@ -14,7 +14,8 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     {
-        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter { DateTimeFormat = "dd-MM-yyyy" });
+        options.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ss";
+        //options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.IsoDateTimeConverter { DateTimeFormat = "dd-MM-yyyy" });
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

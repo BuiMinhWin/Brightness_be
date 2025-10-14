@@ -161,6 +161,7 @@ namespace ChallengeAPI.Application.ServicesImpl
         {
             var challenges = await _challengeRepository.GetAllAsync();
             return challenges.Select(challenge => new ChallengeDTO(
+                challenge.Id,
                 challenge.HostUserId,
                 challenge.Title,
                 challenge.Description,
@@ -185,6 +186,7 @@ namespace ChallengeAPI.Application.ServicesImpl
             }
 
             return new ChallengeDTO(
+                challenge.Id, 
                 challenge.HostUserId,
                 challenge.Title,
                 challenge.Description,

@@ -24,6 +24,7 @@ namespace ChallengeAPI.Presentation.Controllers
             {
                 var createdChallenge = await _challengeService.CreateChallengeAsync(challengeDto);
                 var createdChallengeDto = new ChallengeDTO(
+                    createdChallenge.Id,
                     createdChallenge.HostUserId,
                     createdChallenge.Title,
                     createdChallenge.Description,

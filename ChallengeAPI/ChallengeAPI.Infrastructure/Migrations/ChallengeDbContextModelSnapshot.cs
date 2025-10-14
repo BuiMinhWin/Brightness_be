@@ -171,51 +171,6 @@ namespace ChallengeAPI.Infrastructure.Migrations
                     b.ToTable("challenge_rules", (string)null);
                 });
 
-            modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ChallengeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly?>("EndDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("FrequencyRule")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<decimal?>("Points")
-                        .HasColumnType("numeric(8,2)");
-
-                    b.Property<DateOnly?>("StartDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("TaskType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ValidationRule")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.ToTable("challenge_tasks", (string)null);
-                });
-
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTaskProgress", b =>
                 {
                     b.Property<Guid>("Id")
@@ -250,22 +205,71 @@ namespace ChallengeAPI.Infrastructure.Migrations
                     b.ToTable("challenge_task_progress", (string)null);
                 });
 
+            modelBuilder.Entity("ChallengeTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChallengeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FrequencyRule")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal?>("Points")
+                        .HasColumnType("numeric(8,2)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("TaskType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ValidationRule")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId");
+
+                    b.ToTable("challenge_tasks", (string)null);
+                });
+
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeRule", b =>
                 {
-                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", null)
+                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", "Challenge")
                         .WithMany("Rules")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Challenge");
                 });
 
-            modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTask", b =>
+            modelBuilder.Entity("ChallengeTask", b =>
                 {
-                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", null)
+                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", "Challenge")
                         .WithMany("Tasks")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.Challenge", b =>
