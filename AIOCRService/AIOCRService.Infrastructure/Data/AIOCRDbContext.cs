@@ -16,6 +16,7 @@ namespace AIOCRService.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("aiocr");
 
             // OCRRequest configuration
             modelBuilder.Entity<OCRRequest>(entity =>

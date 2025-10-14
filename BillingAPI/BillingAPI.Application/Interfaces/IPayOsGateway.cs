@@ -8,5 +8,6 @@ namespace BillingAPI.Application.Interfaces
     {
         Task<GatewayPaymentResult> CreatePaymentAsync(Invoice invoice, Payment payment, string returnUrl, string? cancelUrl);
         Task<bool> ValidateWebhookAsync(string rawBody, string? signature);
+        Task<PaymentStatusResponse?> GetPaymentLinkInfoAsync(string orderCode);
     }
 }

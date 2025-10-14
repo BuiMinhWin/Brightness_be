@@ -12,7 +12,11 @@ namespace MediaAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddMediaInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<MediaDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "MediaApi");
+            SharedServiceContainer.AddSharedServices<MediaDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "MediaApi",
+                schema: "media");
 
             services.AddScoped<IMediaRepository, MediaRepository>();
             services.AddScoped<IMediaService, MediaService>();

@@ -121,6 +121,56 @@ namespace BillingAPI.Infrastructure.PaymentGateways
             }
         }
 
+        public async Task<PaymentStatusResponse?> GetPaymentLinkInfoAsync(string orderCode)
+        {
+            try
+            {
+                _logger.LogInformation("Getting payment link info for orderCode: {OrderCode}", orderCode);
+
+                // Use PayOS SDK to get payment link information
+                var paymentInfo = await _payOS.getPaymentLinkInformation(long.Parse(orderCode));
+
+                if (paymentInfo is null)
+                {
+                    _logger.LogWarning("Payment info not found for orderCode: {OrderCode}", orderCode);
+                    return null;
+                }
+
+                _logger.LogInformation("PayOS payment info retrieved: Status={Status}, Amount={Amount}",
+                    paymentInfo.status, paymentInfo.amount);
+
+                // Map PayOS status to our payment status string
+                var statusStr = paymentInfo.status?.ToLowerInvariant() switch
+                {
+                    "paid" => "completed",
+                    "pending" => "pending",
+                    "cancelled" => "failed",
+                    _ => "pending"
+                };
+
+                // Determine paidAt
+                DateTime? paidAt = statusStr == "completed" ? DateTime.UtcNow : null;
+
+                // Use id field from paymentInfo (SDK uses 'id' instead of 'paymentLinkId')
+                var transactionId = paymentInfo.id ?? orderCode;
+
+                // Return response with proper structure (record constructor)
+                return new PaymentStatusResponse(
+                    PaymentId: Guid.Empty, // Will be filled by caller
+                    InvoiceId: Guid.Empty, // Will be filled by caller
+                    Gateway: Domain.Enums.PaymentGatewayType.PayOs,
+                    PaymentStatus: statusStr,
+                    PaidAt: paidAt,
+                    TransactionId: transactionId
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting payment link info for orderCode: {OrderCode}", orderCode);
+                return null;
+            }
+        }
+
         private string CreateSignature(long orderCode, int amount, string description, string cancelUrl, string returnUrl)
         {
             var data = $"amount={amount}&cancelUrl={cancelUrl}&description={description}&orderCode={orderCode}&returnUrl={returnUrl}";

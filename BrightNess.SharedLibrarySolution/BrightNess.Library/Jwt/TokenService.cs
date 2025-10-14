@@ -30,11 +30,27 @@ namespace BrightNess.Library.Jwt
             var securityKey = new SymmetricSecurityKey(keyBytes);
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            // Generate unique JTI for token tracking and blacklisting
+            var jti = Guid.NewGuid().ToString();
+            var issuedAt = DateTime.UtcNow;
+            var expires = issuedAt.AddMinutes(Math.Max(1, _options.ExpirationMinutes));
+
+            var claims = payload.ToClaims().ToList();
+            
+            // Add standard JWT claims
+            claims.AddRange(new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Jti, jti),
+                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(issuedAt).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(issuedAt).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+            });
+
             var token = new JwtSecurityToken(
                 issuer: _options.Issuer,
                 audience: _options.Audience,
-                claims: payload.ToClaims(),
-                expires: DateTime.UtcNow.AddMinutes(Math.Max(1, _options.ExpirationMinutes)),
+                claims: claims,
+                notBefore: issuedAt,
+                expires: expires,
                 signingCredentials: credentials
             );
 
@@ -67,6 +83,7 @@ namespace BrightNess.Library.Jwt
 
             return principal;
         }
+
         public AuthTokens GenerateAuthTokens(TokenPayload payload)
         {
             var accessToken = GenerateAccessToken(payload);
@@ -75,6 +92,34 @@ namespace BrightNess.Library.Jwt
             var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_options.RefreshTokenExpirationDays);
 
             return new AuthTokens(accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
+        }
+
+        public string? ExtractJtiFromToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jsonToken = tokenHandler.ReadJwtToken(token);
+                return jsonToken.Claims?.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti)?.Value;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public DateTime? GetTokenExpiry(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jsonToken = tokenHandler.ReadJwtToken(token);
+                return jsonToken.ValidTo;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

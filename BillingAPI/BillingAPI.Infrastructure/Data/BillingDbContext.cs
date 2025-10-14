@@ -14,6 +14,7 @@ namespace BillingAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("billing");
 
             ConfigureSubscriptionPlan(modelBuilder.Entity<SubscriptionPlan>());
             ConfigureInvoice(modelBuilder.Entity<Invoice>());

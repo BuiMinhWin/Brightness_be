@@ -281,6 +281,22 @@ namespace AuthenticationAPI.Application.Services
                 : updateResponse;
         }
 
+        public async Task<Response> UpdateSubscriptionAsync(Guid userId, Guid subscriptionPlanId)
+        {
+            var user = await _userRepository.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return new Response(false, "User not found");
+            }
+
+            user.SubscriptionPlanId = subscriptionPlanId;
+
+            var updateResponse = await _userRepository.UpdateAsync(user);
+            return updateResponse.Flag
+                ? new Response(true, "User subscription updated successfully")
+                : updateResponse;
+        }
+
         public async Task<Response> DeleteAsync(Guid userId)
         {
             var user = await _userRepository.FindByIdAsync(userId);
