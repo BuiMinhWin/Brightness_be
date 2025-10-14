@@ -17,6 +17,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("challenge")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -54,7 +55,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("achievements", (string)null);
+                    b.ToTable("achievements", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.Challenge", b =>
@@ -107,7 +108,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenges", (string)null);
+                    b.ToTable("challenges", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeParticipant", b =>
@@ -146,7 +147,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenge_participants", (string)null);
+                    b.ToTable("challenge_participants", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeRule", b =>
@@ -168,7 +169,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("challenge_rules", (string)null);
+                    b.ToTable("challenge_rules", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTask", b =>
@@ -213,7 +214,7 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("challenge_tasks", (string)null);
+                    b.ToTable("challenge_tasks", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTaskProgress", b =>
@@ -247,25 +248,29 @@ namespace ChallengeAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("challenge_task_progress", (string)null);
+                    b.ToTable("challenge_task_progress", "challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeRule", b =>
                 {
-                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", null)
+                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", "Challenge")
                         .WithMany("Rules")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.ChallengeTask", b =>
                 {
-                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", null)
+                    b.HasOne("ChallengeAPI.Domain.Entities.Challenge", "Challenge")
                         .WithMany("Tasks")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Challenge");
                 });
 
             modelBuilder.Entity("ChallengeAPI.Domain.Entities.Challenge", b =>

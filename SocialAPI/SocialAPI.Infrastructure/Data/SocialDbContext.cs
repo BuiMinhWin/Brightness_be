@@ -17,6 +17,7 @@ namespace SocialAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("social");
 
             modelBuilder.Entity<Post>(entity =>
             {

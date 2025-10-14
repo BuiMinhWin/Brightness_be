@@ -16,6 +16,7 @@ namespace ChallengeAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("challenge");
 
             modelBuilder.Entity<Challenge>(entity =>
             {

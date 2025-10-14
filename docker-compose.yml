@@ -17,6 +17,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./PersonalCoachAPI/Scripts:/scripts:ro  # Mount setup scripts
+      - ./deploy/postgres-init.sql:/docker-entrypoint-initdb.d/10-init-databases.sql:ro
     command: >
       postgres -c listen_addresses='*' -c log_statement=all
     healthcheck:

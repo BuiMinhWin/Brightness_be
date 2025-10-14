@@ -13,7 +13,11 @@ namespace MeasurementAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddMeasurementInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<MeasurementDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "MeasurementApi");
+            SharedServiceContainer.AddSharedServices<MeasurementDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "MeasurementApi",
+                schema: "measurement");
 
             services.AddScoped<IBodyMeasurementRepository, BodyMeasurementRepository>();
             services.AddScoped<IMeasurementDeviceRepository, MeasurementDeviceRepository>();

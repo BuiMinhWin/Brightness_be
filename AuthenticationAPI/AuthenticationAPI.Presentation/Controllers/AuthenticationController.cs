@@ -82,6 +82,15 @@ namespace AuthenticationAPI.Presentation.Controllers
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
+        [HttpPut("{id:guid}/subscription")]
+        [AllowAnonymous] // Allow BillingAPI to call without user token
+        public async Task<ActionResult<Response>> UpdateSubscription(Guid id, [FromBody] UpdateSubscriptionRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var result = await userService.UpdateSubscriptionAsync(id, request.SubscriptionPlanId);
+            return result.Flag ? Ok(result) : BadRequest(result);
+        }
+
         [HttpDelete("{id:guid}")]
         [Authorize]
         public async Task<ActionResult<Response>> Delete(Guid id)

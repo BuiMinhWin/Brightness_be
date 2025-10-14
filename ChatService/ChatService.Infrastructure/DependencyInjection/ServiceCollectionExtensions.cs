@@ -9,7 +9,11 @@ namespace ChatService.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChatInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<ChatDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "ChatService");
+            SharedServiceContainer.AddSharedServices<ChatDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "ChatService",
+                schema: "chat");
 
             return services;
         }

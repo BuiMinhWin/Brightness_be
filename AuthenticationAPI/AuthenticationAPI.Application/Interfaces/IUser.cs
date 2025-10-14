@@ -15,6 +15,7 @@ namespace AuthenticationAPI.Application.Interfaces
         Task<GetUserDTO?> GetByIdAsync(Guid userId);
         Task<IEnumerable<GetUserDTO>> GetAllAsync();
         Task<Response> UpdateAsync(Guid userId, UpdateUserDTO userDTO);
+        Task<Response> UpdateSubscriptionAsync(Guid userId, Guid subscriptionPlanId);
         Task<Response> DeleteAsync(Guid userId);
     }
 }

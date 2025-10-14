@@ -17,6 +17,7 @@ namespace BillingAPI.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("billing")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -82,7 +83,7 @@ namespace BillingAPI.Infrastructure.Migrations
 
                     b.HasIndex("SubscriptionPlanId");
 
-                    b.ToTable("invoices", (string)null);
+                    b.ToTable("invoices", "billing");
                 });
 
             modelBuilder.Entity("BillingAPI.Domain.Entities.Payment", b =>
@@ -146,7 +147,7 @@ namespace BillingAPI.Infrastructure.Migrations
 
                     b.HasIndex("SubscriptionPlanId");
 
-                    b.ToTable("payments", (string)null);
+                    b.ToTable("payments", "billing");
                 });
 
             modelBuilder.Entity("BillingAPI.Domain.Entities.SubscriptionPlan", b =>
@@ -195,7 +196,7 @@ namespace BillingAPI.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("subscription_plans", (string)null);
+                    b.ToTable("subscription_plans", "billing");
                 });
 
             modelBuilder.Entity("BillingAPI.Domain.Entities.Invoice", b =>

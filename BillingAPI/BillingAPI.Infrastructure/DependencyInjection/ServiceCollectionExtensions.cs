@@ -4,6 +4,7 @@ using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.PaymentGateways;
 using BillingAPI.Infrastructure.PaymentGateways.Options;
 using BillingAPI.Infrastructure.Repositories;
+using BillingAPI.Infrastructure.Services;
 using BrightNess.Library.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,11 @@ namespace BillingAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddBillingInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<BillingDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "BillingApi");
+            SharedServiceContainer.AddSharedServices<BillingDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "BillingApi",
+                schema: "billing");
 
             services.Configure<PayOsOptions>(configuration.GetSection(PayOsOptions.SectionName));
 
@@ -28,6 +33,9 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             services.AddScoped<IPaymentService, PaymentService>();
 
             services.AddScoped<IPayOsGateway, PayOsGateway>();
+
+            // HTTP Client for calling AuthenticationAPI
+            services.AddHttpClient<IUserSubscriptionService, UserSubscriptionService>();
 
             return services;
         }

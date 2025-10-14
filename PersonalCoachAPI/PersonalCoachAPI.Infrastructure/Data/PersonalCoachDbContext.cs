@@ -33,6 +33,7 @@ namespace PersonalCoachAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("personalcoach");
 
             // Enable pgvector extension
             modelBuilder.HasPostgresExtension("vector");
@@ -260,28 +261,28 @@ namespace PersonalCoachAPI.Infrastructure.Data
             // AuthUser - from AuthenticationAPI (read-only, exclude from migrations)
             modelBuilder.Entity<AuthUser>(entity =>
             {
-                entity.ToTable("users", t => t.ExcludeFromMigrations());
+                entity.ToTable("users", "authentication", t => t.ExcludeFromMigrations());
                 entity.HasKey(x => x.Id);
             });
 
             // BodyMeasurement - from MeasurementAPI (read-only, exclude from migrations)
             modelBuilder.Entity<BodyMeasurement>(entity =>
             {
-                entity.ToTable("body_measurements", t => t.ExcludeFromMigrations());
+                entity.ToTable("body_measurements", "measurement", t => t.ExcludeFromMigrations());
                 entity.HasKey(x => x.Id);
             });
 
             // OCRRequest - from AIOCRService (read-only, exclude from migrations)
             modelBuilder.Entity<OCRRequest>(entity =>
             {
-                entity.ToTable("ocr_requests", t => t.ExcludeFromMigrations());
+                entity.ToTable("ocr_requests", "aiocr", t => t.ExcludeFromMigrations());
                 entity.HasKey(x => x.Id);
             });
 
             // ProcessedData - from AIOCRService (read-only, exclude from migrations)
             modelBuilder.Entity<ProcessedData>(entity =>
             {
-                entity.ToTable("processed_data", t => t.ExcludeFromMigrations());
+                entity.ToTable("processed_data", "aiocr", t => t.ExcludeFromMigrations());
                 entity.HasKey(x => x.Id);
             });
 

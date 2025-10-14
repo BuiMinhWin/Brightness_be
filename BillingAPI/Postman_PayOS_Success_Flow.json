@@ -1,0 +1,485 @@
+{
+    "info": {
+        "_postman_id": "payos-success-flow-2025",
+        "name": "PayOS Payment Success Flow",
+        "description": "Complete payment flow for PayOS integration testing - Success scenario with real payment",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Step 1: Create Invoice",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse response",
+                            "var jsonData = pm.response.json();",
+                            "",
+                            "// Save invoice ID for next steps",
+                            "pm.collectionVariables.set(\"invoiceId\", jsonData.id);",
+                            "pm.collectionVariables.set(\"invoiceCode\", jsonData.invoiceCode);",
+                            "pm.collectionVariables.set(\"amount\", jsonData.amount);",
+                            "",
+                            "// Verify response",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Invoice created successfully\", function () {",
+                            "    pm.expect(jsonData.id).to.not.be.empty;",
+                            "    pm.expect(jsonData.status).to.eql(\"pending\");",
+                            "    pm.expect(jsonData.amount).to.be.above(0);",
+                            "});",
+                            "",
+                            "console.log(\"✅ Invoice created: \" + jsonData.invoiceCode);",
+                            "console.log(\"📝 Invoice ID: \" + jsonData.id);",
+                            "console.log(\"💰 Amount: \" + jsonData.amount + \" VND\");"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"subscriptionPlanId\": \"{{planId}}\",\n  \"userId\": \"{{userId}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/invoices",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "invoices"
+                    ]
+                },
+                "description": "Create a new invoice for the subscription plan"
+            },
+            "response": []
+        },
+        {
+            "name": "Step 2: Initiate Payment",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse response",
+                            "var jsonData = pm.response.json();",
+                            "",
+                            "// Save payment info",
+                            "pm.collectionVariables.set(\"paymentId\", jsonData.paymentId);",
+                            "pm.collectionVariables.set(\"checkoutUrl\", jsonData.checkoutUrl);",
+                            "",
+                            "// Verify response",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Payment initiated successfully\", function () {",
+                            "    pm.expect(jsonData.paymentId).to.not.be.empty;",
+                            "    pm.expect(jsonData.checkoutUrl).to.include(\"payos.vn\");",
+                            "});",
+                            "",
+                            "console.log(\"✅ Payment initiated\");",
+                            "console.log(\"📝 Payment ID: \" + jsonData.paymentId);",
+                            "console.log(\"🔗 Checkout URL: \" + jsonData.checkoutUrl);",
+                            "console.log(\"\");",
+                            "console.log(\"⏭️  NEXT STEP: Copy the checkout URL above and open it in your browser to complete payment\");"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"gateway\": 2,\n  \"returnUrl\": \"http://localhost:3000/payment-success\",\n  \"cancelUrl\": \"http://localhost:3000/payment-cancel\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/payments/initiate",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "payments",
+                        "initiate"
+                    ]
+                },
+                "description": "Initiate payment and get PayOS checkout URL"
+            },
+            "response": []
+        },
+        {
+            "name": "Step 3: Check Payment Status (Before Payment)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse response",
+                            "var jsonData = pm.response.json();",
+                            "",
+                            "// Verify response",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Payment status is pending\", function () {",
+                            "    pm.expect(jsonData.paymentStatus).to.be.oneOf([\"pending\", \"initiated\"]);",
+                            "    pm.expect(jsonData.paidAt).to.be.null;",
+                            "});",
+                            "",
+                            "console.log(\"⏳ Current Status: \" + jsonData.paymentStatus);",
+                            "console.log(\"💳 Transaction ID: \" + jsonData.transactionId);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/payments/{{paymentId}}/status",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "payments",
+                        "{{paymentId}}",
+                        "status"
+                    ]
+                },
+                "description": "Check payment status before completing payment on PayOS"
+            },
+            "response": []
+        },
+        {
+            "name": "🔄 MANUAL STEP: Complete Payment on PayOS",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "console.log(\"⚠️  This is a manual step!\");",
+                            "console.log(\"\");",
+                            "console.log(\"📋 Instructions:\");",
+                            "console.log(\"1. Copy the checkout URL from Step 2 response\");",
+                            "console.log(\"2. Open it in your browser\");",
+                            "console.log(\"3. Complete the payment on PayOS website\");",
+                            "console.log(\"4. Wait for payment confirmation\");",
+                            "console.log(\"5. Then run the next request (Step 4)\");",
+                            "console.log(\"\");",
+                            "console.log(\"🔗 Checkout URL: \" + pm.collectionVariables.get(\"checkoutUrl\"));"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "https://httpbin.org/status/200",
+                    "protocol": "https",
+                    "host": [
+                        "httpbin",
+                        "org"
+                    ],
+                    "path": [
+                        "status",
+                        "200"
+                    ]
+                },
+                "description": "This is a placeholder request. You need to manually complete payment on PayOS before proceeding."
+            },
+            "response": []
+        },
+        {
+            "name": "Step 4: Check & Update Payment Status (After Payment)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse response",
+                            "var jsonData = pm.response.json();",
+                            "",
+                            "// Verify response",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Payment completed successfully\", function () {",
+                            "    pm.expect(jsonData.paymentStatus).to.be.oneOf([\"completed\", \"success\", \"paid\"]);",
+                            "    pm.expect(jsonData.paidAt).to.not.be.null;",
+                            "});",
+                            "",
+                            "console.log(\"✅ Payment Status: \" + jsonData.paymentStatus);",
+                            "console.log(\"💳 Transaction ID: \" + jsonData.transactionId);",
+                            "console.log(\"✔️  Paid At: \" + jsonData.paidAt);",
+                            "",
+                            "if (jsonData.paymentStatus === \"completed\" || jsonData.paymentStatus === \"success\") {",
+                            "    console.log(\"\");",
+                            "    console.log(\"🎉 PAYMENT SUCCESSFUL!\");",
+                            "} else if (jsonData.paymentStatus === \"pending\") {",
+                            "    console.log(\"\");",
+                            "    console.log(\"⚠️  Payment still pending. Please wait a moment and try again.\");",
+                            "}"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/payments/{{paymentId}}/check-status",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "payments",
+                        "{{paymentId}}",
+                        "check-status"
+                    ]
+                },
+                "description": "Check payment status with PayOS and update database automatically"
+            },
+            "response": []
+        },
+        {
+            "name": "Step 5: Verify Invoice Status",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "// Parse response",
+                            "var jsonData = pm.response.json();",
+                            "",
+                            "// Verify response",
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "pm.test(\"Invoice marked as paid\", function () {",
+                            "    pm.expect(jsonData.status).to.eql(\"paid\");",
+                            "    pm.expect(jsonData.paidAt).to.not.be.null;",
+                            "});",
+                            "",
+                            "console.log(\"✅ Invoice Status: \" + jsonData.status);",
+                            "console.log(\"📝 Invoice Code: \" + jsonData.invoiceCode);",
+                            "console.log(\"💰 Amount: \" + jsonData.amount + \" VND\");",
+                            "console.log(\"✔️  Paid At: \" + jsonData.paidAt);",
+                            "console.log(\"\");",
+                            "console.log(\"🎊 PAYMENT FLOW COMPLETED SUCCESSFULLY! 🎊\");"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "invoices",
+                        "{{invoiceId}}"
+                    ]
+                },
+                "description": "Verify that the invoice has been marked as paid"
+            },
+            "response": []
+        },
+        {
+            "name": "Extra: Get All Invoices",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "var jsonData = pm.response.json();",
+                            "console.log(\"📋 Total Invoices: \" + jsonData.length);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/invoices",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "invoices"
+                    ]
+                },
+                "description": "Get all invoices for verification"
+            },
+            "response": []
+        },
+        {
+            "name": "Extra: Get All Payments",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "",
+                            "var jsonData = pm.response.json();",
+                            "console.log(\"💳 Total Payments: \" + jsonData.length);"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/payments",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "payments"
+                    ]
+                },
+                "description": "Get all payments for verification"
+            },
+            "response": []
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8088/billing/api/billing",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "YOUR_JWT_TOKEN_HERE",
+            "type": "string"
+        },
+        {
+            "key": "planId",
+            "value": "22222222-2222-2222-2222-222222222222",
+            "type": "string"
+        },
+        {
+            "key": "userId",
+            "value": "YOUR_USER_ID_HERE",
+            "type": "string"
+        },
+        {
+            "key": "invoiceId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "paymentId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "checkoutUrl",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "invoiceCode",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "amount",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

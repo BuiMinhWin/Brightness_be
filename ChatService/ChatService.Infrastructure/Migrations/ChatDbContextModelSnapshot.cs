@@ -17,6 +17,7 @@ namespace ChatService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("chat")
                 .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -53,7 +54,7 @@ namespace ChatService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("chat_sessions", (string)null);
+                    b.ToTable("chat_sessions", "chat");
                 });
 #pragma warning restore 612, 618
         }

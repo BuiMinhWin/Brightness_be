@@ -12,8 +12,7 @@ namespace WorkoutAPI.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-           
+            modelBuilder.HasDefaultSchema("workout");
 
             modelBuilder.Entity<WorkoutPlan>(entity =>
             {

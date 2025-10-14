@@ -70,6 +70,7 @@ builder.Services.AddDbContext<PersonalCoachDbContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
         npgsqlOptions.UseVector();
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "personalcoach");
     });
 });
 
