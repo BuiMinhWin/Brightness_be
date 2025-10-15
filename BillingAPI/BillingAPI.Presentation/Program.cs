@@ -130,6 +130,8 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 await using var scope = app.Services.CreateAsyncScope();

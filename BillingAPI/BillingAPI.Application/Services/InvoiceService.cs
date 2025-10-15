@@ -120,9 +120,24 @@ namespace BillingAPI.Application.Services
             // Update user subscription after successful payment
             if (updateResult.Flag && invoice.UserExternalId.HasValue)
             {
-                await _userSubscriptionService.UpdateUserSubscriptionAsync(
+                Console.WriteLine($"📧 Calling UserSubscriptionService to update user {invoice.UserExternalId.Value} with plan {invoice.SubscriptionPlanId}");
+
+                var subscriptionUpdateResult = await _userSubscriptionService.UpdateUserSubscriptionAsync(
                     invoice.UserExternalId.Value,
                     invoice.SubscriptionPlanId);
+
+                if (subscriptionUpdateResult)
+                {
+                    Console.WriteLine($"✅ Successfully updated user subscription for {invoice.UserExternalId.Value}");
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ Failed to update user subscription for {invoice.UserExternalId.Value}");
+                }
+            }
+            else if (!invoice.UserExternalId.HasValue)
+            {
+                Console.WriteLine($"⚠️ Cannot update user subscription: UserExternalId is null for invoice {invoiceId}");
             }
 
             return updateResult;
