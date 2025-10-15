@@ -16,10 +16,10 @@ namespace AuthenticationAPI.Presentation.Controllers
     {
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<Response>> Register(UserDTO userDTO)
+        public async Task<ActionResult<Response>> Register(RegisterDTO registerDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await userService.RegisterAsync(userDTO);
+            var result = await userService.RegisterAsync(registerDTO);
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
