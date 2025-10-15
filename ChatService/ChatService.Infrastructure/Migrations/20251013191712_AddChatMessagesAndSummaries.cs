@@ -13,6 +13,7 @@ namespace ChatService.Infrastructure.Migrations
         {
             migrationBuilder.CreateTable(
                 name: "chat_messages",
+                schema: "chat",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -29,6 +30,7 @@ namespace ChatService.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_chat_messages_chat_sessions_session_id",
                         column: x => x.session_id,
+                        principalSchema: "chat",
                         principalTable: "chat_sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -36,6 +38,7 @@ namespace ChatService.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "conversation_summaries",
+                schema: "chat",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -50,6 +53,7 @@ namespace ChatService.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_conversation_summaries_chat_sessions_session_id",
                         column: x => x.session_id,
+                        principalSchema: "chat",
                         principalTable: "chat_sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -57,11 +61,13 @@ namespace ChatService.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_chat_messages_session_id",
+                schema: "chat",
                 table: "chat_messages",
                 column: "session_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_conversation_summaries_session_id",
+                schema: "chat",
                 table: "conversation_summaries",
                 column: "session_id");
         }
@@ -70,11 +76,14 @@ namespace ChatService.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "chat_messages");
+                name: "chat_messages",
+                schema: "chat");
 
             migrationBuilder.DropTable(
-                name: "conversation_summaries");
+                name: "conversation_summaries",
+                schema: "chat");
         }
     }
 }
+
 
