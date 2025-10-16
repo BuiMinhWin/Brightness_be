@@ -177,6 +177,8 @@ namespace ChallengeAPI.Application.ServicesImpl
             ));
         }
 
+
+
         public async Task<ChallengeDTO> GetChallengeByIdAsync(Guid id)
         {
             var challenge = await _challengeRepository.GetByIdAsync(id);
