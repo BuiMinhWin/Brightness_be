@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$AwsAccountId,
 
     [string]$Region = "ap-southeast-2",
@@ -14,16 +14,14 @@ param(
 $ErrorActionPreference = "Stop"
 
 $services = @(
-    @{ Name = "gateway";        Dockerfile = "GatewayAPI/APIGateway.Presentation/Dockerfile" },
+    @{ Name = "gateway"; Dockerfile = "GatewayAPI/APIGateway.Presentation/Dockerfile" },
     @{ Name = "authentication"; Dockerfile = "AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile" },
-    @{ Name = "measurement";    Dockerfile = "MeasurementAPI/MeasurementAPI.Presentation/Dockerfile" },
-    @{ Name = "workout";        Dockerfile = "WorkoutAPI/WorkoutAPI.Presentation/Dockerfile" },
-    @{ Name = "nutrition";      Dockerfile = "NutritionAPI/NutritionAPI.Presentation/Dockerfile" },
-    @{ Name = "challenge";      Dockerfile = "ChallengeAPI/ChallengeAPI.Presentation/Dockerfile" },
-    @{ Name = "social";         Dockerfile = "SocialAPI/SocialAPI.Presentation/Dockerfile" },
-    @{ Name = "billing";        Dockerfile = "BillingAPI/BillingAPI.Presentation/Dockerfile" },
-    @{ Name = "media";          Dockerfile = "MediaAPI/MediaAPI.Presentation/Dockerfile" },
-    @{ Name = "chat";           Dockerfile = "ChatService/ChatService.Presentation/Dockerfile" }
+    @{ Name = "measurement"; Dockerfile = "MeasurementAPI/MeasurementAPI.Presentation/Dockerfile" },
+    @{ Name = "challenge"; Dockerfile = "ChallengeAPI/ChallengeAPI.Presentation/Dockerfile" },
+    @{ Name = "social"; Dockerfile = "SocialAPI/SocialAPI.Presentation/Dockerfile" },
+    @{ Name = "billing"; Dockerfile = "BillingAPI/BillingAPI.Presentation/Dockerfile" },
+    @{ Name = "media"; Dockerfile = "MediaAPI/MediaAPI.Presentation/Dockerfile" },
+    @{ Name = "chat"; Dockerfile = "ChatService/ChatService.Presentation/Dockerfile" }
 )
 
 $registry = "$AwsAccountId.dkr.ecr.$Region.amazonaws.com"
@@ -44,7 +42,8 @@ foreach ($svc in $services) {
     if (-not $SkipBuild) {
         Write-Host "Building $repositoryUri:$ImageTag"
         docker build --file $svc.Dockerfile --tag "$repositoryUri:$ImageTag" .
-    } else {
+    }
+    else {
         Write-Host "Skipping build for $repositoryUri:$ImageTag" -ForegroundColor Yellow
     }
 

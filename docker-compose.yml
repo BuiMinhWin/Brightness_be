@@ -32,11 +32,36 @@ services:
   redis:
     image: redis:8.2-alpine
     restart: always
-    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    command:
+      - redis-server
+      - --save
+      - "60"
+      - "1"
+      - --loglevel
+      - warning
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - app_network
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    restart: always
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_started
+    volumes:
+      - redisinsight_data:/data
     networks:
       - app_network
 
@@ -64,12 +89,13 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      ConnectionStrings__Redis: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
       Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /auth
-      Redis__ConnectionString: redis:6379
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,8 +119,6 @@ services:
     depends_on:
       - authentication-api
       - measurement-api
-      - workout-api
-      - nutrition-api
       - challenge-api
       - social-api
       - billing-api
@@ -123,45 +147,6 @@ services:
         condition: service_healthy
     networks:
       - app_network
-
-  workout-api:
-    build:
-      context: .
-      dockerfile: WorkoutAPI/WorkoutAPI.Presentation/Dockerfile
-    environment:
-      <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
-      Authentication__Key: ${AUTHENTICATION__KEY}
-      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
-      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
-      Swagger__JsonEndpoint: /workout/swagger/v1/swagger.json
-      Swagger__GatewayPrefix: /workout
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app_network
-
-  nutrition-api:
-    build:
-      context: .
-      dockerfile: NutritionAPI/NutritionAPI.Presentation/Dockerfile
-    environment:
-      <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
-      Authentication__Key: ${AUTHENTICATION__KEY}
-      Authentication__Issuer: ${AUTHENTICATION__ISSUER}
-      Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
-      Swagger__JsonEndpoint: /nutrition/swagger/v1/swagger.json
-      Swagger__GatewayPrefix: /nutrition
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app_network
-
   challenge-api:
     build:
       context: .
@@ -324,3 +309,4 @@ volumes:
   pgadmin_data: {}
   pgdata: {}
   redis_data: {}
+  redisinsight_data: {}
