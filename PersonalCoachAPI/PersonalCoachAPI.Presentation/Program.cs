@@ -8,6 +8,7 @@ using PersonalCoachAPI.Application.Interfaces;
 using PersonalCoachAPI.Infrastructure.Data;
 using PersonalCoachAPI.Infrastructure.Repositories;
 using PersonalCoachAPI.Infrastructure.Services;
+using PersonalCoachAPI.Presentation.Middleware;
 using Pgvector.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -181,6 +182,10 @@ app.UseSwaggerUI(c =>
 
 app.UseCors(CorsPolicyName);
 app.UseHttpsRedirection();
+
+// Internal API key validation (before authentication)
+app.UseMiddleware<InternalApiKeyMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
