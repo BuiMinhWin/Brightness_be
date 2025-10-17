@@ -43,15 +43,25 @@ namespace ChallengeAPI.Application.ServicesImpl
                 ParticipantId = challengeTaskProgressDto.ParticipantId,
                 ChallengeTaskId = challengeTaskProgressDto.ChallengeTaskId,
                 TargetDate = challengeTaskProgressDto.TargetDate,
-                Status = challengeTaskProgressDto.Status,
+                Status = challengeTaskProgressDto.Status ?? "pending",
                 ValidationData = challengeTaskProgressDto.ValidationData,
-                PointsEarned = challengeTaskProgressDto.PointsEarned,
+                PointsEarned = challengeTaskProgressDto.PointsEarned ?? 0,
                 CompletedAt = challengeTaskProgressDto.CompletedAt
             };
 
             var createdChallengeTaskProgress = await _challengeTaskProgressRepository.AddAsync(challengeTaskProgress);
             await UpdateParticipantTotalPointsAsync(participant.Id);
-            return new ChallengeTaskProgressDTO(createdChallengeTaskProgress.Id, createdChallengeTaskProgress.ParticipantId, createdChallengeTaskProgress.ChallengeTaskId, createdChallengeTaskProgress.TargetDate, createdChallengeTaskProgress.Status, createdChallengeTaskProgress.ValidationData, createdChallengeTaskProgress.PointsEarned, createdChallengeTaskProgress.CompletedAt);
+
+            return new ChallengeTaskProgressDTO(
+                createdChallengeTaskProgress.Id,
+                createdChallengeTaskProgress.ParticipantId,
+                createdChallengeTaskProgress.ChallengeTaskId,
+                createdChallengeTaskProgress.TargetDate,
+                createdChallengeTaskProgress.Status,
+                createdChallengeTaskProgress.ValidationData,
+                createdChallengeTaskProgress.PointsEarned,
+                createdChallengeTaskProgress.CompletedAt
+            );
         }
 
         public async Task<ChallengeTaskProgressDTO> GetChallengeTaskProgressByIdAsync(Guid id)
@@ -61,19 +71,46 @@ namespace ChallengeAPI.Application.ServicesImpl
             {
                 return null;
             }
-            return new ChallengeTaskProgressDTO(challengeTaskProgress.Id, challengeTaskProgress.ParticipantId, challengeTaskProgress.ChallengeTaskId, challengeTaskProgress.TargetDate, challengeTaskProgress.Status, challengeTaskProgress.ValidationData, challengeTaskProgress.PointsEarned, challengeTaskProgress.CompletedAt);
+            return new ChallengeTaskProgressDTO(
+                challengeTaskProgress.Id,
+                challengeTaskProgress.ParticipantId,
+                challengeTaskProgress.ChallengeTaskId,
+                challengeTaskProgress.TargetDate,
+                challengeTaskProgress.Status,
+                challengeTaskProgress.ValidationData,
+                challengeTaskProgress.PointsEarned,
+                challengeTaskProgress.CompletedAt
+            );
         }
 
         public async Task<IEnumerable<ChallengeTaskProgressDTO>> GetAllChallengeTaskProgressesAsync()
         {
             var challengeTaskProgresses = await _challengeTaskProgressRepository.GetAllAsync();
-            return challengeTaskProgresses.Select(ctp => new ChallengeTaskProgressDTO(ctp.Id, ctp.ParticipantId, ctp.ChallengeTaskId, ctp.TargetDate, ctp.Status, ctp.ValidationData, ctp.PointsEarned, ctp.CompletedAt));
+            return challengeTaskProgresses.Select(ctp => new ChallengeTaskProgressDTO(
+                ctp.Id,
+                ctp.ParticipantId,
+                ctp.ChallengeTaskId,
+                ctp.TargetDate,
+                ctp.Status,
+                ctp.ValidationData,
+                ctp.PointsEarned,
+                ctp.CompletedAt
+            ));
         }
 
         public async Task<IEnumerable<ChallengeTaskProgressDTO>> GetProgressByParticipantIdAsync(Guid participantId)
         {
             var challengeTaskProgresses = await _challengeTaskProgressRepository.GetByParticipantIdAsync(participantId);
-            return challengeTaskProgresses.Select(ctp => new ChallengeTaskProgressDTO(ctp.Id, ctp.ParticipantId, ctp.ChallengeTaskId, ctp.TargetDate, ctp.Status, ctp.ValidationData, ctp.PointsEarned, ctp.CompletedAt));
+            return challengeTaskProgresses.Select(ctp => new ChallengeTaskProgressDTO(
+                ctp.Id,
+                ctp.ParticipantId,
+                ctp.ChallengeTaskId,
+                ctp.TargetDate,
+                ctp.Status,
+                ctp.ValidationData,
+                ctp.PointsEarned,
+                ctp.CompletedAt
+            ));
         }
 
         public async Task UpdateChallengeTaskProgressAsync(Guid id, ChallengeTaskProgressDTO challengeTaskProgressDto)

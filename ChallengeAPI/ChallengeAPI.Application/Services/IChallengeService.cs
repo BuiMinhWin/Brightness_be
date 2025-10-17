@@ -10,7 +10,7 @@ namespace ChallengeAPI.Application.Services
 
         Task<Challenge> CreateChallengeAsync(ChallengeDTO challengeDto);
         Task UpdateChallengeAsync(Guid id, ChallengeDTO challengeDto);
-   
+
         Task PatchChallengeAsync(Guid id, Dictionary<string, object> patchData);
         Task DeleteChallengeAsync(Guid id);
         Task<ChallengeDTO> GetChallengeByIdAsync(Guid id);
@@ -22,6 +22,6 @@ namespace ChallengeAPI.Application.Services
         Task<ChallengeTaskProgressDTO> GetTaskProgressAsync(Guid taskId);
         Task UpdateTaskProgressAsync(Guid taskId, ChallengeTaskProgressDTO progressDto);
 
-     
+
     }
 }

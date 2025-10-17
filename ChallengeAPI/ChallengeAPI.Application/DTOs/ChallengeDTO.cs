@@ -5,6 +5,7 @@ namespace ChallengeAPI.Application.DTOs
 {
     public record ChallengeDTO
     (
+        Guid Id,
         Guid HostUserId,
 
         [Required]
