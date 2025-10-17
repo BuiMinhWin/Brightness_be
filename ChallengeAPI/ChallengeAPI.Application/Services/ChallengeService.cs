@@ -83,7 +83,6 @@ namespace ChallengeAPI.Application.ServicesImpl
             await _challengeRepository.UpdateAsync(existingChallenge);
         }
 
-
         public async Task PatchChallengeAsync(Guid id, Dictionary<string, object> patchData)
         {
             var existingChallenge = await _challengeRepository.GetByIdAsync(id);
@@ -92,7 +91,6 @@ namespace ChallengeAPI.Application.ServicesImpl
                 throw new ArgumentException("Challenge not found.");
             }
 
-            // CHỈ update những field có trong dictionary
             foreach (var kvp in patchData)
             {
                 var propertyName = kvp.Key.ToLower();
@@ -144,7 +142,6 @@ namespace ChallengeAPI.Application.ServicesImpl
             await _challengeRepository.UpdateAsync(existingChallenge);
         }
 
-
         public async Task DeleteChallengeAsync(Guid id)
         {
             var existingChallenge = await _challengeRepository.GetByIdAsync(id);
@@ -155,12 +152,11 @@ namespace ChallengeAPI.Application.ServicesImpl
             await _challengeRepository.DeleteAsync(existingChallenge);
         }
 
-
-
         public async Task<IEnumerable<ChallengeDTO>> GetAllChallengesAsync()
         {
             var challenges = await _challengeRepository.GetAllAsync();
             return challenges.Select(challenge => new ChallengeDTO(
+                challenge.Id,              // ✅ FIXED: Id is now first parameter
                 challenge.HostUserId,
                 challenge.Title,
                 challenge.Description,
@@ -185,6 +181,7 @@ namespace ChallengeAPI.Application.ServicesImpl
             }
 
             return new ChallengeDTO(
+                challenge.Id,              // ✅ FIXED: Id is now first parameter
                 challenge.HostUserId,
                 challenge.Title,
                 challenge.Description,
@@ -199,36 +196,30 @@ namespace ChallengeAPI.Application.ServicesImpl
                 challenge.UpdatedAt
             );
         }
-
         public Task<IEnumerable<ChallengeParticipantDTO>> GetChallengeParticipantsAsync(Guid challengeId)
         {
-            // Logic to get challenge participants
             return Task.FromResult(Enumerable.Empty<ChallengeParticipantDTO>());
         }
 
         public Task<IEnumerable<ChallengeRuleDTO>> GetChallengeRulesAsync(Guid challengeId)
         {
-            // Logic to get challenge rules
             return Task.FromResult(Enumerable.Empty<ChallengeRuleDTO>());
         }
 
         public Task<IEnumerable<ChallengeTaskDTO>> GetChallengeTasksAsync(Guid challengeId)
         {
-            // Logic to get challenge tasks
             return Task.FromResult(Enumerable.Empty<ChallengeTaskDTO>());
         }
 
-
         public Task<ChallengeTaskProgressDTO> GetTaskProgressAsync(Guid taskId)
         {
-            // Logic to get task progress
             return Task.FromResult<ChallengeTaskProgressDTO>(null);
         }
 
         public Task UpdateTaskProgressAsync(Guid taskId, ChallengeTaskProgressDTO progressDto)
         {
-            // Logic to update task progress
             return Task.CompletedTask;
         }
+
     }
 }

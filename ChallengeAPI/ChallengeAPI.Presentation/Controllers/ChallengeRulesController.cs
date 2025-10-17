@@ -88,7 +88,7 @@ namespace ChallengeAPI.Presentation.Controllers
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteChallengeRule(Guid id)
-        { 
+        {
             try
             {
                 await _challengeRuleService.DeleteChallengeRuleAsync(id);

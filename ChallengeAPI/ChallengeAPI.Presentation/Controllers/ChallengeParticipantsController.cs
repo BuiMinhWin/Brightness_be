@@ -74,7 +74,7 @@ namespace ChallengeAPI.Presentation.Controllers
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteChallengeParticipant(Guid id)
-        { 
+        {
             try
             {
                 await _challengeParticipantService.DeleteChallengeParticipantAsync(id);

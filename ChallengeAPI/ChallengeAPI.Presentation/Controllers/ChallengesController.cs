@@ -24,6 +24,7 @@ namespace ChallengeAPI.Presentation.Controllers
             {
                 var createdChallenge = await _challengeService.CreateChallengeAsync(challengeDto);
                 var createdChallengeDto = new ChallengeDTO(
+                    createdChallenge.Id,
                     createdChallenge.HostUserId,
                     createdChallenge.Title,
                     createdChallenge.Description,
@@ -45,9 +46,9 @@ namespace ChallengeAPI.Presentation.Controllers
             }
         }
 
-        
 
-        
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateChallenge(Guid id, [FromBody] ChallengeDTO challengeDto)
@@ -63,7 +64,7 @@ namespace ChallengeAPI.Presentation.Controllers
             }
         }
 
-       
+
         // PATCH - Partial update (update only specified fields)
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchChallenge(Guid id, [FromBody] Dictionary<string, object> patchData)
@@ -71,7 +72,7 @@ namespace ChallengeAPI.Presentation.Controllers
             try
             {
                 await _challengeService.PatchChallengeAsync(id, patchData);
-                 return Ok(new { message = "Challenge rule updated successfully" });
+                return Ok(new { message = "Challenge rule updated successfully" });
             }
             catch (ArgumentException ex)
             {
