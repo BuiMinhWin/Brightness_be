@@ -1,9 +1,9 @@
-using BrightNess.Library.Configuration;
 using ChallengeAPI.Application.Repositories;
 using ChallengeAPI.Application.Services;
 using ChallengeAPI.Application.ServicesImpl;
 using ChallengeAPI.Infrastructure.Data;
 using ChallengeAPI.Infrastructure.Repositories;
+using BrightNess.Library.DI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
