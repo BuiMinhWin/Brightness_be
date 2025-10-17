@@ -1,12 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace BillingAPI.Application.Requests
 {
     public class CreateInvoiceRequest
     {
-        [JsonPropertyName("userId")]
         public Guid? UserExternalId { get; set; }
 
         [Required]

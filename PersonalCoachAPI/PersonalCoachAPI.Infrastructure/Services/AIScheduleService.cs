@@ -160,17 +160,6 @@ namespace PersonalCoachAPI.Infrastructure.Services
                         dayExercises = SelectExercisesForDay(bodyweightExercises, scheduleDay.FocusArea, request.DifficultyLevel);
                     }
                     
-                    // If still no exercises found, use AI to generate them
-                    if (!dayExercises.Any())
-                    {
-                        _logger.LogWarning("No exercises found even with bodyweight filter. Using AI to generate exercises for {FocusArea}.", scheduleDay.FocusArea);
-                        dayExercises = await _ragService.GenerateExercisesWithAIAsync(
-                            scheduleDay.FocusArea, 
-                            request.DifficultyLevel, 
-                            request.EquipmentAvailable.Any() ? request.EquipmentAvailable : new List<string> { "Bodyweight", "None" },
-                            count: 6);
-                    }
-                    
                     int orderIndex = 1;
                     foreach (var exercise in dayExercises.Take(6)) // 6 exercises per day
                     {

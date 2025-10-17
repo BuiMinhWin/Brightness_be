@@ -1,0 +1,35 @@
+using System.IO;
+using BrightNess.Library.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using NutritionAPI.Infrastructure.Data;
+
+namespace NutritionAPI.Infrastructure.DesignTime
+{
+    public class NutritionDbContextFactory : IDesignTimeDbContextFactory<NutritionDbContext>
+    {
+        public NutritionDbContext CreateDbContext(string[] args)
+        {
+            var configuration = BuildConfiguration();
+            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
+
+            var optionsBuilder = new DbContextOptionsBuilder<NutritionDbContext>();
+            optionsBuilder.UseNpgsql(connectionString);
+
+            return new NutritionDbContext(optionsBuilder.Options);
+        }
+
+        private static IConfiguration BuildConfiguration()
+        {
+            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "NutritionAPI.Presentation");
+            EnvironmentConfiguration.TryLoadDotEnv();
+            return new ConfigurationBuilder()
+                .SetBasePath(basePath)
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+    }
+}

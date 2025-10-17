@@ -16,9 +16,7 @@ Start-Sleep -Seconds 10
 Write-Host "`nStarting all services..." -ForegroundColor Green
 docker-compose up --build -d
 
-Write-Host "`nDatabase reset complete! All services starting with fresh database." -ForegroundColor Green
-Write-Host "Wait ~30 seconds for migrations to complete, then check logs:" -ForegroundColor Cyan
+Write-Host "`n Database reset complete! All services starting with fresh database." -ForegroundColor Green
+Write-Host " Wait ~30 seconds for migrations to complete, then check logs:" -ForegroundColor Cyan
 Write-Host "   docker-compose logs -f personal-coach-api" -ForegroundColor White
 
-Write-Host "`nPress any key to exit..." -ForegroundColor Yellow
-[void][System.Console]::ReadKey($true)

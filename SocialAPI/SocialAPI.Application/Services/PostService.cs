@@ -29,7 +29,7 @@ namespace SocialAPI.Application.Services
             };
 
             var createdPost = await _postRepository.CreatePostAsync(post);
-            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0, 0, 0);
+            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0, 0);
         }
 
         public async Task DeletePostAsync(Guid id)
@@ -42,8 +42,7 @@ namespace SocialAPI.Application.Services
             var post = await _postRepository.GetPostByIdAsync(id);
             if (post == null) return null;
             var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-            var commentCount = await CalculateCommentCount(post.Id);
-            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount);
+            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount);
         }
 
         public async Task<IEnumerable<PostDTO>> GetPostsAsync()
@@ -53,8 +52,7 @@ namespace SocialAPI.Application.Services
             foreach (var post in posts)
             {
                 var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-                var commentCount = await CalculateCommentCount(post.Id);
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount));
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount));
             }
             return postDtos;
         }
@@ -73,7 +71,6 @@ namespace SocialAPI.Application.Services
             await _postRepository.UpdatePostAsync(post);
 
             var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-            var commentCount = await CalculateCommentCount(post.Id);
             return new PostDTO(
                 post.Id,
                 post.UserId,
@@ -84,8 +81,7 @@ namespace SocialAPI.Application.Services
                 post.CreatedAt,
                 post.UpdatedAt,
                 reactionCount,
-                dislikeCount,
-                commentCount
+                dislikeCount
             );
         }
 
@@ -102,7 +98,6 @@ namespace SocialAPI.Application.Services
             await _postRepository.UpdatePostAsync(post);
 
             var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-            var commentCount = await CalculateCommentCount(post.Id);
 
             // Trả lại thông tin bài post đã cập nhật
             return new PostDTO(
@@ -115,8 +110,7 @@ namespace SocialAPI.Application.Services
                 post.CreatedAt,
                 post.UpdatedAt,
                 reactionCount,
-                dislikeCount,
-                commentCount
+                dislikeCount
             );
         }
 
@@ -165,14 +159,6 @@ namespace SocialAPI.Application.Services
             await UpdatePostReactionCountAsync(postId);
         }
 
-        public async Task<PostVoteDTO> GetUserVoteAsync(Guid postId, Guid userId)
-        {
-            var vote = await _postRepository.GetPostVoteAsync(postId, userId);
-            if (vote == null) return null;
-            
-            return new PostVoteDTO(vote.Id, vote.PostId, vote.UserId, vote.VoteType, vote.CreatedAt);
-        }
-
         public async Task UpdatePostReactionCountAsync(Guid postId)
         {
             var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(postId);
@@ -182,7 +168,7 @@ namespace SocialAPI.Application.Services
         private async Task<(int, int)> CalculateReactionsAndDislikes(Guid postId)
         {
             var postVotes = await _postRepository.GetVotesForPostAsync(postId);
-            var postReactionCount = postVotes.Count(v => v.VoteType == "reaction");
+            var postReactionCount = postVotes.Count(v => v.VoteType == "like");
             var postDislikeCount = postVotes.Count(v => v.VoteType == "dislike");
 
             var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
@@ -198,16 +184,9 @@ namespace SocialAPI.Application.Services
             foreach (var post in posts)
             {
                 var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-                var commentCount = await CalculateCommentCount(post.Id);
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount));
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount));
             }
             return postDtos;
-        }
-
-        private async Task<int> CalculateCommentCount(Guid postId)
-        {
-            var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
-            return comments.Count();
         }
     }
 }

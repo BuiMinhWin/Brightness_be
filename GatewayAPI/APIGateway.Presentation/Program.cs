@@ -73,6 +73,8 @@ app.UseSwaggerUI(c =>
     // Add individual service Swagger endpoints (Gateway routes to services)
     c.SwaggerEndpoint("/auth/swagger/v1/swagger.json", "Authentication API");
     c.SwaggerEndpoint("/measurement/swagger/v1/swagger.json", "Measurement API");
+    c.SwaggerEndpoint("/workout/swagger/v1/swagger.json", "Workout API");
+    c.SwaggerEndpoint("/nutrition/swagger/v1/swagger.json", "Nutrition API");
     c.SwaggerEndpoint("/challenge/swagger/v1/swagger.json", "Challenge API");
     c.SwaggerEndpoint("/social/swagger/v1/swagger.json", "Social API");
     c.SwaggerEndpoint("/billing/swagger/v1/swagger.json", "Billing API");

@@ -15,7 +15,6 @@ namespace SocialAPI.Application.Interfaces
 
         Task VotePostAsync(Guid postId, Guid userId, string voteType);
         Task CancelPostVoteAsync(Guid postId, Guid userId);
-        Task<PostVoteDTO> GetUserVoteAsync(Guid postId, Guid userId);
 
         Task<IEnumerable<PostDTO>> GetPostsByTagAsync(string tagSlug);
         Task UpdatePostReactionCountAsync(Guid postId);

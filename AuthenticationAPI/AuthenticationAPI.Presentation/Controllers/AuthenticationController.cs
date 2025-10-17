@@ -18,10 +18,10 @@ namespace AuthenticationAPI.Presentation.Controllers
         private readonly IConfiguration _configuration = configuration;
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<Response>> Register(RegisterDTO registerDTO)
+        public async Task<ActionResult<Response>> Register(UserDTO userDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await userService.RegisterAsync(registerDTO);
+            var result = await userService.RegisterAsync(userDTO);
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
@@ -111,7 +111,7 @@ namespace AuthenticationAPI.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [AllowAnonymous] // Allow internal service-to-service communication
+        [Authorize]
         public async Task<ActionResult<GetUserDTO>> GetUser(Guid id)
         {
             var user = await userService.GetByIdAsync(id);

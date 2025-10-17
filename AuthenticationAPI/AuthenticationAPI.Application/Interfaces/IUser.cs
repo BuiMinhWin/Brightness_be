@@ -8,7 +8,7 @@ namespace AuthenticationAPI.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<Response> RegisterAsync(RegisterDTO registerDTO);
+        Task<Response> RegisterAsync(UserDTO userDTO);
         Task<Response> LoginAsync(LoginDTO loginDTO, string? ipAddress = null);
         Task<Response> RefreshTokenAsync(string refreshToken, string? ipAddress = null);
         Task<Response> RevokeRefreshTokenAsync(string refreshToken, string? ipAddress = null);

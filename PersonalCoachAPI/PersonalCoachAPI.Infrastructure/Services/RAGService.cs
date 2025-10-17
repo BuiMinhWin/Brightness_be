@@ -189,8 +189,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
 
                     if (results.Any())
                     {
-                        // Filter by equipment compatibility after loading from database
-                        var embeddingResults = results
+                        var filteredResults = results
                             .Where(x => IsEquipmentCompatible(x.Exercise.EquipmentRequired, availableEquipment))
                             .Take(topK)
                             .Select(x => new ExerciseSearchResult
@@ -207,14 +206,15 @@ namespace PersonalCoachAPI.Infrastructure.Services
                                 SimilarityScore = 1.0 - (double)x.Distance
                             }).ToList();
 
-                        return embeddingResults;
+                        return filteredResults;
                     }
                 }
 
                 // Fallback: return exercises without embedding search
                 var fallbackResults = await _context.ExerciseLibrary
                     .Where(x => x.DifficultyLevel == fitnessLevel || fitnessLevel == "all")
-                    .Take(topK * 2) // Get more results to filter later
+                    .Where(x => IsEquipmentCompatible(x.EquipmentRequired, availableEquipment))
+                    .Take(topK)
                     .Select(x => new ExerciseSearchResult
                     {
                         Id = x.Id,
@@ -230,13 +230,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     })
                     .ToListAsync();
 
-                // Filter by equipment compatibility after loading from database
-                var compatibleResults = fallbackResults
-                    .Where(x => IsEquipmentCompatible(JsonConvert.SerializeObject(x.EquipmentRequired), availableEquipment))
-                    .Take(topK)
-                    .ToList();
-
-                return compatibleResults;
+                return fallbackResults;
             }
             catch (Exception ex)
             {
@@ -704,333 +698,6 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 "general_fitness" => $"full body workout functional training for {fitnessLevel}",
                 _ => $"{goal} exercises for {fitnessLevel} level"
             };
-        }
-
-        public async Task<List<ExerciseSearchResult>> GenerateExercisesWithAIAsync(string focusArea, string difficultyLevel, List<string> availableEquipment, int count = 6)
-        {
-            try
-            {
-                _logger.LogInformation("Using AI to generate {Count} exercises for {FocusArea} ({DifficultyLevel}) with equipment: {Equipment}", 
-                    count, focusArea, difficultyLevel, string.Join(", ", availableEquipment));
-
-                var equipmentList = string.Join(", ", availableEquipment);
-                var prompt = $@"Generate {Math.Min(count, 3)} specific {difficultyLevel} level exercises for {focusArea} training using ONLY this equipment: {equipmentList}.
-
-For each exercise, provide:
-1. Exercise name (in English)
-2. Exercise name in Vietnamese  
-3. Target muscles (as JSON array)
-4. Equipment needed (from the provided list only)
-5. Brief description (1-2 sentences)
-6. Category (strength/cardio/flexibility)
-
-Format as JSON array:
-[
-  {{
-    ""exerciseName"": ""Push-ups"",
-    ""exerciseNameVi"": ""Hít đất"",
-    ""targetMuscles"": [""chest"", ""triceps"", ""shoulders""],
-    ""equipmentRequired"": [""Bodyweight""],
-    ""description"": ""A fundamental bodyweight exercise that builds upper body strength."",
-    ""category"": ""strength""
-  }}
-]
-
-IMPORTANT: Use ONLY equipment from this list: {equipmentList}. Keep descriptions short and concise.";
-
-                var apiKey = _configuration["GoogleAI:ApiKey"] ?? _configuration["GOOGLE_AI_API_KEY"];
-                var model = _configuration["GoogleAI:Model"] ?? "gemini-2.5-flash";
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
-
-                var requestBody = new
-                {
-                    contents = new[]
-                    {
-                        new
-                        {
-                            parts = new[] { new { text = prompt } }
-                        }
-                    },
-                    generationConfig = new
-                    {
-                        temperature = 0.8,
-                        topK = 40,
-                        topP = 0.95,
-                        maxOutputTokens = 4096
-                    }
-                };
-
-                var json = JsonConvert.SerializeObject(requestBody);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(url, content);
-                response.EnsureSuccessStatusCode();
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogDebug("AI Response: {Response}", responseContent);
-                
-                var result = JsonConvert.DeserializeObject<GeminiResponse>(responseContent);
-                var generatedText = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
-
-                if (string.IsNullOrWhiteSpace(generatedText))
-                {
-                    _logger.LogWarning("AI generated empty response. Full response: {Response}", responseContent);
-                    return new List<ExerciseSearchResult>();
-                }
-
-                _logger.LogDebug("Generated text: {Text}", generatedText);
-
-                // Extract JSON from markdown code blocks if present
-                var jsonMatch = System.Text.RegularExpressions.Regex.Match(generatedText, @"```json\s*(.*?)\s*```", System.Text.RegularExpressions.RegexOptions.Singleline);
-                var jsonText = jsonMatch.Success ? jsonMatch.Groups[1].Value : generatedText;
-
-                // Try to find JSON array in the text
-                if (string.IsNullOrWhiteSpace(jsonText))
-                {
-                    var arrayMatch = System.Text.RegularExpressions.Regex.Match(generatedText, @"\[.*\]", System.Text.RegularExpressions.RegexOptions.Singleline);
-                    if (arrayMatch.Success)
-                    {
-                        jsonText = arrayMatch.Value;
-                    }
-                }
-
-                if (string.IsNullOrWhiteSpace(jsonText))
-                {
-                    _logger.LogWarning("Could not extract JSON from AI response: {Text}", generatedText);
-                    return new List<ExerciseSearchResult>();
-                }
-
-                _logger.LogDebug("Extracted JSON: {Json}", jsonText);
-
-                List<GeneratedExercise> generatedExercises;
-                try
-                {
-                    generatedExercises = JsonConvert.DeserializeObject<List<GeneratedExercise>>(jsonText);
-                }
-                catch (JsonException ex)
-                {
-                    _logger.LogError(ex, "Failed to parse AI-generated JSON: {Json}", jsonText);
-                    _logger.LogWarning("Using fallback exercises due to JSON parsing error");
-                    return CreateFallbackExercises(focusArea, difficultyLevel, availableEquipment, count);
-                }
-
-                if (generatedExercises == null || !generatedExercises.Any())
-                {
-                    _logger.LogWarning("Failed to parse AI-generated exercises, using fallback");
-                    return CreateFallbackExercises(focusArea, difficultyLevel, availableEquipment, count);
-                }
-
-                // Convert to ExerciseSearchResult and save to database for future use
-                var results = new List<ExerciseSearchResult>();
-                foreach (var genEx in generatedExercises)
-                {
-                    var exerciseId = Guid.NewGuid();
-                    
-                    // Create exercise library entry
-                    var exerciseLibEntry = new ExerciseLibrary
-                    {
-                        Id = exerciseId,
-                        ExerciseName = genEx.ExerciseName,
-                        ExerciseNameVi = genEx.ExerciseNameVi,
-                        Category = genEx.Category,
-                        DifficultyLevel = difficultyLevel,
-                        EquipmentRequired = JsonConvert.SerializeObject(genEx.EquipmentRequired),
-                        TargetMuscles = JsonConvert.SerializeObject(genEx.TargetMuscles),
-                        SecondaryMuscles = "[]",
-                        Description = genEx.Description,
-                        DescriptionVi = genEx.Description, // Use same for now
-                        Instructions = "[]",
-                        Benefits = "[]",
-                        CommonMistakes = "[]",
-                        Variations = "[]",
-                        VideoUrl = "",
-                        ImageUrl = "",
-                        CaloriesPerMinute = genEx.Category == "cardio" ? 10 : 7,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    };
-
-                    // Generate embedding for the exercise
-                    var embeddingText = $"{genEx.ExerciseName} {genEx.Description} {string.Join(" ", genEx.TargetMuscles)} {difficultyLevel}";
-                    var embedding = await GenerateEmbeddingAsync(embeddingText);
-                    if (embedding != null && embedding.Length > 0)
-                    {
-                        exerciseLibEntry.EmbeddingVector = new Vector(embedding);
-                    }
-
-                    // Add to database
-                    _context.ExerciseLibrary.Add(exerciseLibEntry);
-
-                    // Add to results
-                    results.Add(new ExerciseSearchResult
-                    {
-                        Id = exerciseId,
-                        ExerciseName = genEx.ExerciseName,
-                        ExerciseNameVi = genEx.ExerciseNameVi,
-                        Category = genEx.Category,
-                        DifficultyLevel = difficultyLevel,
-                        TargetMuscles = genEx.TargetMuscles,
-                        EquipmentRequired = genEx.EquipmentRequired,
-                        Description = genEx.Description,
-                        VideoUrl = "",
-                        SimilarityScore = 0.95 // High score for AI-generated
-                    });
-                }
-
-                // Save all new exercises to database
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Successfully generated and saved {Count} AI exercises to RAG", results.Count);
-
-                return results;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating exercises with AI");
-                
-                // Fallback: Create basic exercises based on focus area
-                return CreateFallbackExercises(focusArea, difficultyLevel, availableEquipment, count);
-            }
-        }
-
-        private List<ExerciseSearchResult> CreateFallbackExercises(string focusArea, string difficultyLevel, List<string> availableEquipment, int count)
-        {
-            _logger.LogInformation("Creating fallback exercises for {FocusArea} ({DifficultyLevel})", focusArea, difficultyLevel);
-            
-            var exercises = new List<ExerciseSearchResult>();
-            var equipment = availableEquipment.FirstOrDefault() ?? "Bodyweight";
-            
-            // Basic exercise templates based on focus area
-            var exerciseTemplates = focusArea.ToLower() switch
-            {
-                "upper body" or "upper_body" => new[]
-                {
-                    ("Push-ups", "Hít đất", new[] { "chest", "triceps", "shoulders" }),
-                    ("Diamond Push-ups", "Hít đất kim cương", new[] { "chest", "triceps" }),
-                    ("Pike Push-ups", "Hít đất chữ V", new[] { "shoulders", "triceps" }),
-                    ("Arm Circles", "Xoay tay", new[] { "shoulders" }),
-                    ("Tricep Dips", "Chống đẩy cơ tam đầu", new[] { "triceps", "shoulders" }),
-                    ("Plank", "Tấm ván", new[] { "core", "shoulders" })
-                },
-                "core" => new[]
-                {
-                    ("Plank", "Tấm ván", new[] { "core", "abs" }),
-                    ("Mountain Climbers", "Leo núi", new[] { "core", "cardio" }),
-                    ("Russian Twists", "Xoay người Nga", new[] { "obliques", "core" }),
-                    ("Bicycle Crunches", "Gập bụng đạp xe", new[] { "abs", "obliques" }),
-                    ("Dead Bug", "Con bọ chết", new[] { "core", "abs" }),
-                    ("Leg Raises", "Nâng chân", new[] { "lower abs" })
-                },
-                "lower body" or "lower_body" => new[]
-                {
-                    ("Squats", "Squat", new[] { "quads", "glutes" }),
-                    ("Lunges", "Lunge", new[] { "quads", "glutes", "hamstrings" }),
-                    ("Jump Squats", "Squat nhảy", new[] { "quads", "glutes", "cardio" }),
-                    ("Calf Raises", "Nâng bắp chân", new[] { "calves" }),
-                    ("Glute Bridges", "Cầu mông", new[] { "glutes", "hamstrings" }),
-                    ("Wall Sit", "Ngồi tường", new[] { "quads", "glutes" })
-                },
-                _ => new[]
-                {
-                    ("Jumping Jacks", "Nhảy dang tay", new[] { "cardio", "full body" }),
-                    ("Burpees", "Burpee", new[] { "cardio", "full body" }),
-                    ("High Knees", "Nâng cao gối", new[] { "cardio", "legs" }),
-                    ("Plank", "Tấm ván", new[] { "core", "shoulders" }),
-                    ("Push-ups", "Hít đất", new[] { "chest", "triceps" }),
-                    ("Squats", "Squat", new[] { "quads", "glutes" })
-                }
-            };
-            
-            for (int i = 0; i < Math.Min(count, exerciseTemplates.Length); i++)
-            {
-                var template = exerciseTemplates[i];
-                var exerciseId = Guid.NewGuid();
-                
-                // Create exercise library entry
-                var exerciseLibEntry = new ExerciseLibrary
-                {
-                    Id = exerciseId,
-                    ExerciseName = template.Item1,
-                    ExerciseNameVi = template.Item2,
-                    Category = template.Item3.Contains("cardio") ? "cardio" : "strength",
-                    DifficultyLevel = difficultyLevel,
-                    EquipmentRequired = JsonConvert.SerializeObject(new[] { equipment }),
-                    TargetMuscles = JsonConvert.SerializeObject(template.Item3),
-                    SecondaryMuscles = "[]",
-                    Description = $"Basic {difficultyLevel} level {template.Item1} exercise",
-                    DescriptionVi = $"Bài tập {template.Item2} cơ bản cho trình độ {difficultyLevel}",
-                    Instructions = "[]",
-                    Benefits = "[]",
-                    CommonMistakes = "[]",
-                    Variations = "[]",
-                    VideoUrl = "",
-                    ImageUrl = "",
-                    CaloriesPerMinute = template.Item3.Contains("cardio") ? 10 : 7,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                
-                // Add to database
-                _context.ExerciseLibrary.Add(exerciseLibEntry);
-                
-                // Add to results
-                exercises.Add(new ExerciseSearchResult
-                {
-                    Id = exerciseId,
-                    ExerciseName = template.Item1,
-                    ExerciseNameVi = template.Item2,
-                    Category = exerciseLibEntry.Category,
-                    DifficultyLevel = difficultyLevel,
-                    TargetMuscles = template.Item3.ToList(),
-                    EquipmentRequired = new[] { equipment }.ToList(),
-                    Description = exerciseLibEntry.Description,
-                    VideoUrl = "",
-                    SimilarityScore = 0.8 // Good score for fallback
-                });
-            }
-            
-            // Save to database
-            try
-            {
-                _context.SaveChangesAsync().Wait();
-                _logger.LogInformation("Successfully created {Count} fallback exercises", exercises.Count);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to save fallback exercises to database");
-            }
-            
-            return exercises;
-        }
-
-        // Helper classes for AI generation
-        private class GeneratedExercise
-        {
-            public string ExerciseName { get; set; } = "";
-            public string ExerciseNameVi { get; set; } = "";
-            public List<string> TargetMuscles { get; set; } = new();
-            public List<string> EquipmentRequired { get; set; } = new();
-            public string Description { get; set; } = "";
-            public string Category { get; set; } = "";
-        }
-
-        private class GeminiResponse
-        {
-            public GeminiCandidate[]? Candidates { get; set; }
-        }
-
-        private class GeminiCandidate
-        {
-            public GeminiContent? Content { get; set; }
-        }
-
-        private class GeminiContent
-        {
-            public GeminiPart[]? Parts { get; set; }
-        }
-
-        private class GeminiPart
-        {
-            public string? Text { get; set; }
         }
     }
 }

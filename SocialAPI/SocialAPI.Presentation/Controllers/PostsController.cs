@@ -90,19 +90,5 @@ namespace SocialAPI.Presentation.Controllers
             await _postService.CancelPostVoteAsync(id, userId);
             return Ok("Cancel Success");
         }
-
-        //[Authorize]
-        [HttpGet("{id}/vote")]
-        public async Task<IActionResult> GetUserVote(Guid id)
-        {
-            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
-            var vote = await _postService.GetUserVoteAsync(id, userId);
-            if (vote == null)
-            {
-                return Ok(new { hasVoted = false, voteType = (string)null });
-            }
-            return Ok(new { hasVoted = true, voteType = vote.VoteType });
-        }
     }
 }
