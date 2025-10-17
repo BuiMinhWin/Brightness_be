@@ -12,6 +12,9 @@ namespace PersonalCoachAPI.Application.Interfaces
         Task<List<ExerciseSearchResult>> SearchExercisesByGoalAsync(string goal, string fitnessLevel, int topK = 10);
         Task<List<ExerciseSearchResult>> SearchExercisesByGoalAsync(string goal, string fitnessLevel, List<string> availableEquipment, int topK = 10);
         
+        // AI fallback for exercise generation
+        Task<List<ExerciseSearchResult>> GenerateExercisesWithAIAsync(string focusArea, string difficultyLevel, List<string> availableEquipment, int count = 6);
+        
         // Health knowledge search
         Task<List<HealthKnowledgeResult>> SearchHealthKnowledgeAsync(string query, int topK = 3);
         

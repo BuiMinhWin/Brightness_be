@@ -42,7 +42,7 @@ namespace ChatService.Infrastructure.Repositories
 
         public async Task<int> GetTodayMessageCountByUserIdAsync(Guid userId)
         {
-            var today = DateTime.UtcNow.Date;
+            var today = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
             return await _context.ChatMessages
                 .Where(m => m.UserId == userId && m.Role == "user" && m.CreatedAt >= today)
                 .CountAsync();
@@ -50,7 +50,7 @@ namespace ChatService.Infrastructure.Repositories
 
         public async Task<int> GetMonthlyMessageCountByUserIdAsync(Guid userId)
         {
-            var firstDayOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var firstDayOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
             return await _context.ChatMessages
                 .Where(m => m.UserId == userId && m.Role == "user" && m.CreatedAt >= firstDayOfMonth)
                 .CountAsync();

@@ -1,6 +1,7 @@
 using ChatService.Application.DTOs;
 using ChatService.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ namespace ChatService.Application.Services
     public class MessageLimitService : IMessageLimitService
     {
         private readonly IChatMessageRepository _messageRepository;
+        private readonly ISubscriptionService _subscriptionService;
+        private readonly ILogger<MessageLimitService> _logger;
         private readonly IConfiguration _configuration;
         private readonly int _freeDailyLimit;
         private readonly int _freeMonthlyLimit;
@@ -17,9 +20,13 @@ namespace ChatService.Application.Services
 
         public MessageLimitService(
             IChatMessageRepository messageRepository,
+            ISubscriptionService subscriptionService,
+            ILogger<MessageLimitService> logger,
             IConfiguration configuration)
         {
             _messageRepository = messageRepository;
+            _subscriptionService = subscriptionService;
+            _logger = logger;
             _configuration = configuration;
 
             _freeDailyLimit = int.Parse(configuration["MessageLimits:FreeDaily"] 
@@ -44,9 +51,8 @@ namespace ChatService.Application.Services
             var todayCount = await _messageRepository.GetTodayMessageCountByUserIdAsync(userId);
             var monthlyCount = await _messageRepository.GetMonthlyMessageCountByUserIdAsync(userId);
 
-            // For now, assume free tier (can be enhanced to check subscription)
-            var dailyLimit = _freeDailyLimit;
-            var monthlyLimit = _freeMonthlyLimit;
+            // Check user's subscription to determine limits
+            var (dailyLimit, monthlyLimit) = await GetUserLimitsAsync(userId);
 
             var remainingDaily = Math.Max(0, dailyLimit - todayCount);
             var remainingMonthly = Math.Max(0, monthlyLimit - monthlyCount);
@@ -58,6 +64,48 @@ namespace ChatService.Application.Services
                 MonthlyLimit: monthlyLimit,
                 IsLimitReached: remainingDaily <= 0 || remainingMonthly <= 0
             );
+        }
+
+        private async Task<(int dailyLimit, int monthlyLimit)> GetUserLimitsAsync(Guid userId)
+        {
+            try
+            {
+                var subscription = await _subscriptionService.GetUserSubscriptionAsync(userId);
+                
+                // If user has no subscription or plan details are unavailable, use free tier
+                if (subscription?.PlanDetails == null)
+                {
+                    _logger.LogInformation("User {UserId} using free tier limits", userId);
+                    return (_freeDailyLimit, _freeMonthlyLimit);
+                }
+
+                // Determine limits based on plan name
+                var planName = subscription.PlanDetails.Name.ToLowerInvariant();
+                
+                if (planName.Contains("premium") || planName.Contains("pro") || planName.Contains("paid"))
+                {
+                    _logger.LogInformation(
+                        "User {UserId} using premium tier limits (Plan: {PlanName})",
+                        userId,
+                        subscription.PlanDetails.Name);
+                    return (_premiumDailyLimit, _premiumMonthlyLimit);
+                }
+
+                // Default to free tier if plan name doesn't match known premium patterns
+                _logger.LogInformation(
+                    "User {UserId} using free tier limits (Plan: {PlanName})",
+                    userId,
+                    subscription.PlanDetails.Name);
+                return (_freeDailyLimit, _freeMonthlyLimit);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error fetching subscription limits for user {UserId}, defaulting to free tier",
+                    userId);
+                return (_freeDailyLimit, _freeMonthlyLimit);
+            }
         }
 
         public async Task<bool> CanSendMessageAsync(Guid userId)

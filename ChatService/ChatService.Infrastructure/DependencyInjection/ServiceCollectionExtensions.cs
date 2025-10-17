@@ -25,10 +25,24 @@ namespace ChatService.Infrastructure.DependencyInjection
             services.AddScoped<IConversationSummaryRepository, ConversationSummaryRepository>();
 
             // Register services
-            services.AddScoped<IGeminiService, GeminiService>();
+            services.AddHttpClient<IGeminiService, GeminiService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddScoped<IMessageLimitService, MessageLimitService>();
             services.AddScoped<IConversationService, ConversationService>();
+            
+            // Register security services
+            services.AddScoped<IIntentDetectionService, IntentDetectionService>();
+            services.AddScoped<IInputSanitizationService, InputSanitizationService>();
+            services.AddScoped<IResponseValidationService, ResponseValidationService>();
+            services.AddScoped<IUserContextCacheService, UserContextCacheService>();
+            services.AddScoped<IProfileAnalysisService, ProfileAnalysisService>();
+            
+            // Register PersonalCoachAPI service with HttpClient
+            services.AddHttpClient<IPersonalCoachApiService, PersonalCoachApiService>();
+            
+            // Add memory cache for context caching
+            services.AddMemoryCache();
 
             return services;
         }

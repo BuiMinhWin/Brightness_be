@@ -1,10 +1,11 @@
 using ChatService.Application.DTOs;
 using ChatService.Application.Interfaces;
-using Mscc.GenerativeAI;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +14,8 @@ namespace ChatService.Infrastructure.Services
     public class GeminiService : IGeminiService
     {
         private readonly string _apiKey;
-        private readonly GenerativeModel _model;
+        private readonly string _model;
+        private readonly HttpClient _httpClient;
         private const string SystemInstruction = @"You are BrightNest Assistant, an AI health and fitness coach. Your role is to:
 
 1. Provide personalized health, fitness, and nutrition advice based on user's data
@@ -34,15 +36,16 @@ namespace ChatService.Infrastructure.Services
 6. Keep responses concise but informative
 7. Always prioritize user safety - recommend consulting healthcare professionals for medical concerns";
 
-        public GeminiService(IConfiguration configuration)
+        public GeminiService(IConfiguration configuration, HttpClient httpClient)
         {
-            _apiKey = configuration["Gemini:ApiKey"] 
+            _apiKey = configuration["GoogleAI:ApiKey"] 
+                ?? configuration["Gemini:ApiKey"]
                 ?? configuration["GEMINI_API_KEY"]
                 ?? configuration["GOOGLE_AI_API_KEY"]
-                ?? throw new InvalidOperationException("Gemini API key not configured. Set GEMINI_API_KEY or GOOGLE_AI_API_KEY in .env");
+                ?? throw new InvalidOperationException("Gemini API key not configured. Set GoogleAI:ApiKey, GEMINI_API_KEY or GOOGLE_AI_API_KEY in .env");
 
-            var googleAI = new GoogleAI(_apiKey);
-            _model = googleAI.GenerativeModel(model: "gemini-2.0-flash-exp");
+            _model = configuration["GoogleAI:Model"] ?? "gemini-2.5-flash";
+            _httpClient = httpClient;
         }
 
         public async Task<string> GenerateResponseAsync(string userMessage, UserContextDTO userContext)
@@ -65,14 +68,38 @@ namespace ChatService.Infrastructure.Services
                 if (userContext.CurrentWeight.HasValue)
                     contextBuilder.AppendLine($"- Current Weight: {userContext.CurrentWeight}kg");
                 
+                if (userContext.TargetWeight.HasValue)
+                    contextBuilder.AppendLine($"- Target Weight: {userContext.TargetWeight}kg");
+                
                 if (userContext.Height.HasValue)
                     contextBuilder.AppendLine($"- Height: {userContext.Height}cm");
                 
                 if (userContext.BodyFat.HasValue)
                     contextBuilder.AppendLine($"- Body Fat: {userContext.BodyFat}%");
                 
+                if (!string.IsNullOrWhiteSpace(userContext.FitnessLevel))
+                    contextBuilder.AppendLine($"- Fitness Level: {userContext.FitnessLevel}");
+                
                 if (userContext.Goals.Any())
-                    contextBuilder.AppendLine($"- Goals: {string.Join(", ", userContext.Goals)}");
+                    contextBuilder.AppendLine($"- Fitness Goals: {string.Join(", ", userContext.Goals)}");
+                
+                if (!string.IsNullOrWhiteSpace(userContext.PreferredWorkoutTime))
+                    contextBuilder.AppendLine($"- Preferred Workout Time: {userContext.PreferredWorkoutTime}");
+                
+                if (userContext.WorkoutDurationMinutes.HasValue)
+                    contextBuilder.AppendLine($"- Preferred Workout Duration: {userContext.WorkoutDurationMinutes} minutes");
+                
+                if (userContext.GymAccess.HasValue)
+                    contextBuilder.AppendLine($"- Gym Access: {(userContext.GymAccess.Value ? "Yes" : "No")}");
+                
+                if (userContext.HomeWorkoutOnly.HasValue && userContext.HomeWorkoutOnly.Value)
+                    contextBuilder.AppendLine("- Preference: Home workouts only");
+                
+                if (!string.IsNullOrWhiteSpace(userContext.AvailableDays))
+                    contextBuilder.AppendLine($"- Available Days: {userContext.AvailableDays}");
+                
+                if (!string.IsNullOrWhiteSpace(userContext.EquipmentAvailable))
+                    contextBuilder.AppendLine($"- Equipment Available: {userContext.EquipmentAvailable}");
                 
                 if (!string.IsNullOrWhiteSpace(userContext.SubscriptionPlan))
                     contextBuilder.AppendLine($"- Subscription: {userContext.SubscriptionPlan}");
@@ -88,9 +115,47 @@ namespace ChatService.Infrastructure.Services
                 // Prepend system instruction to the prompt
                 var fullPrompt = $"{SystemInstruction}\n\n{contextBuilder}";
                 
-                var response = await _model.GenerateContent(fullPrompt);
+                // Use direct HTTP API call to Gemini
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
 
-                return response?.Text?.Trim() ?? "I apologize, but I couldn't generate a response. Please try again.";
+                var requestBody = new
+                {
+                    contents = new[]
+                    {
+                        new
+                        {
+                            parts = new[]
+                            {
+                                new { text = fullPrompt }
+                            }
+                        }
+                    },
+                    generationConfig = new
+                    {
+                        temperature = 0.7,
+                        topK = 40,
+                        topP = 0.95,
+                        maxOutputTokens = 2048
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Gemini API error: {response.StatusCode} - {errorContent}");
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<GeminiResponse>(responseContent);
+
+                var generatedText = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+
+                return generatedText?.Trim() ?? "I apologize, but I couldn't generate a response. Please try again.";
             }
             catch (Exception ex)
             {
@@ -115,14 +180,74 @@ Conversation History:
 
 Summary:";
 
-                var response = await _model.GenerateContent(prompt);
-                return response?.Text?.Trim() ?? "Unable to generate summary.";
+                // Use direct HTTP API call to Gemini
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
+
+                var requestBody = new
+                {
+                    contents = new[]
+                    {
+                        new
+                        {
+                            parts = new[]
+                            {
+                                new { text = prompt }
+                            }
+                        }
+                    },
+                    generationConfig = new
+                    {
+                        temperature = 0.3,
+                        topK = 32,
+                        topP = 1,
+                        maxOutputTokens = 500
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Gemini API error: {response.StatusCode} - {errorContent}");
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<GeminiResponse>(responseContent);
+
+                var summaryText = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+
+                return summaryText?.Trim() ?? "Unable to generate summary.";
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Error summarizing conversation: {ex.Message}", ex);
             }
         }
+    }
+
+    // Response models for Gemini API
+    public class GeminiResponse
+    {
+        public GeminiCandidate[]? Candidates { get; set; }
+    }
+
+    public class GeminiCandidate
+    {
+        public GeminiContent? Content { get; set; }
+    }
+
+    public class GeminiContent
+    {
+        public GeminiPart[]? Parts { get; set; }
+    }
+
+    public class GeminiPart
+    {
+        public string? Text { get; set; }
     }
 }
 

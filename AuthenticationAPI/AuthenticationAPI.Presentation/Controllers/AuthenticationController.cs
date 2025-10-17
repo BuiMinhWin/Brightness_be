@@ -52,7 +52,7 @@ namespace AuthenticationAPI.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize]
+        [AllowAnonymous] // Allow internal service-to-service communication
         public async Task<ActionResult<GetUserDTO>> GetUser(Guid id)
         {
             var user = await userService.GetByIdAsync(id);

@@ -23,6 +23,45 @@ namespace ChatService.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ChatService.Domain.Entities.BodyMeasurement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<decimal?>("BodyFatPercent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("BodyFatPercent");
+
+                    b.Property<string>("Goal")
+                        .HasColumnType("text")
+                        .HasColumnName("Goal");
+
+                    b.Property<decimal?>("HeightCm")
+                        .HasColumnType("numeric")
+                        .HasColumnName("HeightCm");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("RecordedAt");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserId");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasColumnType("numeric")
+                        .HasColumnName("WeightKg");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("body_measurements", "measurement", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
             modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -63,7 +102,7 @@ namespace ChatService.Infrastructure.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("chat_messages", (string)null);
+                    b.ToTable("chat_messages", "chat");
                 });
 
             modelBuilder.Entity("ChatService.Domain.Entities.ChatSession", b =>
@@ -71,6 +110,9 @@ namespace ChatService.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ContextUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -92,10 +134,15 @@ namespace ChatService.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("UserContextSnapshot")
+                        .HasColumnType("jsonb");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ContextUpdatedAt");
 
                     b.ToTable("chat_sessions", "chat");
                 });
@@ -130,7 +177,169 @@ namespace ChatService.Infrastructure.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("conversation_summaries", (string)null);
+                    b.ToTable("conversation_summaries", "chat");
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.SubscriptionPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("subscription_plans", "billing", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("text")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("text")
+                        .HasColumnName("gender");
+
+                    b.Property<Guid?>("SubscriptionPlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_plan_id");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("users", "authentication", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.UserPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("AvailableDays")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("AvailableDays");
+
+                    b.Property<string>("EquipmentAvailable")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("EquipmentAvailable");
+
+                    b.Property<bool>("GymAccess")
+                        .HasColumnType("boolean")
+                        .HasColumnName("GymAccess");
+
+                    b.Property<bool>("HomeWorkoutOnly")
+                        .HasColumnType("boolean")
+                        .HasColumnName("HomeWorkoutOnly");
+
+                    b.Property<string>("PreferredWorkoutTime")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("PreferredWorkoutTime");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserId");
+
+                    b.Property<int>("WorkoutDurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("WorkoutDurationMinutes");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("user_preferences", "personalcoach", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("ChatService.Domain.Entities.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<decimal>("CurrentWeightKg")
+                        .HasColumnType("numeric")
+                        .HasColumnName("CurrentWeightKg");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DateOfBirth");
+
+                    b.Property<string>("FitnessGoal")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("FitnessGoal");
+
+                    b.Property<string>("FitnessLevel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("FitnessLevel");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("FullName");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("Gender");
+
+                    b.Property<decimal>("HeightCm")
+                        .HasColumnType("numeric")
+                        .HasColumnName("HeightCm");
+
+                    b.Property<decimal>("TargetWeightKg")
+                        .HasColumnType("numeric")
+                        .HasColumnName("TargetWeightKg");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("user_profiles", "personalcoach", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("ChatService.Domain.Entities.ChatMessage", b =>

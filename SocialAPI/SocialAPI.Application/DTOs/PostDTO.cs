@@ -12,6 +12,7 @@ namespace SocialAPI.Application.DTOs
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     int ReactionCount,
-    int DislikeCount
+    int DislikeCount,
+    int CommentCount
 );
 }

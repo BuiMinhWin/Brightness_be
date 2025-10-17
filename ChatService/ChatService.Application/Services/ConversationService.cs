@@ -2,6 +2,7 @@ using ChatService.Application.DTOs;
 using ChatService.Application.Interfaces;
 using ChatService.Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,11 @@ namespace ChatService.Application.Services
         private readonly IGeminiService _geminiService;
         private readonly IUserContextService _userContextService;
         private readonly IMessageLimitService _messageLimitService;
+        private readonly IIntentDetectionService _intentDetectionService;
+        private readonly IInputSanitizationService _inputSanitizationService;
+        private readonly IResponseValidationService _responseValidationService;
+        private readonly IUserContextCacheService _contextCacheService;
+        private readonly ILogger<ConversationService> _logger;
         private readonly int _summarizationThreshold;
 
         public ConversationService(
@@ -27,6 +33,11 @@ namespace ChatService.Application.Services
             IGeminiService geminiService,
             IUserContextService userContextService,
             IMessageLimitService messageLimitService,
+            IIntentDetectionService intentDetectionService,
+            IInputSanitizationService inputSanitizationService,
+            IResponseValidationService responseValidationService,
+            IUserContextCacheService contextCacheService,
+            ILogger<ConversationService> logger,
             IConfiguration configuration)
         {
             _sessionRepository = sessionRepository;
@@ -35,6 +46,11 @@ namespace ChatService.Application.Services
             _geminiService = geminiService;
             _userContextService = userContextService;
             _messageLimitService = messageLimitService;
+            _intentDetectionService = intentDetectionService;
+            _inputSanitizationService = inputSanitizationService;
+            _responseValidationService = responseValidationService;
+            _contextCacheService = contextCacheService;
+            _logger = logger;
             
             _summarizationThreshold = int.Parse(
                 configuration["Conversation:SummarizationThreshold"] 
@@ -50,6 +66,14 @@ namespace ChatService.Application.Services
                 throw new InvalidOperationException("Message limit reached. Please upgrade your subscription.");
             }
 
+            // Sanitize user input
+            var sanitizedMessage = _inputSanitizationService.SanitizeInput(request.Message);
+            
+            if (string.IsNullOrWhiteSpace(sanitizedMessage))
+            {
+                throw new ArgumentException("Message cannot be empty after sanitization");
+            }
+
             // Get or create session
             Guid sessionId;
             if (request.SessionId.HasValue)
@@ -57,7 +81,7 @@ namespace ChatService.Application.Services
                 var existingSession = await _sessionRepository.GetByIdAsync(request.SessionId.Value);
                 if (existingSession == null || existingSession.UserId != userId)
                 {
-                    throw new InvalidOperationException("Invalid session ID");
+                    throw new UnauthorizedAccessException("Session does not belong to user");
                 }
                 sessionId = request.SessionId.Value;
             }
@@ -67,6 +91,25 @@ namespace ChatService.Application.Services
                 sessionId = newSession.Id;
             }
 
+            // Run intent detection
+            var intent = await _intentDetectionService.DetectIntentAsync(sanitizedMessage);
+            
+            // If unsafe intent detected, reject
+            if (!intent.IsSafe)
+            {
+                _logger.LogWarning("Unsafe intent detected for user {UserId}: {Message}", 
+                    userId, sanitizedMessage.Substring(0, Math.Min(100, sanitizedMessage.Length)));
+                    
+                return new SendMessageResponse(
+                    SessionId: sessionId,
+                    Message: "I can only help with fitness and health-related requests.",
+                    Role: "ai",
+                    RemainingMessages: (await _messageLimitService.GetMessageLimitsAsync(userId)).RemainingDaily,
+                    DailyLimit: (await _messageLimitService.GetMessageLimitsAsync(userId)).DailyLimit,
+                    CreatedAt: DateTime.UtcNow
+                );
+            }
+
             // Save user message
             var userMessage = new ChatMessage
             {
@@ -74,16 +117,19 @@ namespace ChatService.Application.Services
                 SessionId = sessionId,
                 UserId = userId,
                 Role = "user",
-                Content = request.Message,
+                Content = sanitizedMessage,
                 CreatedAt = DateTime.UtcNow
             };
             await _messageRepository.AddAsync(userMessage);
 
-            // Build user context
-            var userContext = await _userContextService.BuildUserContextAsync(userId, sessionId);
+            // Build user context (with caching)
+            var userContext = await GetOrBuildUserContextAsync(userId, sessionId);
 
             // Generate AI response
-            var aiResponse = await _geminiService.GenerateResponseAsync(request.Message, userContext);
+            var rawAiResponse = await _geminiService.GenerateResponseAsync(sanitizedMessage, userContext);
+            
+            // Validate and sanitize AI response
+            var aiResponse = _responseValidationService.ValidateAndSanitizeResponse(rawAiResponse);
 
             // Save AI message
             var aiMessage = new ChatMessage
@@ -111,6 +157,27 @@ namespace ChatService.Application.Services
                 DailyLimit: limits.DailyLimit,
                 CreatedAt: aiMessage.CreatedAt
             );
+        }
+        
+        private async Task<UserContextDTO> GetOrBuildUserContextAsync(Guid userId, Guid sessionId)
+        {
+            // Try to get cached context
+            var cachedContext = await _contextCacheService.GetCachedContextAsync(sessionId);
+            
+            if (cachedContext != null)
+            {
+                _logger.LogDebug("Using cached context for session {SessionId}", sessionId);
+                return cachedContext;
+            }
+
+            // Build fresh context
+            _logger.LogDebug("Building fresh context for session {SessionId}", sessionId);
+            var context = await _userContextService.BuildUserContextAsync(userId, sessionId);
+            
+            // Cache it
+            await _contextCacheService.SetCachedContextAsync(sessionId, context);
+            
+            return context;
         }
 
         public async Task<List<ChatMessageDTO>> GetSessionMessagesAsync(Guid sessionId)

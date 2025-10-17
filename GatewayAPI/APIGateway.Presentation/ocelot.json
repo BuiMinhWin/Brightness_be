@@ -8,8 +8,15 @@
       "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5000 } ]
     },
     {
+      "UpstreamPathTemplate": "/auth/swagger/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/swagger/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "authentication-api", "Port": 8080 } ]
+    },
+    {
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
       "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [ { "Host": "authentication-api", "Port": 8080 } ]
@@ -64,9 +71,16 @@
       "DownstreamHostAndPorts": [ { "Host": "media-api", "Port": 8080 } ]
     },
     {
+      "UpstreamPathTemplate": "/chat/swagger/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/swagger/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8080  } ]
+    },
+    {
       "UpstreamPathTemplate": "/chat/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamPathTemplate": "/api/Chat/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [ { "Host": "chat-service", "Port": 8080  } ]
     },

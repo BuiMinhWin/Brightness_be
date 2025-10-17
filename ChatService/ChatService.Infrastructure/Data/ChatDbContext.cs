@@ -13,6 +13,8 @@ namespace ChatService.Infrastructure.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
         public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+        public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+        public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +28,13 @@ namespace ChatService.Infrastructure.Data
                 entity.Property(x => x.Title).HasMaxLength(200);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                // Context caching fields
+                entity.Property(x => x.UserContextSnapshot).HasColumnType("jsonb");
+                entity.Property(x => x.ContextUpdatedAt);
+                
+                // Index for cache invalidation queries
+                entity.HasIndex(x => new { x.UserId, x.ContextUpdatedAt });
             });
 
             modelBuilder.Entity<ChatMessage>(entity =>
@@ -58,21 +67,35 @@ namespace ChatService.Infrastructure.Data
             // Configure shared entities (read-only, no migrations)
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("users");
+                entity.ToTable("users", "authentication");
                 entity.HasKey(x => x.Id);
                 entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
 
             modelBuilder.Entity<BodyMeasurement>(entity =>
             {
-                entity.ToTable("body_measurements");
+                entity.ToTable("body_measurements", "measurement");
                 entity.HasKey(x => x.Id);
                 entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
 
             modelBuilder.Entity<SubscriptionPlan>(entity =>
             {
-                entity.ToTable("subscription_plans");
+                entity.ToTable("subscription_plans", "billing");
+                entity.HasKey(x => x.Id);
+                entity.Metadata.SetIsTableExcludedFromMigrations(true);
+            });
+
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                entity.ToTable("user_profiles", "personalcoach");
+                entity.HasKey(x => x.Id);
+                entity.Metadata.SetIsTableExcludedFromMigrations(true);
+            });
+
+            modelBuilder.Entity<UserPreference>(entity =>
+            {
+                entity.ToTable("user_preferences", "personalcoach");
                 entity.HasKey(x => x.Id);
                 entity.Metadata.SetIsTableExcludedFromMigrations(true);
             });
