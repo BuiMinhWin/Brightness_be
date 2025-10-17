@@ -14,9 +14,11 @@ namespace ChallengeAPI.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChallengeInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetRequiredConnectionString("BrightnessDb");
-            services.AddDbContext<ChallengeDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            SharedServiceContainer.AddSharedServices<ChallengeDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "ChallengeApi",
+                schema: "challenge");
 
             services.AddScoped<IChallengeService, ChallengeService>();
             services.AddScoped<IChallengeRepository, ChallengeRepository>();
