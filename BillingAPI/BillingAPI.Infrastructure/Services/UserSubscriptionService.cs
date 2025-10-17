@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using BillingAPI.Application.DTOs;
 using BillingAPI.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,46 @@ namespace BillingAPI.Infrastructure.Services
             _gatewayHeaderValue = configuration["Services:AuthenticationAPIHeader:Value"];
 
             _logger.LogInformation("UserSubscriptionService initialized with AuthenticationAPI URL: {Url}", _authApiBaseUrl);
+        }
+
+        public async Task<UserProfileDTO?> GetUserProfileAsync(Guid userId)
+        {
+            var requestUrl = $"{_authApiBaseUrl}/{userId}";
+            try
+            {
+                _logger.LogInformation("Fetching user profile for {UserId} from {Url}", userId, requestUrl);
+
+                using var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                if (!string.IsNullOrWhiteSpace(_gatewayHeaderName) && !string.IsNullOrWhiteSpace(_gatewayHeaderValue))
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(_gatewayHeaderName, _gatewayHeaderValue);
+                }
+
+                using var response = await _httpClient.SendAsync(requestMessage);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning(
+                        "Failed to fetch user {UserId} profile. Status: {StatusCode}, Url: {Url}, Error: {Error}",
+                        userId,
+                        response.StatusCode,
+                        requestUrl,
+                        error);
+                    return null;
+                }
+
+                var profile = await response.Content.ReadFromJsonAsync<UserProfileDTO>();
+                if (profile is null)
+                {
+                    _logger.LogWarning("User {UserId} profile response was empty at {Url}", userId, requestUrl);
+                }
+                return profile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception fetching user {UserId} profile from {Url}", userId, requestUrl);
+                return null;
+            }
         }
 
         public async Task<bool> UpdateUserSubscriptionAsync(Guid userId, Guid subscriptionPlanId)

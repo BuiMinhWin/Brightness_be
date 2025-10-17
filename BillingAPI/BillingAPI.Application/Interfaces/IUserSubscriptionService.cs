@@ -1,3 +1,4 @@
+using BillingAPI.Application.DTOs;
 using System;
 using System.Threading.Tasks;
 
@@ -15,5 +16,12 @@ namespace BillingAPI.Application.Interfaces
         /// <param name="subscriptionPlanId">Subscription Plan ID</param>
         /// <returns>True if update successful, false otherwise</returns>
         Task<bool> UpdateUserSubscriptionAsync(Guid userId, Guid subscriptionPlanId);
+
+        /// <summary>
+        /// Retrieve user profile information from AuthenticationAPI
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>User profile or null if not found</returns>
+        Task<UserProfileDTO?> GetUserProfileAsync(Guid userId);
     }
 }
