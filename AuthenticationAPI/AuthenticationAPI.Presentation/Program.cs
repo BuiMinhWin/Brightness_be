@@ -17,6 +17,21 @@ builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// CORS configuration for credentials
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+    ?? new[] { "http://localhost:3000" };
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowCredentials", policy =>
+    {
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required for cookies
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -156,6 +171,8 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint(swaggerJsonEndpoint, "Authentication API V1");
 });
+
+app.UseCors("AllowCredentials");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -7,13 +7,15 @@ using AuthenticationAPI.Application.Interfaces;
 using BrightNess.Library.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthenticationAPI.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticationController(IUserService userService) : ControllerBase
+    public class AuthenticationController(IUserService userService, IConfiguration configuration) : ControllerBase
     {
+        private readonly IConfiguration _configuration = configuration;
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<Response>> Register(RegisterDTO registerDTO)
@@ -30,24 +32,81 @@ namespace AuthenticationAPI.Presentation.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var ipAddress = GetClientIpAddress();
             var result = await userService.LoginAsync(loginDTO, ipAddress);
-            return result.Flag ? Ok(result) : BadRequest(result);
+            
+            if (result.Flag && result.Data is AuthTokensDTO tokens)
+            {
+                // Set httpOnly cookie with refresh token
+                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+                
+                // Return only access token in response body (refresh token in cookie)
+                var responseData = new
+                {
+                    accessToken = tokens.AccessToken,
+                    accessTokenExpiresAt = tokens.AccessTokenExpiresAt,
+                    refreshToken = tokens.RefreshToken, // Still include for backward compatibility
+                    refreshTokenExpiresAt = tokens.RefreshTokenExpiresAt
+                };
+                
+                return Ok(new Response(true, result.Message, responseData));
+            }
+            
+            return BadRequest(result);
         }
 
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<ActionResult<Response>> RefreshToken([FromBody] RefreshTokenRequest request)
+        public async Task<ActionResult<Response>> RefreshToken([FromBody] RefreshTokenRequest? request = null)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await userService.RefreshTokenAsync(request.RefreshToken, GetClientIpAddress());
-            return result.Flag ? Ok(result) : BadRequest(result);
+            // Get refresh token from cookie (preferred) or body (fallback)
+            var refreshToken = GetRefreshTokenFromRequest(request);
+            
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return BadRequest(new Response(false, "Refresh token is required"));
+            }
+            
+            var result = await userService.RefreshTokenAsync(refreshToken, GetClientIpAddress());
+            
+            if (result.Flag && result.Data is AuthTokensDTO tokens)
+            {
+                // Set new httpOnly cookie with new refresh token
+                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+                
+                // Return only access token in response body
+                var responseData = new
+                {
+                    accessToken = tokens.AccessToken,
+                    accessTokenExpiresAt = tokens.AccessTokenExpiresAt,
+                    refreshToken = tokens.RefreshToken, // Still include for backward compatibility
+                    refreshTokenExpiresAt = tokens.RefreshTokenExpiresAt
+                };
+                
+                return Ok(new Response(true, result.Message, responseData));
+            }
+            
+            return BadRequest(result);
         }
 
         [Authorize]
         [HttpPost("revoke")]
-        public async Task<ActionResult<Response>> RevokeToken([FromBody] RefreshTokenRequest request)
+        public async Task<ActionResult<Response>> RevokeToken([FromBody] RefreshTokenRequest? request = null)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await userService.RevokeRefreshTokenAsync(request.RefreshToken, GetClientIpAddress());
+            // Get refresh token from cookie (preferred) or body (fallback)
+            var refreshToken = GetRefreshTokenFromRequest(request);
+            
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return BadRequest(new Response(false, "Refresh token is required"));
+            }
+            
+            var result = await userService.RevokeRefreshTokenAsync(refreshToken, GetClientIpAddress());
+            
+            if (result.Flag)
+            {
+                // Clear the httpOnly cookie
+                ClearRefreshTokenCookie();
+            }
+            
             return result.Flag ? Ok(result) : BadRequest(result);
         }
 
@@ -102,6 +161,70 @@ namespace AuthenticationAPI.Presentation.Controllers
         private string? GetClientIpAddress()
         {
             return HttpContext.Connection.RemoteIpAddress?.ToString();
+        }
+
+        /// <summary>
+        /// Sets the refresh token as an httpOnly cookie
+        /// </summary>
+        private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+        {
+            var cookieName = _configuration["CookieSettings:RefreshTokenCookieName"] ?? "refreshToken";
+            var isDevelopment = HttpContext.RequestServices.GetService<IHostEnvironment>()?.IsDevelopment() ?? false;
+            var isSecure = _configuration.GetValue<bool>("CookieSettings:SecureInProduction");
+            var sameSite = _configuration["CookieSettings:SameSite"] ?? "Lax";
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true, // Cannot be accessed by JavaScript
+                Secure = isDevelopment ? false : isSecure, // Only sent over HTTPS in production
+                SameSite = sameSite switch
+                {
+                    "Strict" => SameSiteMode.Strict,
+                    "None" => SameSiteMode.None,
+                    _ => SameSiteMode.Lax
+                },
+                Expires = expiresAt,
+                Path = "/auth/api/Authentication", // Scoped to auth endpoints
+                IsEssential = true // Not affected by cookie consent
+            };
+
+            Response.Cookies.Append(cookieName, refreshToken, cookieOptions);
+        }
+
+        /// <summary>
+        /// Clears the refresh token cookie
+        /// </summary>
+        private void ClearRefreshTokenCookie()
+        {
+            var cookieName = _configuration["CookieSettings:RefreshTokenCookieName"] ?? "refreshToken";
+            
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/auth/api/Authentication",
+                Expires = DateTime.UtcNow.AddDays(-1) // Expire in the past
+            };
+
+            Response.Cookies.Delete(cookieName, cookieOptions);
+        }
+
+        /// <summary>
+        /// Gets refresh token from cookie (primary) or request body (fallback for backward compatibility)
+        /// </summary>
+        private string? GetRefreshTokenFromRequest(RefreshTokenRequest? request = null)
+        {
+            var cookieName = _configuration["CookieSettings:RefreshTokenCookieName"] ?? "refreshToken";
+            
+            // Try cookie first (preferred method)
+            if (Request.Cookies.TryGetValue(cookieName, out var cookieToken) && !string.IsNullOrWhiteSpace(cookieToken))
+            {
+                return cookieToken;
+            }
+
+            // Fallback to body for backward compatibility
+            return request?.RefreshToken;
         }
     }
 }
