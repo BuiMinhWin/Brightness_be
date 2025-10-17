@@ -13,6 +13,42 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
             migrationBuilder.EnsureSchema(
                 name: "personalcoach");
 
+            // Use raw SQL to conditionally move tables from public to personalcoach schema
+            // This is idempotent and won't fail if tables are already in personalcoach schema
+            var tables = new[] {
+                "workout_schedules",
+                "workout_schedule_exercises",
+                "workout_schedule_days",
+                "workout_feedbacks",
+                "user_profiles",
+                "user_preferences",
+                "user_health_metrics",
+                "user_context_snapshots",
+                "schedule_edit_history",
+                "health_knowledge_base",
+                "exercise_library"
+            };
+
+            foreach (var table in tables)
+            {
+                migrationBuilder.Sql($@"
+                    DO $$
+                    BEGIN
+                        -- Only move table if it exists in public schema and not in personalcoach schema
+                        IF EXISTS (
+                            SELECT 1 FROM pg_tables 
+                            WHERE schemaname = 'public' AND tablename = '{table}'
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM pg_tables 
+                            WHERE schemaname = 'personalcoach' AND tablename = '{table}'
+                        ) THEN
+                            ALTER TABLE public.{table} SET SCHEMA personalcoach;
+                        END IF;
+                    END $$;
+                ");
+            }
+
+            /* Original EF Core RenameTable calls - replaced with idempotent SQL above
             migrationBuilder.RenameTable(
                 name: "workout_schedules",
                 newName: "workout_schedules",
@@ -67,6 +103,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                 name: "exercise_library",
                 newName: "exercise_library",
                 newSchema: "personalcoach");
+            */
         }
 
         /// <inheritdoc />
