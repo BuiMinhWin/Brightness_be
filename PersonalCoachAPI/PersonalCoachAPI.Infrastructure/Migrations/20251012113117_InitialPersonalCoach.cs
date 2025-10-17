@@ -15,7 +15,328 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:vector", ",,");
 
-            migrationBuilder.CreateTable(
+            // Use raw SQL with IF NOT EXISTS to make migration idempotent
+            // This prevents "relation already exists" errors when tables are created by other scripts
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.exercise_library (
+                    ""Id"" uuid NOT NULL,
+                    ""ExerciseName"" character varying(200) NOT NULL,
+                    ""ExerciseNameVi"" character varying(200) NOT NULL,
+                    ""Category"" character varying(100) NOT NULL,
+                    ""DifficultyLevel"" character varying(50) NOT NULL,
+                    ""EquipmentRequired"" jsonb NOT NULL,
+                    ""TargetMuscles"" jsonb NOT NULL,
+                    ""SecondaryMuscles"" jsonb NOT NULL,
+                    ""Description"" text NOT NULL,
+                    ""DescriptionVi"" text NOT NULL,
+                    ""Instructions"" jsonb NOT NULL,
+                    ""Benefits"" jsonb NOT NULL,
+                    ""CommonMistakes"" jsonb NOT NULL,
+                    ""Variations"" jsonb NOT NULL,
+                    ""VideoUrl"" character varying(500) NOT NULL,
+                    ""ImageUrl"" character varying(500) NOT NULL,
+                    ""CaloriesPerMinute"" numeric NOT NULL,
+                    ""EmbeddingVector"" vector(768),
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    ""UpdatedAt"" timestamp with time zone NOT NULL,
+                    CONSTRAINT ""PK_exercise_library"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.health_knowledge_base (
+                    ""Id"" uuid NOT NULL,
+                    ""Category"" character varying(100) NOT NULL,
+                    ""Topic"" character varying(200) NOT NULL,
+                    ""Content"" text NOT NULL,
+                    ""ContentVi"" text NOT NULL,
+                    ""Source"" character varying(500) NOT NULL,
+                    ""ReliabilityScore"" numeric NOT NULL,
+                    ""Tags"" jsonb NOT NULL,
+                    ""EmbeddingVector"" vector(768),
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_health_knowledge_base"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.schedule_edit_history (
+                    id uuid NOT NULL,
+                    user_id uuid NOT NULL,
+                    schedule_id uuid NOT NULL,
+                    schedule_day_id uuid,
+                    edit_type character varying(50) NOT NULL,
+                    edit_description character varying(500) NOT NULL,
+                    before_value jsonb,
+                    after_value jsonb,
+                    edit_source character varying(50) NOT NULL,
+                    created_at timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_schedule_edit_history"" PRIMARY KEY (id)
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.user_context_snapshots (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""SnapshotDate"" timestamp with time zone NOT NULL,
+                    ""HealthSummary"" text NOT NULL,
+                    ""FitnessSummary"" text NOT NULL,
+                    ""GoalsSummary"" text NOT NULL,
+                    ""ProgressSummary"" text NOT NULL,
+                    ""EmbeddingVector"" vector(768),
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_user_context_snapshots"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.user_schedules (
+                    id uuid NOT NULL,
+                    user_id uuid NOT NULL,
+                    schedule_name character varying(200) NOT NULL,
+                    description text,
+                    schedule_type character varying(50) NOT NULL,
+                    start_date timestamp with time zone NOT NULL,
+                    end_date timestamp with time zone,
+                    frequency_per_week integer NOT NULL,
+                    total_weeks integer,
+                    is_active boolean NOT NULL,
+                    ai_generated boolean NOT NULL,
+                    difficulty_level character varying(50),
+                    tags jsonb,
+                    metadata jsonb,
+                    created_at timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    updated_at timestamp with time zone NOT NULL,
+                    CONSTRAINT ""PK_user_schedules"" PRIMARY KEY (id)
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.schedule_days (
+                    id uuid NOT NULL,
+                    schedule_id uuid NOT NULL,
+                    day_of_week integer NOT NULL,
+                    week_number integer NOT NULL,
+                    is_rest_day boolean NOT NULL,
+                    focus_area character varying(100),
+                    total_duration_minutes integer,
+                    notes text,
+                    created_at timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    updated_at timestamp with time zone NOT NULL,
+                    CONSTRAINT ""PK_schedule_days"" PRIMARY KEY (id)
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.schedule_exercises (
+                    id uuid NOT NULL,
+                    schedule_day_id uuid NOT NULL,
+                    exercise_id uuid NOT NULL,
+                    exercise_order integer NOT NULL,
+                    sets integer NOT NULL,
+                    reps integer,
+                    duration_minutes integer,
+                    rest_seconds integer,
+                    intensity_level character varying(50),
+                    notes text,
+                    created_at timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    updated_at timestamp with time zone NOT NULL,
+                    CONSTRAINT ""PK_schedule_exercises"" PRIMARY KEY (id)
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.user_health_metrics (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""MeasurementDate"" timestamp with time zone NOT NULL,
+                    ""WeightKg"" numeric NOT NULL,
+                    ""MuscleMassKg"" numeric NOT NULL,
+                    ""BodyFatPercentage"" numeric NOT NULL,
+                    ""BodyFatKg"" numeric NOT NULL,
+                    ""BmrKcal"" integer NOT NULL,
+                    ""WaterPercentage"" numeric NOT NULL,
+                    ""BoneMassKg"" numeric NOT NULL,
+                    ""VisceralFatLevel"" integer NOT NULL,
+                    ""MetabolicAge"" integer NOT NULL,
+                    ""Source"" character varying(50) NOT NULL,
+                    ""RawDataJson"" jsonb NOT NULL,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_user_health_metrics"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.user_preferences (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""AvailableDays"" jsonb NOT NULL,
+                    ""PreferredWorkoutTime"" character varying(50) NOT NULL,
+                    ""WorkoutDurationMinutes"" integer NOT NULL,
+                    ""EquipmentAvailable"" jsonb NOT NULL,
+                    ""GymAccess"" boolean NOT NULL,
+                    ""HomeWorkoutOnly"" boolean NOT NULL,
+                    ""DietaryRestrictions"" jsonb NOT NULL,
+                    ""DislikedExercises"" jsonb NOT NULL,
+                    ""FavoriteExercises"" jsonb NOT NULL,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    ""UpdatedAt"" timestamp with time zone,
+                    CONSTRAINT ""PK_user_preferences"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.user_profiles (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""FullName"" character varying(200) NOT NULL,
+                    ""DateOfBirth"" timestamp with time zone NOT NULL,
+                    ""Gender"" character varying(20) NOT NULL,
+                    ""HeightCm"" numeric NOT NULL,
+                    ""TargetWeightKg"" numeric,
+                    ""FitnessGoals"" jsonb NOT NULL,
+                    ""ActivityLevel"" character varying(50) NOT NULL,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    ""UpdatedAt"" timestamp with time zone,
+                    CONSTRAINT ""PK_user_profiles"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.workout_schedules (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""GoalType"" character varying(100) NOT NULL,
+                    ""GeneratedAt"" timestamp with time zone NOT NULL,
+                    ""StartDate"" timestamp with time zone NOT NULL,
+                    ""EndDate"" timestamp with time zone NOT NULL,
+                    ""Status"" character varying(50) NOT NULL,
+                    is_latest boolean NOT NULL,
+                    parent_schedule_id uuid,
+                    regeneration_reason text,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_workout_schedules"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.workout_schedule_days (
+                    ""Id"" uuid NOT NULL,
+                    ""ScheduleId"" uuid NOT NULL,
+                    ""DayNumber"" integer NOT NULL,
+                    ""DayOfWeek"" integer NOT NULL,
+                    ""FocusArea"" character varying(100) NOT NULL,
+                    ""Description"" text,
+                    is_rest_day boolean NOT NULL,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_workout_schedule_days"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.workout_feedbacks (
+                    ""Id"" uuid NOT NULL,
+                    ""UserId"" uuid NOT NULL,
+                    ""ScheduleId"" uuid NOT NULL,
+                    ""ScheduleDayId"" uuid,
+                    ""FeedbackDate"" timestamp with time zone NOT NULL,
+                    ""DifficultyRating"" integer NOT NULL,
+                    ""EnjoymentRating"" integer NOT NULL,
+                    ""CompletionRate"" numeric NOT NULL,
+                    ""Comments"" text,
+                    ""EnergyLevel"" character varying(50),
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_workout_feedbacks"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS personalcoach.workout_schedule_exercises (
+                    ""Id"" uuid NOT NULL,
+                    ""ScheduleDayId"" uuid NOT NULL,
+                    ""ExerciseName"" character varying(200) NOT NULL,
+                    ""ExerciseNameVi"" character varying(200) NOT NULL,
+                    ""OrderIndex"" integer NOT NULL,
+                    ""Sets"" integer NOT NULL,
+                    ""Reps"" character varying(50) NOT NULL,
+                    ""Duration"" character varying(50) NOT NULL,
+                    ""RestBetweenSets"" integer NOT NULL,
+                    ""Instructions"" text NOT NULL,
+                    ""VideoUrl"" character varying(500) NOT NULL,
+                    ""Completed"" boolean NOT NULL,
+                    ""ActualSets"" integer,
+                    ""ActualReps"" integer,
+                    ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+                    CONSTRAINT ""PK_workout_schedule_exercises"" PRIMARY KEY (""Id"")
+                );
+            ");
+
+            // Create indexes if they don't exist
+            migrationBuilder.Sql(@"
+                CREATE INDEX IF NOT EXISTS IX_exercise_library_Category ON personalcoach.exercise_library (""Category"");
+                CREATE INDEX IF NOT EXISTS IX_exercise_library_DifficultyLevel ON personalcoach.exercise_library (""DifficultyLevel"");
+                CREATE INDEX IF NOT EXISTS IX_health_knowledge_base_Category ON personalcoach.health_knowledge_base (""Category"");
+                CREATE INDEX IF NOT EXISTS IX_schedule_edit_history_created_at ON personalcoach.schedule_edit_history (created_at);
+                CREATE INDEX IF NOT EXISTS IX_schedule_edit_history_edit_type ON personalcoach.schedule_edit_history (edit_type);
+                CREATE INDEX IF NOT EXISTS IX_schedule_edit_history_schedule_id ON personalcoach.schedule_edit_history (schedule_id);
+                CREATE INDEX IF NOT EXISTS IX_schedule_edit_history_user_id ON personalcoach.schedule_edit_history (user_id);
+                CREATE INDEX IF NOT EXISTS IX_user_context_snapshots_SnapshotDate ON personalcoach.user_context_snapshots (""SnapshotDate"");
+                CREATE INDEX IF NOT EXISTS IX_user_context_snapshots_UserId ON personalcoach.user_context_snapshots (""UserId"");
+                CREATE INDEX IF NOT EXISTS IX_user_health_metrics_MeasurementDate ON personalcoach.user_health_metrics (""MeasurementDate"");
+                CREATE INDEX IF NOT EXISTS IX_user_health_metrics_UserId ON personalcoach.user_health_metrics (""UserId"");
+                CREATE INDEX IF NOT EXISTS IX_user_preferences_UserId ON personalcoach.user_preferences (""UserId"");
+                CREATE INDEX IF NOT EXISTS IX_user_profiles_UserId ON personalcoach.user_profiles (""UserId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_feedbacks_DifficultyRating ON personalcoach.workout_feedbacks (""DifficultyRating"");
+                CREATE INDEX IF NOT EXISTS IX_workout_feedbacks_ScheduleDayId ON personalcoach.workout_feedbacks (""ScheduleDayId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_feedbacks_ScheduleId ON personalcoach.workout_feedbacks (""ScheduleId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_feedbacks_UserId ON personalcoach.workout_feedbacks (""UserId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedule_days_ScheduleId ON personalcoach.workout_schedule_days (""ScheduleId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedule_exercises_OrderIndex ON personalcoach.workout_schedule_exercises (""OrderIndex"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedule_exercises_ScheduleDayId ON personalcoach.workout_schedule_exercises (""ScheduleDayId"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedules_parent_schedule_id ON personalcoach.workout_schedules (parent_schedule_id);
+                CREATE INDEX IF NOT EXISTS IX_workout_schedules_Status ON personalcoach.workout_schedules (""Status"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedules_UserId ON personalcoach.workout_schedules (""UserId"");
+            ");
+
+            // Create vector indexes (special ivfflat method for embeddings)
+            migrationBuilder.Sql(@"
+                CREATE INDEX IF NOT EXISTS IX_exercise_library_EmbeddingVector ON personalcoach.exercise_library USING ivfflat (""EmbeddingVector"" vector_cosine_ops);
+                CREATE INDEX IF NOT EXISTS IX_health_knowledge_base_EmbeddingVector ON personalcoach.health_knowledge_base USING ivfflat (""EmbeddingVector"" vector_cosine_ops);
+                CREATE INDEX IF NOT EXISTS IX_user_context_snapshots_EmbeddingVector ON personalcoach.user_context_snapshots USING ivfflat (""EmbeddingVector"" vector_cosine_ops);
+            ");
+
+            // Create composite indexes
+            migrationBuilder.Sql(@"
+                CREATE INDEX IF NOT EXISTS IX_workout_schedule_days_ScheduleId_DayNumber ON personalcoach.workout_schedule_days (""ScheduleId"", ""DayNumber"");
+                CREATE INDEX IF NOT EXISTS IX_workout_schedules_UserId_is_latest ON personalcoach.workout_schedules (""UserId"", is_latest);
+            ");
+
+            // Create foreign keys if they don't exist
+            migrationBuilder.Sql(@"
+                DO $$ BEGIN
+                    -- workout_schedule_days -> workout_schedules
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint WHERE conname = 'FK_workout_schedule_days_workout_schedules_ScheduleId'
+                    ) THEN
+                        ALTER TABLE personalcoach.workout_schedule_days 
+                        ADD CONSTRAINT ""FK_workout_schedule_days_workout_schedules_ScheduleId"" 
+                        FOREIGN KEY (""ScheduleId"") REFERENCES personalcoach.workout_schedules(""Id"") ON DELETE CASCADE;
+                    END IF;
+
+                    -- workout_schedule_exercises -> workout_schedule_days
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint WHERE conname = 'FK_workout_schedule_exercises_workout_schedule_days_ScheduleDa~'
+                    ) THEN
+                        ALTER TABLE personalcoach.workout_schedule_exercises 
+                        ADD CONSTRAINT ""FK_workout_schedule_exercises_workout_schedule_days_ScheduleDa~"" 
+                        FOREIGN KEY (""ScheduleDayId"") REFERENCES personalcoach.workout_schedule_days(""Id"") ON DELETE CASCADE;
+                    END IF;
+                END $$;
+            ");
+
+            // Keep original EF Core code commented for reference
+            /*migrationBuilder.CreateTable(
                 name: "exercise_library",
                 columns: table => new
                 {
@@ -303,7 +624,11 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+            */
 
+            // Use raw SQL for additional indexes (already handled above with CREATE INDEX IF NOT EXISTS)
+            // Original EF Core CreateIndex calls commented out below:
+            /*
             migrationBuilder.CreateIndex(
                 name: "IX_exercise_library_Category",
                 table: "exercise_library",
@@ -446,6 +771,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                 name: "IX_workout_schedules_UserId_is_latest",
                 table: "workout_schedules",
                 columns: new[] { "UserId", "is_latest" });
+            */
         }
 
         /// <inheritdoc />
