@@ -46,7 +46,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 Id = profile.Id,
                 UserId = profile.UserId,
                 FullName = authUser?.FullName ?? profile.FullName,
-                DateOfBirth = authUser?.DateOfBirth != null ? authUser.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : profile.DateOfBirth,
+                DateOfBirth = authUser?.DateOfBirth != null ? DateTime.SpecifyKind(authUser.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc) : profile.DateOfBirth,
                 Gender = authUser?.Gender ?? profile.Gender,
                 HeightCm = profile.HeightCm,
                 CurrentWeightKg = profile.CurrentWeightKg,
@@ -88,7 +88,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 {
                     UserId = request.UserId,
                     FullName = authUser?.FullName ?? "",
-                    DateOfBirth = authUser?.DateOfBirth != null ? authUser.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : null,
+                    DateOfBirth = authUser?.DateOfBirth != null ? DateTime.SpecifyKind(authUser.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc) : null,
                     Gender = authUser?.Gender ?? "",
                     HeightCm = request.HeightCm,
                     CurrentWeightKg = request.CurrentWeightKg,

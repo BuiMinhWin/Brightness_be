@@ -11,5 +11,9 @@ namespace ChatService.Domain.Entities
         public string Status { get; set; } = "open";
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        // Context caching fields
+        public string? UserContextSnapshot { get; set; } // JSONB
+        public DateTime? ContextUpdatedAt { get; set; }
     }
 }

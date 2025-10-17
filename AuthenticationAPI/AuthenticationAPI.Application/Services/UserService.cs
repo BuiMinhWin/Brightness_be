@@ -21,7 +21,7 @@ namespace AuthenticationAPI.Application.Services
         private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
         private readonly IRefreshTokenCacheService _refreshTokenCache = refreshTokenCacheService ?? throw new ArgumentNullException(nameof(refreshTokenCacheService));
 
-        public async Task<Response> RegisterAsync(UserDTO userDTO)
+        public async Task<Response> RegisterAsync(RegisterDTO userDTO)
         {
             var existingByEmail = await _userRepository.GetByEmailAsync(userDTO.Email);
             if (existingByEmail is not null)

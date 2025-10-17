@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChatService.Application\ChatService.Application.csproj" />

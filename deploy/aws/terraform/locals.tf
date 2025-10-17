@@ -31,24 +31,6 @@ locals {
       public         = false
       health_check_path = "/health"
     }
-    workout = {
-      container_name = "workout-api"
-      port           = 8081
-      cpu            = 512
-      memory         = 1024
-      desired_count  = 1
-      public         = false
-      health_check_path = "/health"
-    }
-    nutrition = {
-      container_name = "nutrition-api"
-      port           = 8082
-      cpu            = 512
-      memory         = 1024
-      desired_count  = 1
-      public         = false
-      health_check_path = "/health"
-    }
     challenge = {
       container_name = "challenge-api"
       port           = 8083

@@ -9,7 +9,36 @@ namespace ChatService.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddChatInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SharedServiceContainer.AddSharedServices<ChatDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "ChatService");
+            SharedServiceContainer.AddSharedServices<ChatDbContext>(
+                services,
+                configuration,
+                configuration["MySerilog:FileName"] ?? "ChatService",
+                schema: "chat");
+
+            // Register repositories
+            services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
+            services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IConversationSummaryRepository, ConversationSummaryRepository>();
+
+            // Register services
+            services.AddHttpClient<IGeminiService, GeminiService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<IUserContextService, UserContextService>();
+            services.AddScoped<IMessageLimitService, MessageLimitService>();
+            services.AddScoped<IConversationService, ConversationService>();
+            
+            // Register security services
+            services.AddScoped<IIntentDetectionService, IntentDetectionService>();
+            services.AddScoped<IInputSanitizationService, InputSanitizationService>();
+            services.AddScoped<IResponseValidationService, ResponseValidationService>();
+            services.AddScoped<IUserContextCacheService, UserContextCacheService>();
+            services.AddScoped<IProfileAnalysisService, ProfileAnalysisService>();
+            
+            // Register PersonalCoachAPI service with HttpClient
+            services.AddHttpClient<IPersonalCoachApiService, PersonalCoachApiService>();
+            
+            // Add memory cache for context caching
+            services.AddMemoryCache();
 
             return services;
         }

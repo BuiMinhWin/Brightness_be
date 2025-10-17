@@ -1,6 +1,7 @@
 ﻿using BillingAPI.Application.Interfaces;
 using BillingAPI.Application.Services;
 using BillingAPI.Infrastructure.Data;
+using BillingAPI.Infrastructure.Email;
 using BillingAPI.Infrastructure.PaymentGateways;
 using BillingAPI.Infrastructure.PaymentGateways.Options;
 using BillingAPI.Infrastructure.Repositories;
@@ -18,6 +19,7 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             SharedServiceContainer.AddSharedServices<BillingDbContext>(services, configuration, configuration["MySerilog:FileName"] ?? "BillingApi");
 
             services.Configure<PayOsOptions>(configuration.GetSection(PayOsOptions.SectionName));
+            services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
@@ -26,6 +28,7 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IInvoiceEmailService, InvoiceEmailService>();
 
             services.AddScoped<IPayOsGateway, PayOsGateway>();
 

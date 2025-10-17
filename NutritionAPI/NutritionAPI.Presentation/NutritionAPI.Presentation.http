@@ -1,6 +1,0 @@
-@NutritionAPI.Presentation_HostAddress = http://localhost:5226
-
-GET {{NutritionAPI.Presentation_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
