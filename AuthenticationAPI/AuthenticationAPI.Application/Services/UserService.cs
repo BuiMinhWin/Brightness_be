@@ -109,7 +109,14 @@ namespace AuthenticationAPI.Application.Services
 
             await _refreshTokenCache.CacheTokenAsync(refreshToken);
 
-            return new Response(true, "Login successfully", tokens);
+            var authTokensDto = new AuthTokensDTO(
+                tokens.AccessToken,
+                tokens.RefreshToken,
+                tokens.AccessTokenExpiresAt,
+                tokens.RefreshTokenExpiresAt
+            );
+
+            return new Response(true, "Login successfully", authTokensDto);
         }
 
         public async Task<Response> RefreshTokenAsync(string refreshToken, string? ipAddress = null)
@@ -170,7 +177,14 @@ namespace AuthenticationAPI.Application.Services
             await _refreshTokenCache.RemoveTokenAsync(refreshToken);
             await _refreshTokenCache.CacheTokenAsync(replacementToken);
 
-            return new Response(true, "Token refreshed successfully", tokens);
+            var authTokensDto = new AuthTokensDTO(
+                tokens.AccessToken,
+                tokens.RefreshToken,
+                tokens.AccessTokenExpiresAt,
+                tokens.RefreshTokenExpiresAt
+            );
+
+            return new Response(true, "Token refreshed successfully", authTokensDto);
         }
 
         public async Task<Response> RevokeRefreshTokenAsync(string refreshToken, string? ipAddress = null)
