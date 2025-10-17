@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,12 +13,14 @@ namespace BillingAPI.Application.Services
     public class InvoiceService(
         IInvoiceRepository invoiceRepository,
         ISubscriptionPlanRepository planRepository,
-        IUserSubscriptionService userSubscriptionService)
+        IUserSubscriptionService userSubscriptionService,
+        IInvoiceEmailService invoiceEmailService)
         : IInvoiceService
     {
         private readonly IInvoiceRepository _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
         private readonly ISubscriptionPlanRepository _planRepository = planRepository ?? throw new ArgumentNullException(nameof(planRepository));
         private readonly IUserSubscriptionService _userSubscriptionService = userSubscriptionService ?? throw new ArgumentNullException(nameof(userSubscriptionService));
+        private readonly IInvoiceEmailService _invoiceEmailService = invoiceEmailService ?? throw new ArgumentNullException(nameof(invoiceEmailService));
 
         public async Task<IEnumerable<InvoiceDTO>> GetAllAsync(Guid? userId = null, string? status = null)
         {
@@ -82,7 +84,7 @@ namespace BillingAPI.Application.Services
 
             var createResult = await _invoiceRepository.CreateAsync(invoice);
 
-            // Trả về invoice data trong Response.Data để frontend có thể access invoice.id
+            // Tr? v? invoice data trong Response.Data d? frontend c� th? access invoice.id
             if (createResult.Flag)
             {
                 var invoiceDto = MapToDto(invoice);
@@ -116,29 +118,49 @@ namespace BillingAPI.Application.Services
             }
 
             var updateResult = await _invoiceRepository.UpdateAsync(invoice);
-
-            // Update user subscription after successful payment
-            if (updateResult.Flag && invoice.UserExternalId.HasValue)
+            if (!updateResult.Flag)
             {
-                Console.WriteLine($"📧 Calling UserSubscriptionService to update user {invoice.UserExternalId.Value} with plan {invoice.SubscriptionPlanId}");
-
-                var subscriptionUpdateResult = await _userSubscriptionService.UpdateUserSubscriptionAsync(
-                    invoice.UserExternalId.Value,
-                    invoice.SubscriptionPlanId);
-
-                if (subscriptionUpdateResult)
-                {
-                    Console.WriteLine($"✅ Successfully updated user subscription for {invoice.UserExternalId.Value}");
-                }
-                else
-                {
-                    Console.WriteLine($"⚠️ Failed to update user subscription for {invoice.UserExternalId.Value}");
-                }
+                return updateResult;
             }
-            else if (!invoice.UserExternalId.HasValue)
+
+            if (!invoice.UserExternalId.HasValue)
             {
-                Console.WriteLine($"⚠️ Cannot update user subscription: UserExternalId is null for invoice {invoiceId}");
+                Console.WriteLine($"?? Cannot update user subscription or send invoice email: UserExternalId is null for invoice {invoiceId}");
+                return updateResult;
             }
+
+            var userId = invoice.UserExternalId.Value;
+
+            Console.WriteLine($"?? Calling UserSubscriptionService to update user {userId} with plan {invoice.SubscriptionPlanId}");
+
+            var subscriptionUpdateResult = await _userSubscriptionService.UpdateUserSubscriptionAsync(
+                userId,
+                invoice.SubscriptionPlanId);
+
+            if (subscriptionUpdateResult)
+            {
+                Console.WriteLine($"? Successfully updated user subscription for {userId}");
+            }
+            else
+            {
+                Console.WriteLine($"?? Failed to update user subscription for {userId}");
+            }
+
+            var userProfile = await _userSubscriptionService.GetUserProfileAsync(userId);
+            if (userProfile is null)
+            {
+                Console.WriteLine($"?? Cannot send invoice email: user profile not found for {userId}");
+                return updateResult;
+            }
+
+            var plan = await _planRepository.FindByIdAsync(invoice.SubscriptionPlanId);
+            if (plan is null)
+            {
+                Console.WriteLine($"?? Cannot send invoice email: subscription plan {invoice.SubscriptionPlanId} not found.");
+                return updateResult;
+            }
+
+            await _invoiceEmailService.SendInvoicePaidEmailAsync(invoice, plan, userProfile);
 
             return updateResult;
         }
@@ -192,3 +214,4 @@ namespace BillingAPI.Application.Services
         }
     }
 }
+

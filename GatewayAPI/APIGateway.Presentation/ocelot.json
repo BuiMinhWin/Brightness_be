@@ -29,20 +29,6 @@
       "DownstreamHostAndPorts": [ { "Host": "measurement-api", "Port": 8080 } ]
     },
     {
-      "UpstreamPathTemplate": "/workout/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "workout-api", "Port": 8080 } ]
-    },
-    {
-      "UpstreamPathTemplate": "/nutrition/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "nutrition-api", "Port": 8080 } ]
-    },
-    {
       "UpstreamPathTemplate": "/challenge/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/{everything}",
