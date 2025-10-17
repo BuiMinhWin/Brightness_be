@@ -9,6 +9,7 @@ namespace AuthenticationAPI.Application.DTOs
     public record LoginDTO
     (
         string email,
-        string Password
+        string Password,
+        bool RememberMe = false
     );
 }

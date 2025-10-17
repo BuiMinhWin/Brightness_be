@@ -7,6 +7,7 @@ using AuthenticationAPI.Application.Interfaces;
 using AuthenticationAPI.Domain.Entities;
 using BrightNess.Library.Jwt;
 using BrightNess.Library.Responses;
+using Microsoft.Extensions.Configuration;
 
 namespace AuthenticationAPI.Application.Services
 {
@@ -14,12 +15,14 @@ namespace AuthenticationAPI.Application.Services
         IUserRepository userRepository,
         ITokenService tokenService,
         IRefreshTokenRepository refreshTokenRepository,
-        IRefreshTokenCacheService refreshTokenCacheService) : IUserService
+        IRefreshTokenCacheService refreshTokenCacheService,
+        IConfiguration configuration) : IUserService
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly ITokenService _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
         private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
         private readonly IRefreshTokenCacheService _refreshTokenCache = refreshTokenCacheService ?? throw new ArgumentNullException(nameof(refreshTokenCacheService));
+        private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
         public async Task<Response> RegisterAsync(RegisterDTO userDTO)
         {
@@ -81,7 +84,12 @@ namespace AuthenticationAPI.Application.Services
                 Role = user.Role
             };
 
-            var tokens = _tokenService.GenerateAuthTokens(payload);
+            // Determine refresh token expiration based on RememberMe
+            var refreshTokenDays = loginDTO.RememberMe
+                ? _configuration.GetValue<int>("Authentication:RefreshTokenExpirationDaysExtended")
+                : _configuration.GetValue<int>("Authentication:RefreshTokenExpirationDays");
+
+            var tokens = _tokenService.GenerateAuthTokens(payload, refreshTokenDays);
 
             var revokeExistingResult = await _refreshTokenRepository.RevokeActiveTokensAsync(user.Id, tokens.RefreshToken, ipAddress);
             if (!revokeExistingResult.Flag)

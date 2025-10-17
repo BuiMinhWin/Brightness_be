@@ -16,7 +16,7 @@ namespace BrightNess.Library.Jwt
         string GenerateAccessToken(TokenPayload payload);
         string GenerateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-        AuthTokens GenerateAuthTokens(TokenPayload payload);
+        AuthTokens GenerateAuthTokens(TokenPayload payload, int? customRefreshTokenDays = null);
         string? ExtractJtiFromToken(string token);
         DateTime? GetTokenExpiry(string token);
     }

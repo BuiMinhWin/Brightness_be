@@ -84,12 +84,13 @@ namespace BrightNess.Library.Jwt
             return principal;
         }
 
-        public AuthTokens GenerateAuthTokens(TokenPayload payload)
+        public AuthTokens GenerateAuthTokens(TokenPayload payload, int? customRefreshTokenDays = null)
         {
             var accessToken = GenerateAccessToken(payload);
             var refreshToken = GenerateRefreshToken();
             var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(Math.Max(1, _options.ExpirationMinutes));
-            var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_options.RefreshTokenExpirationDays);
+            var refreshTokenDays = customRefreshTokenDays ?? _options.RefreshTokenExpirationDays;
+            var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(refreshTokenDays);
 
             return new AuthTokens(accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
         }
