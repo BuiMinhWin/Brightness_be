@@ -1,0 +1,189 @@
+x-cors-origins: &cors_origins
+  Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS__0}
+  Cors__AllowedOrigins__1: ${CORS_ALLOWED_ORIGINS__1}
+  Cors__AllowedOrigins__2: ${CORS_ALLOWED_ORIGINS__2}
+  Cors__AllowedOrigins__3: ${CORS_ALLOWED_ORIGINS__3}
+
+services:
+  redis:
+    image: redis:8.2-alpine
+    restart: always
+    env_file:
+      - .env
+    command:
+      - redis-server
+      - --save
+      - "60"
+      - "1"
+      - --loglevel
+      - warning
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD} # This one is passed from the host for Redis itself
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  authentication-api:
+    build:
+      context: .
+      dockerfile: AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    depends_on:
+      - redis
+    networks:
+      - app_network
+
+  gateway-api:
+    build:
+      context: .
+      dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    ports:
+      - "80:5000"
+    depends_on:
+      - authentication-api
+      - measurement-api
+      - challenge-api
+      - social-api
+      - billing-api
+      - media-api
+      - chat-service
+      - ai-ocr-service
+      - personal-coach-api
+    networks:
+      - app_network
+
+  measurement-api:
+    build:
+      context: .
+      dockerfile: MeasurementAPI/MeasurementAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  challenge-api:
+    build:
+      context: .
+      dockerfile: ChallengeAPI/ChallengeAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  social-api:
+    build:
+      context: .
+      dockerfile: SocialAPI/SocialAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  billing-api:
+    build:
+      context: .
+      dockerfile: BillingAPI/BillingAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  media-api:
+    build:
+      context: .
+      dockerfile: MediaAPI/MediaAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: ChatService/ChatService.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+      Services__PersonalCoachAPI: http://personal-coach-api:8080
+    networks:
+      - app_network
+
+  ai-ocr-service:
+    build:
+      context: .
+      dockerfile: AIOCRService/AIOCRService.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+    networks:
+      - app_network
+
+  personal-coach-api:
+    build:
+      context: .
+      dockerfile: PersonalCoachAPI/PersonalCoachAPI.Presentation/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      <<: *cors_origins
+      ASPNETCORE_ENVIRONMENT: Production
+      AWS_DEFAULT_REGION: ap-southeast-2
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY} # Example of a non-secret that might still be passed via .env
+    networks:
+      - app_network
+
+networks:
+  app_network: {}
+
+volumes:
+  redis_data: {}

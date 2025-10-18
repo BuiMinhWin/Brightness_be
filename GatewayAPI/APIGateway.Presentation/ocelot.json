@@ -5,7 +5,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS" ],
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5000 } ]
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 8080 } ]
     },
     {
       "UpstreamPathTemplate": "/auth/swagger/{everything}",
