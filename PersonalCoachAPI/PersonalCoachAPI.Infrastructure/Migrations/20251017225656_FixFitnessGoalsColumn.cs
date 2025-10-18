@@ -10,29 +10,34 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Make FitnessGoals column nullable to fix constraint violation
-            migrationBuilder.AlterColumn<string>(
-                name: "FitnessGoals",
-                schema: "personalcoach",
-                table: "user_profiles",
-                type: "jsonb",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "jsonb",
-                oldNullable: false);
+            // Make columns nullable only if they exist
+            // This makes the migration idempotent and prevents "column does not exist" errors
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    -- Make FitnessGoals nullable if it exists
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'personalcoach' 
+                        AND table_name = 'user_profiles' 
+                        AND column_name = 'FitnessGoals'
+                    ) THEN
+                        ALTER TABLE personalcoach.user_profiles 
+                        ALTER COLUMN ""FitnessGoals"" DROP NOT NULL;
+                    END IF;
 
-            // Also make ActivityLevel nullable since it's not in the entity model
-            migrationBuilder.AlterColumn<string>(
-                name: "ActivityLevel",
-                schema: "personalcoach",
-                table: "user_profiles",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "character varying(50)",
-                oldMaxLength: 50,
-                oldNullable: false);
+                    -- Make ActivityLevel nullable if it exists
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'personalcoach' 
+                        AND table_name = 'user_profiles' 
+                        AND column_name = 'ActivityLevel'
+                    ) THEN
+                        ALTER TABLE personalcoach.user_profiles 
+                        ALTER COLUMN ""ActivityLevel"" DROP NOT NULL;
+                    END IF;
+                END $$;
+            ");
         }
 
         /// <inheritdoc />

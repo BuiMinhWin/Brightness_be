@@ -12,32 +12,45 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Add missing columns to existing user_profiles table
-            migrationBuilder.AddColumn<decimal>(
-                name: "CurrentWeightKg",
-                schema: "personalcoach",
-                table: "user_profiles",
-                type: "numeric",
-                nullable: false,
-                defaultValue: 0m);
+            // Add missing columns to existing user_profiles table using conditional SQL
+            // This makes the migration idempotent and prevents "column already exists" errors
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    -- Add CurrentWeightKg if it doesn't exist
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'personalcoach' 
+                        AND table_name = 'user_profiles' 
+                        AND column_name = 'CurrentWeightKg'
+                    ) THEN
+                        ALTER TABLE personalcoach.user_profiles 
+                        ADD ""CurrentWeightKg"" numeric NOT NULL DEFAULT 0.0;
+                    END IF;
 
-            migrationBuilder.AddColumn<string>(
-                name: "FitnessLevel",
-                schema: "personalcoach",
-                table: "user_profiles",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "beginner");
+                    -- Add FitnessLevel if it doesn't exist
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'personalcoach' 
+                        AND table_name = 'user_profiles' 
+                        AND column_name = 'FitnessLevel'
+                    ) THEN
+                        ALTER TABLE personalcoach.user_profiles 
+                        ADD ""FitnessLevel"" character varying(50) NOT NULL DEFAULT 'beginner';
+                    END IF;
 
-            migrationBuilder.AddColumn<string>(
-                name: "FitnessGoal",
-                schema: "personalcoach",
-                table: "user_profiles",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
+                    -- Add FitnessGoal if it doesn't exist
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'personalcoach' 
+                        AND table_name = 'user_profiles' 
+                        AND column_name = 'FitnessGoal'
+                    ) THEN
+                        ALTER TABLE personalcoach.user_profiles 
+                        ADD ""FitnessGoal"" character varying(100) NOT NULL DEFAULT '';
+                    END IF;
+                END $$;
+            ");
 
             // Update existing records to have proper default values
             migrationBuilder.Sql(@"
