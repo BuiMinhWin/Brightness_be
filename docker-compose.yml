@@ -17,7 +17,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./PersonalCoachAPI/Scripts:/scripts:ro  # Mount setup scripts
-      - ./deploy/postgres-init.sql:/docker-entrypoint-initdb.d/10-init-databases.sql:ro
+      - ./deploy:/docker-entrypoint-initdb.d:ro
     command: >
       postgres -c listen_addresses='*' -c log_statement=all
     healthcheck:
@@ -115,7 +115,7 @@ services:
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
     ports:
-      - "8088:5000"
+      - "8088:8080"
     depends_on:
       - authentication-api
       - measurement-api
@@ -290,7 +290,7 @@ services:
     environment:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
+      ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
       GoogleAI__Model: gemini-2.5-flash
       Authentication__Key: ${AUTHENTICATION__KEY}

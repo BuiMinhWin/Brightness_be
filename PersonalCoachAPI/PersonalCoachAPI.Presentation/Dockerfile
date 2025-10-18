@@ -24,10 +24,38 @@ RUN dotnet publish "PersonalCoachAPI.Presentation.csproj" -c Release -o /app/pub
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
 
-# Copy seed data
+# Perform all privileged operations as root first
+USER root
+WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    unzip \
+    jq \
+    dos2unix \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install AWS CLI
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install \
+    && rm -rf awscliv2.zip aws
+
+# Copy and prepare scripts and application files
+COPY entrypoint.sh .
+RUN dos2unix entrypoint.sh && chmod +x entrypoint.sh
+COPY --from=publish /app/publish .
 COPY ["PersonalCoachAPI/SeedData", "SeedData/"]
 
-ENTRYPOINT ["dotnet", "PersonalCoachAPI.Presentation.dll"]
+# Change ownership of the entire /app directory to the app user
+RUN chown -R app:app /app
+
+# Now switch to the non-root user for execution
+USER app
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["dotnet", "PersonalCoachAPI.Presentation.dll"]
