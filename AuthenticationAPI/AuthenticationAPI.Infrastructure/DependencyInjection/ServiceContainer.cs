@@ -3,6 +3,7 @@ using AuthenticationAPI.Application.Services;
 using AuthenticationAPI.Infrastructure.Caching;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.Repositories;
+using AuthenticationAPI.Infrastructure.Services;
 using BrightNess.Library.DI;
 using BrightNess.Library.Security;
 using BrightNess.Library.RateLimiting;
@@ -32,8 +33,10 @@ namespace AuthenticationAPI.Infrastructure.DependencyInjection
             ConfigureSecurityServices(services, config);
             ConfigureHealthChecks(services);
 
+            services.AddSingleton<IAvatarStorageService, AvatarStorageService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IUserExternalLoginRepository, UserExternalLoginRepository>();
             services.AddScoped<IUserService, UserService>();
 
             return services;

@@ -85,6 +85,8 @@ services:
     build:
       context: .
       dockerfile: AuthenticationAPI/AuthenticationAPI.Presentation/Dockerfile
+    volumes:
+      - ./AuthenticationAPI/AuthenticationAPI.Presentation/wwwroot/uploads:/app/wwwroot/uploads
     environment:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
@@ -93,6 +95,9 @@ services:
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+      Authentication__Google__ClientId: ${AUTHENTICATION__GOOGLE__CLIENTID}
+      Authentication__Google__ClientSecret: ${AUTHENTICATION__GOOGLE__CLIENTSECRET}
+
       Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /auth
       Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
@@ -114,6 +119,9 @@ services:
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
+     
+
+
     ports:
       - "8088:8080"
     depends_on:

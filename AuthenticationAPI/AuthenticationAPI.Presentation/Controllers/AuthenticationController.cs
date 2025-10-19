@@ -54,6 +54,32 @@ namespace AuthenticationAPI.Presentation.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("external-login")]
+        public async Task<ActionResult<Response>> ExternalLogin(ExternalLoginDTO externalLoginDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var ipAddress = GetClientIpAddress();
+            var result = await userService.ExternalLoginAsync(externalLoginDTO, ipAddress);
+
+            if (result.Flag && result.Data is AuthTokensDTO tokens)
+            {
+                SetRefreshTokenCookie(tokens.RefreshToken, tokens.RefreshTokenExpiresAt);
+
+                var responseData = new
+                {
+                    accessToken = tokens.AccessToken,
+                    accessTokenExpiresAt = tokens.AccessTokenExpiresAt,
+                    refreshToken = tokens.RefreshToken,
+                    refreshTokenExpiresAt = tokens.RefreshTokenExpiresAt
+                };
+
+                return Ok(new Response(true, result.Message, responseData));
+            }
+
+            return BadRequest(result);
+        }
+
+        [AllowAnonymous]
         [HttpPost("refresh")]
         public async Task<ActionResult<Response>> RefreshToken([FromBody] RefreshTokenRequest? request = null)
         {

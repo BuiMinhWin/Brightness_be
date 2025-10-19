@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AuthenticationAPI.Application.DTOs;
 using AuthenticationAPI.Application.Interfaces;
@@ -8,6 +9,7 @@ using AuthenticationAPI.Domain.Entities;
 using BrightNess.Library.Jwt;
 using BrightNess.Library.Responses;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 
 namespace AuthenticationAPI.Application.Services
 {
@@ -16,13 +18,19 @@ namespace AuthenticationAPI.Application.Services
         ITokenService tokenService,
         IRefreshTokenRepository refreshTokenRepository,
         IRefreshTokenCacheService refreshTokenCacheService,
-        IConfiguration configuration) : IUserService
+        IUserExternalLoginRepository userExternalLoginRepository,
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory,
+        IAvatarStorageService avatarStorageService) : IUserService
     {
         private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         private readonly ITokenService _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
         private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
         private readonly IRefreshTokenCacheService _refreshTokenCache = refreshTokenCacheService ?? throw new ArgumentNullException(nameof(refreshTokenCacheService));
+        private readonly IUserExternalLoginRepository _externalLoginRepository = userExternalLoginRepository ?? throw new ArgumentNullException(nameof(userExternalLoginRepository));
         private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        private readonly IAvatarStorageService _avatarStorageService = avatarStorageService ?? throw new ArgumentNullException(nameof(avatarStorageService));
 
         public async Task<Response> RegisterAsync(RegisterDTO userDTO)
         {
@@ -38,16 +46,19 @@ namespace AuthenticationAPI.Application.Services
                 return new Response(false, "Username already taken");
             }
 
+            var userId = userDTO.Id ?? Guid.NewGuid();
+            var profilePictureUrl = await ProcessIncomingProfilePictureAsync(userId, userDTO.ProfilePicture);
+
             var user = new User
             {
-                Id = userDTO.Id ?? Guid.NewGuid(),
+                Id = userId,
                 Email = userDTO.Email.Trim(),
                 UserName = userDTO.UserName.Trim(),
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password),
                 FullName = userDTO.FullName,
                 PhoneNumber = userDTO.PhoneNumber,
                 Gender = userDTO.Gender,
-                ProfilePicture = userDTO.ProfilePicture,
+                ProfilePicture = profilePictureUrl,
                 DateOfBirth = userDTO.DateOfBirth,
                 Role = string.IsNullOrWhiteSpace(userDTO.Role) ? "user" : userDTO.Role,
                 Status = string.IsNullOrWhiteSpace(userDTO.Status) ? "active" : userDTO.Status,
@@ -76,16 +87,161 @@ namespace AuthenticationAPI.Application.Services
                 return new Response(false, "Invalid credentials");
             }
 
+            return await GenerateLoginResponseAsync(user, loginDTO.RememberMe, ipAddress);
+        }
+
+        public async Task<Response> ExternalLoginAsync(ExternalLoginDTO externalAuth, string? ipAddress = null)
+        {
+            var validationResult = await ValidateExternalToken(externalAuth.Provider, externalAuth.Token);
+            if (!validationResult.IsValid)
+            {
+                return new Response(false, validationResult.Error ?? "External authentication failed.");
+            }
+
+            if (string.IsNullOrWhiteSpace(validationResult.Email))
+            {
+                return new Response(false, "Email information is required for external login.");
+            }
+
+            User? user = null;
+
+            if (!string.IsNullOrWhiteSpace(validationResult.ProviderKey))
+            {
+                var linkedLogin = await _externalLoginRepository.GetByProviderAsync(externalAuth.Provider, validationResult.ProviderKey);
+                user = linkedLogin?.User;
+            }
+
+            user ??= await EnsureUserForExternalLoginAsync(
+                externalAuth.Provider,
+                validationResult.Email,
+                validationResult.Name,
+                validationResult.Picture,
+                validationResult.ProviderKey);
+
+            if (user is null)
+            {
+                return new Response(false, "Could not create or find user.");
+            }
+
+            return await GenerateLoginResponseAsync(user, rememberMe: false, ipAddress);
+        }
+
+        private async Task<(bool IsValid, string? Error, string? Email, string? Name, string? Picture, string? ProviderKey)> ValidateExternalToken(string provider, string token)
+        {
+            var client = _httpClientFactory.CreateClient();
+            try
+            {
+                JObject? userObject = null;
+                if (provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
+                {
+                    var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}");
+                    if (!response.IsSuccessStatusCode)
+                        return (false, "Invalid Google token", null, null, null, null);
+                    userObject = JObject.Parse(await response.Content.ReadAsStringAsync());
+                }
+                else
+                {
+                    return (false, "Unsupported provider", null, null, null, null);
+                }
+
+                if (userObject is null)
+                {
+                    return (false, "Unable to read external provider response", null, null, null, null);
+                }
+
+                var email = userObject["email"]?.ToString();
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return (false, "Email not provided by external provider", null, null, null, null);
+                }
+
+                var name = userObject["name"]?.ToString();
+                var picture = userObject["picture"]?.ToString();
+                var providerKey = userObject["sub"]?.ToString();
+
+                return (true, null, email, name, picture, providerKey);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null, null, null, null);
+            }
+        }
+
+        private async Task<User?> EnsureUserForExternalLoginAsync(string provider, string email, string? name, string? pictureUrl, string? providerKey)
+        {
+            var trimmedEmail = email.Trim();
+            var user = await _userRepository.GetByEmailAsync(trimmedEmail);
+
+            if (user is null)
+            {
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = trimmedEmail,
+                    UserName = trimmedEmail,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N")),
+                    FullName = string.IsNullOrWhiteSpace(name) ? trimmedEmail : name,
+                    ProfilePicture = pictureUrl,
+                    Role = "user",
+                    Status = "active",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var createUserResponse = await _userRepository.CreateAsync(user);
+                if (!createUserResponse.Flag)
+                {
+                    return null;
+                }
+            }
+
+            await EnsureExternalLoginLinkAsync(user, provider, providerKey, trimmedEmail);
+
+            return user;
+        }
+
+        private async Task EnsureExternalLoginLinkAsync(User user, string provider, string? providerKey, string email)
+        {
+            if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(providerKey))
+            {
+                return;
+            }
+
+            var existingLink = await _externalLoginRepository.GetByProviderAsync(provider, providerKey);
+            if (existingLink is not null)
+            {
+                return;
+            }
+
+            existingLink = await _externalLoginRepository.GetByUserAsync(provider, user.Id);
+            if (existingLink is not null)
+            {
+                return;
+            }
+
+            var externalLogin = new UserExternalLogin
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Provider = provider.Trim(),
+                ProviderKey = providerKey.Trim(),
+                Email = email.Trim().ToLowerInvariant(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _externalLoginRepository.CreateAsync(externalLogin);
+        }
+
+        private async Task<Response> GenerateLoginResponseAsync(User user, bool rememberMe, string? ipAddress)
+        {
             var payload = new TokenPayload
             {
-                Id = user.Id.ToString(), // Thêm Id của user vào payload
+                Id = user.Id.ToString(),
                 Name = user.FullName ?? user.UserName,
                 Email = user.Email,
                 Role = user.Role
             };
 
-            // Determine refresh token expiration based on RememberMe
-            var refreshTokenDays = loginDTO.RememberMe
+            var refreshTokenDays = rememberMe
                 ? _configuration.GetValue<int>("Authentication:RefreshTokenExpirationDaysExtended")
                 : _configuration.GetValue<int>("Authentication:RefreshTokenExpirationDays");
 
@@ -282,10 +438,30 @@ namespace AuthenticationAPI.Application.Services
                 }
             }
 
+            if (userDTO.ProfilePicture is not null)
+            {
+                var incoming = userDTO.ProfilePicture.Trim();
+
+                if (string.IsNullOrWhiteSpace(incoming))
+                {
+                    await _avatarStorageService.DeleteAvatarAsync(user.ProfilePicture);
+                    user.ProfilePicture = null;
+                }
+                else if (LooksLikeDataUrl(incoming))
+                {
+                    var newAvatarUrl = await _avatarStorageService.SaveAvatarAsync(user.Id, incoming);
+                    await _avatarStorageService.DeleteAvatarAsync(user.ProfilePicture);
+                    user.ProfilePicture = newAvatarUrl;
+                }
+                else
+                {
+                    user.ProfilePicture = incoming;
+                }
+            }
+
             user.FullName = userDTO.FullName ?? user.FullName;
             user.PhoneNumber = userDTO.PhoneNumber ?? user.PhoneNumber;
             user.Gender = userDTO.Gender ?? user.Gender;
-            user.ProfilePicture = userDTO.ProfilePicture ?? user.ProfilePicture;
             user.DateOfBirth = userDTO.DateOfBirth ?? user.DateOfBirth;
             user.Role = userDTO.Role ?? user.Role;
             user.Status = userDTO.Status ?? user.Status;
@@ -348,5 +524,29 @@ namespace AuthenticationAPI.Application.Services
             user.SubscriptionPlanId,
             user.PaymentCustomerRef
         );
+
+        private async Task<string?> ProcessIncomingProfilePictureAsync(Guid userId, string? profilePicture)
+        {
+            if (string.IsNullOrWhiteSpace(profilePicture))
+            {
+                return null;
+            }
+
+            var trimmed = profilePicture.Trim();
+
+            if (LooksLikeDataUrl(trimmed))
+            {
+                return await _avatarStorageService.SaveAvatarAsync(userId, trimmed);
+            }
+
+            return trimmed;
+        }
+
+        private static bool LooksLikeDataUrl(string value)
+        {
+            return value.StartsWith("data:image", StringComparison.OrdinalIgnoreCase) ||
+                   value.Contains(";base64,", StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
+
