@@ -152,6 +152,48 @@ namespace AuthenticationAPI.Infrastructure.Migrations
                     b.ToTable("users", "authentication");
                 });
 
+            modelBuilder.Entity("AuthenticationAPI.Domain.Entities.UserExternalLogin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("provider_key");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderKey")
+                        .IsUnique();
+
+                    b.ToTable("user_external_logins", "authentication");
+                });
+
             modelBuilder.Entity("AuthenticationAPI.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("AuthenticationAPI.Domain.Entities.User", "User")
@@ -163,8 +205,21 @@ namespace AuthenticationAPI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AuthenticationAPI.Domain.Entities.UserExternalLogin", b =>
+                {
+                    b.HasOne("AuthenticationAPI.Domain.Entities.User", "User")
+                        .WithMany("ExternalLogins")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AuthenticationAPI.Domain.Entities.User", b =>
                 {
+                    b.Navigation("ExternalLogins");
+
                     b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618

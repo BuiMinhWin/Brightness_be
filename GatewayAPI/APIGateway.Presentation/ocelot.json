@@ -15,6 +15,17 @@
       "DownstreamHostAndPorts": [ { "Host": "authentication-api", "Port": 8080 } ]
     },
     {
+      "UpstreamPathTemplate": "/uploads/avatars/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/uploads/avatars/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "authentication-api", "Port": 8080 } ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": null,
+        "AllowedScopes": []
+      }
+    },
+    {
       "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
       "DownstreamPathTemplate": "/{everything}",

@@ -80,14 +80,14 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/chat/swagger/v1/swagger.json", "Chat Service");
     c.SwaggerEndpoint("/ai-ocr/swagger/v1/swagger.json", "AI OCR Service");
     c.SwaggerEndpoint("/coach/swagger/v1/swagger.json", "Personal Coach API");
-    
+
     c.RoutePrefix = "swagger";
     c.DocumentTitle = "Brightness API Gateway - All Services";
     c.DefaultModelsExpandDepth(-1);
     c.DisplayRequestDuration();
 });
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseMiddleware<AttachSignature>();

@@ -79,6 +79,7 @@ builder.Services.AddSwaggerGen(c =>
          }
      });
 });
+builder.Services.AddHttpClient();
 builder.Services.AddInfrastructureService(builder.Configuration);
 
 var authSection = builder.Configuration.GetSection("Authentication");
@@ -116,6 +117,11 @@ builder.Services.AddAuthentication(options =>
                 return context.Response.WriteAsync(result);
             }
         };
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
 
 var app = builder.Build();
@@ -172,6 +178,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint(swaggerJsonEndpoint, "Authentication API V1");
 });
 
+app.UseStaticFiles();
 app.UseCors("AllowCredentials");
 
 app.UseAuthentication();

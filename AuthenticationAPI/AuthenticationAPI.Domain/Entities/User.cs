@@ -50,5 +50,6 @@ namespace AuthenticationAPI.Domain.Entities
         public string? PaymentCustomerRef { get; set; }
 
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public ICollection<UserExternalLogin> ExternalLogins { get; set; } = new List<UserExternalLogin>();
     }
 }

@@ -17,5 +17,6 @@ namespace AuthenticationAPI.Application.Interfaces
         Task<Response> UpdateAsync(Guid userId, UpdateUserDTO userDTO);
         Task<Response> UpdateSubscriptionAsync(Guid userId, Guid subscriptionPlanId);
         Task<Response> DeleteAsync(Guid userId);
+        Task<Response> ExternalLoginAsync(ExternalLoginDTO externalLoginDTO, string? ipAddress = null);
     }
 }
