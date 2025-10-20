@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

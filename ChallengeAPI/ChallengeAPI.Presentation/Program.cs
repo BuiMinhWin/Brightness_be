@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

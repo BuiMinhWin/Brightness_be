@@ -7,7 +7,7 @@ using Npgsql;
 using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

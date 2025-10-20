@@ -37,6 +37,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /auth
     depends_on:
       - redis
     networks:
@@ -54,7 +56,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
     ports:
-      - "80:5000"
+      - "8088:8080"
     depends_on:
       - authentication-api
       - measurement-api
@@ -79,6 +81,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /measurement/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /measurement
     networks:
       - app_network
 
@@ -93,6 +97,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /challenge/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /challenge
     networks:
       - app_network
 
@@ -107,6 +113,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /social/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /social
     networks:
       - app_network
 
@@ -121,6 +129,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /billing/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /billing
     networks:
       - app_network
 
@@ -135,6 +145,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /media/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /media
     networks:
       - app_network
 
@@ -150,6 +162,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
       Services__PersonalCoachAPI: http://personal-coach-api:8080
+      Swagger__JsonEndpoint: /chat/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /chat
     networks:
       - app_network
 
@@ -164,6 +178,8 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
+      Swagger__JsonEndpoint: /ai-ocr/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /ai-ocr
     networks:
       - app_network
 
@@ -179,6 +195,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       AWS_DEFAULT_REGION: ap-southeast-2
       INTERNAL_API_KEY: ${INTERNAL_API_KEY} # Example of a non-secret that might still be passed via .env
+      Swagger__JsonEndpoint: /coach/swagger/v1/swagger.json
+      Swagger__GatewayPrefix: /coach
     networks:
       - app_network
 

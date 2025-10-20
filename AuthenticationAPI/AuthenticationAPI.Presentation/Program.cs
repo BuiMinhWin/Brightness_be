@@ -10,7 +10,7 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
