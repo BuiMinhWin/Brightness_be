@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hóa đơn BrightNest</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Lato','Segoe UI',Arial,sans-serif;color:#1f2933;">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f5f5f5;padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table width="640" cellpadding="0" cellspacing="0" role="presentation" style="width:640px;max-width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(15,23,42,0.12);">
+            <tr>
+              <td style="padding:32px 40px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#ffffff;">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td align="left" style="font-size:24px;font-weight:800;letter-spacing:0.5px;">BrightNest</td>
+                    <td align="right" style="font-size:15px;">
+                      <span style="font-size:18px;font-weight:800;letter-spacing:2px;">{{INVOICE_CODE}}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="padding-top:18px;font-size:16px;line-height:1.6;">
+                      Xin chào <strong>{{CUSTOMER_NAME}}</strong>,<br/>
+                      Cảm ơn bạn đã thanh toán gói <strong>{{PLAN_NAME}}</strong>. Dưới đây là thông tin chi tiết hóa đơn của bạn.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px 40px;">
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
+                  <tr>
+                    <td width="50%" valign="top" style="padding-right:16px;">
+                      <div style="border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+                        <div style="font-size:14px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:1.5px;">Thông tin khách hàng</div>
+                        <div style="margin-top:12px;font-size:15px;line-height:1.6;">
+                          <div><strong>Tên:</strong> {{CUSTOMER_NAME}}</div>
+                          <div><strong>Email:</strong> <a href="mailto:{{CUSTOMER_EMAIL}}" style="color:#4f46e5;text-decoration:none;">{{CUSTOMER_EMAIL}}</a></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td width="50%" valign="top" style="padding-left:16px;">
+                      <div style="border:1px solid #e5e7eb;border-radius:12px;padding:20px;">
+                        <div style="font-size:14px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:1.5px;">Thông tin thanh toán</div>
+                        <div style="margin-top:12px;font-size:15px;line-height:1.6;">
+                          <div><strong>Số tiền:</strong> {{AMOUNT}}</div>
+                          <div><strong>Thanh toán lúc:</strong> {{PAID_AT}}</div>
+                          <div><strong>Trạng thái:</strong> Đã thanh toán</div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <div style="margin-top:32px;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
+                  <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                    <thead style="background-color:#f9fafb;">
+                      <tr>
+                        <th align="left" style="padding:16px 24px;font-size:14px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;">Hạng mục</th>
+                        <th align="left" style="padding:16px 24px;font-size:14px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;">Mô tả</th>
+                        <th align="right" style="padding:16px 24px;font-size:14px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td valign="top" style="padding:18px 24px;font-size:16px;font-weight:600;color:#111827;">{{PLAN_NAME}}</td>
+                        <td valign="top" style="padding:18px 24px;font-size:15px;color:#4b5563;line-height:1.7;">{{PLAN_DESCRIPTION}}</td>
+                        <td valign="top" align="right" style="padding:18px 24px;font-size:16px;font-weight:700;color:#111827;">{{AMOUNT}}</td>
+                      </tr>
+                      <tr>
+                        <td colspan="3" style="padding:0 24px;">
+                          <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" align="right" style="padding:20px 24px;font-size:15px;color:#4b5563;font-weight:600;">Tổng cộng</td>
+                        <td align="right" style="padding:20px 24px;font-size:20px;font-weight:800;color:#111827;">{{AMOUNT}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:32px;background-color:#f9fafb;border-radius:16px;padding:24px;">
+                  <div style="font-size:16px;font-weight:700;color:#111827;">Ghi chú</div>
+                  <p style="margin-top:12px;font-size:15px;line-height:1.7;color:#4b5563;">
+                    {{PLAN_NOTES}}
+                  </p>
+                  <p style="margin-top:12px;font-size:15px;line-height:1.7;color:#4b5563;">
+                    Nếu bạn cần hỗ trợ thêm, vui lòng trả lời email này hoặc liên hệ đội ngũ BrightNest tại
+                    <a href="mailto:{{SUPPORT_EMAIL}}" style="color:#4f46e5;text-decoration:none;">{{SUPPORT_EMAIL}}</a>.
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 40px;background-color:#111827;color:#f9fafb;font-size:13px;line-height:1.6;text-align:center;">
+                <div><strong>BrightNest</strong> &middot; {{COMPANY_ADDRESS}}</div>
+                <div style="margin-top:6px;">© {{CURRENT_YEAR}} BrightNest.</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
