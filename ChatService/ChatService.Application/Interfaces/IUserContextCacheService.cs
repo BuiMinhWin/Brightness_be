@@ -7,6 +7,7 @@ namespace ChatService.Application.Interfaces
         Task<UserContextDTO?> GetCachedContextAsync(Guid sessionId);
         Task SetCachedContextAsync(Guid sessionId, UserContextDTO context);
         Task InvalidateCacheAsync(Guid sessionId);
+        Task InvalidateUserCacheAsync(Guid userId);
     }
 }
 

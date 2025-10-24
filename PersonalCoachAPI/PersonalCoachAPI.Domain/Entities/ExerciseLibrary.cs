@@ -1,5 +1,5 @@
-using System;
 using Pgvector;
+using System;
 
 namespace PersonalCoachAPI.Domain.Entities
 {
@@ -14,17 +14,21 @@ namespace PersonalCoachAPI.Domain.Entities
         public string TargetMuscles { get; set; } = string.Empty; // JSON array
         public string SecondaryMuscles { get; set; } = string.Empty; // JSON array
         public string Description { get; set; } = string.Empty;
-        public string DescriptionVi { get; set; } = string.Empty;
-        public string Instructions { get; set; } = string.Empty; // JSON array of steps
+        public string DescriptionVi { get; set; } = string.Empty; // Vietnamese description
+        public string Instructions { get; set; } = string.Empty; // JSON array
         public string Benefits { get; set; } = string.Empty; // JSON array
         public string CommonMistakes { get; set; } = string.Empty; // JSON array
         public string Variations { get; set; } = string.Empty; // JSON array
         public string VideoUrl { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
-        public decimal CaloriesPerMinute { get; set; }
-        public Vector? EmbeddingVector { get; set; } // pgvector for semantic search
+        public int? CaloriesPerMinute { get; set; }
+        public Vector? EmbeddingVector { get; set; } // For RAG vector search
+        public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
+
+
+
 

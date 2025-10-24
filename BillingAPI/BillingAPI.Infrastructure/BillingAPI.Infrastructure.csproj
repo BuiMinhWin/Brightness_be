@@ -24,4 +24,9 @@
     <ProjectReference Include="..\BillingAPI.Application\BillingAPI.Application.csproj" />
     <ProjectReference Include="..\BillingAPI.Domain\BillingAPI.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Email\Templates\invoice.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

@@ -209,6 +209,14 @@ services:
       PaymentGateways__PayOs__ClientId: ${PAYMENTGATEWAYS__PAYOS__CLIENTID}
       PaymentGateways__PayOs__ApiKey: ${PAYMENTGATEWAYS__PAYOS__APIKEY}
       PaymentGateways__PayOs__ChecksumKey: ${PAYMENTGATEWAYS__PAYOS__CHECKSUMKEY}
+      Email__Host: ${EMAIL__HOST}
+      Email__Port: ${EMAIL__PORT}
+      Email__EnableSsl: ${EMAIL__ENABLESSL}
+      Email__User: ${EMAIL__USER}
+      Email__Password: ${EMAIL__PASSWORD}
+      Email__FromEmail: ${EMAIL__FROMEMAIL}
+      Email__FromName: ${EMAIL__FROMNAME}
+
     depends_on:
       postgres:
         condition: service_healthy

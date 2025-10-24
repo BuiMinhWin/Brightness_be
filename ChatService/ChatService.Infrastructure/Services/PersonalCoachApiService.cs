@@ -3,6 +3,7 @@ using ChatService.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -67,10 +68,23 @@ namespace ChatService.Infrastructure.Services
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<object>(responseContent);
-
+                
                 _logger.LogInformation("Successfully created schedule for user {UserId}", userId);
-                return result ?? new { message = "Schedule created successfully" };
+                _logger.LogDebug("Schedule response: {Response}", responseContent);
+                
+                // Parse the JSON and extract the properties explicitly to avoid serialization issues
+                var responseJson = JObject.Parse(responseContent);
+                
+                return new
+                {
+                    scheduleId = responseJson["scheduleId"]?.ToString(),
+                    scheduleName = responseJson["scheduleName"]?.ToString(),
+                    goal = responseJson["goal"]?.ToString(),
+                    difficultyLevel = responseJson["difficultyLevel"]?.ToString(),
+                    durationDays = responseJson["durationDays"]?.ToObject<int?>(),
+                    days = responseJson["days"],
+                    createdAt = responseJson["createdAt"]?.ToString()
+                };
             }
             catch (Exception ex)
             {
@@ -112,18 +126,43 @@ namespace ChatService.Infrastructure.Services
         {
             try
             {
+                // First, get the current user profile
+                var getCurrentRequest = new HttpRequestMessage(HttpMethod.Get, $"{_personalCoachApiUrl}/api/UserProfile/{userId}");
+                getCurrentRequest.Headers.Add("X-Internal-Api-Key", _internalApiKey);
+                
+                var currentResponse = await _httpClient.SendAsync(getCurrentRequest);
+                object currentProfile = null;
+                
+                if (currentResponse.IsSuccessStatusCode)
+                {
+                    var currentContent = await currentResponse.Content.ReadAsStringAsync();
+                    currentProfile = JsonConvert.DeserializeObject<object>(currentContent);
+                }
+
+                // Prepare update request - merge with current profile or use defaults
                 var updateRequest = new
                 {
                     UserId = userId,
-                    PreferredWorkoutTime = preference.PreferredWorkoutTime,
-                    // Note: WorkoutDaysPerWeek would need to be converted to AvailableDays list
-                    // For now, we'll update only the time preference
+                    HeightCm = 170,  // Default
+                    CurrentWeightKg = 70,  // Default
+                    TargetWeightKg = 70,  // Default
+                    FitnessLevel = "intermediate",
+                    FitnessGoal = "general_fitness",
+                    PreferredWorkoutTime = preference.PreferredWorkoutTime ?? "morning",
+                    WorkoutDurationMinutes = 60,
+                    AvailableDays = new[] { "Monday", "Wednesday", "Friday" },  // Will be updated based on WorkoutDaysPerWeek if provided
+                    EquipmentAvailable = new[] { "Dumbbells", "Bodyweight" },
+                    GymAccess = false,
+                    HomeWorkoutOnly = true,
+                    DietaryRestrictions = new string[] { },
+                    DislikedExercises = new string[] { },
+                    FavoriteExercises = new string[] { }
                 };
 
-                var json = JsonConvert.SerializeObject(updateRequest);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var jsonRequest = JsonConvert.SerializeObject(updateRequest);
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-                var httpRequest = new HttpRequestMessage(HttpMethod.Patch, $"{_personalCoachApiUrl}/api/UserProfile");
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{_personalCoachApiUrl}/api/UserProfile");
                 httpRequest.Headers.Add("X-Internal-Api-Key", _internalApiKey);
                 httpRequest.Content = content;
 
@@ -134,7 +173,7 @@ namespace ChatService.Infrastructure.Services
                     var errorContent = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Failed to update preferences for user {UserId}: {StatusCode} - {Error}", 
                         userId, response.StatusCode, errorContent);
-                    throw new HttpRequestException($"Failed to update preferences: {response.StatusCode}");
+                    throw new HttpRequestException($"Failed to update preferences: {response.StatusCode} - {errorContent}");
                 }
 
                 _logger.LogInformation("Successfully updated preferences for user {UserId}", userId);

@@ -156,12 +156,30 @@ namespace ChatService.Presentation.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 
+                // Check message limits
+                var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                if (limits.IsLimitReached)
+                {
+                    return StatusCode(429, new { message = "Daily message limit reached", limitReached = true });
+                }
+
+                // Count this AI operation as a message
+                await _messageLimitService.IncrementMessageCountAsync(userId);
+                
                 var scheduleResponse = await _personalCoachApiService.CreateScheduleAsync(userId, request);
                 
                 // Invalidate cached context since schedule was created
                 await _contextCacheService.InvalidateCacheAsync(request.SessionId);
                 
-                return Ok(scheduleResponse);
+                // Get updated limits
+                var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                
+                return Ok(new
+                {
+                    schedule = scheduleResponse,
+                    remainingMessages = newLimits.RemainingDaily,
+                    dailyLimit = newLimits.DailyLimit
+                });
             }
             catch (Exception ex)
             {
@@ -182,12 +200,31 @@ namespace ChatService.Presentation.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 
-                await _personalCoachApiService.UpdateUserPreferenceAsync(userId, request);
+                // Check message limits
+                var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                if (limits.IsLimitReached)
+                {
+                    return StatusCode(429, new { message = "Daily message limit reached", limitReached = true });
+                }
+
+                // Count this AI operation as a message
+                await _messageLimitService.IncrementMessageCountAsync(userId);
+                
+                // Note: The actual preference update is handled by the frontend calling PersonalCoach API directly
+                // This endpoint just tracks AI credits and invalidates cache
                 
                 // Invalidate cached context since preferences updated
                 await _contextCacheService.InvalidateCacheAsync(request.SessionId);
                 
-                return Ok(new { message = "Preference updated successfully" });
+                // Get updated limits
+                var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                
+                return Ok(new
+                {
+                    message = "Preference update tracked successfully",
+                    remainingMessages = newLimits.RemainingDaily,
+                    dailyLimit = newLimits.DailyLimit
+                });
             }
             catch (Exception ex)
             {
@@ -235,6 +272,59 @@ namespace ChatService.Presentation.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while analyzing profile", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Track AI action (increment message count and return limits)
+        /// </summary>
+        [HttpPost("track-ai-action")]
+        public async Task<IActionResult> TrackAiAction()
+        {
+            try
+            {
+                var userId = GetUserId();
+                
+                // Check message limits
+                var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                if (limits.IsLimitReached)
+                {
+                    return StatusCode(429, new { message = "Daily message limit reached", limitReached = true });
+                }
+
+                // Count this AI operation as a message
+                await _messageLimitService.IncrementMessageCountAsync(userId);
+                
+                // Get updated limits
+                var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
+                
+                return Ok(new
+                {
+                    remainingMessages = newLimits.RemainingDaily,
+                    dailyLimit = newLimits.DailyLimit
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while tracking AI action", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Invalidate user context cache (called after profile updates)
+        /// </summary>
+        [HttpPost("invalidate-cache")]
+        public async Task<IActionResult> InvalidateCache()
+        {
+            try
+            {
+                var userId = GetUserId();
+                await _contextCacheService.InvalidateUserCacheAsync(userId);
+                return Ok(new { message = "Cache invalidated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while invalidating cache", error = ex.Message });
             }
         }
     }

@@ -84,7 +84,7 @@ public class DatabaseSeederService
                 Variations = JsonSerializer.Serialize(dto.Variations),
                 VideoUrl = dto.VideoUrl ?? "",
                 ImageUrl = dto.ImageUrl ?? "",
-                CaloriesPerMinute = dto.CaloriesPerMinute,
+                CaloriesPerMinute = dto.CaloriesPerMinute.HasValue ? (int?)Convert.ToInt32(dto.CaloriesPerMinute.Value) : null,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 EmbeddingVector = null // Will be generated later by embedding service
@@ -113,7 +113,7 @@ public class DatabaseSeederService
         public List<string> Variations { get; set; } = new();
         public string? VideoUrl { get; set; }
         public string? ImageUrl { get; set; }
-        public decimal CaloriesPerMinute { get; set; }
+        public decimal? CaloriesPerMinute { get; set; }
     }
 }
 
