@@ -6,12 +6,12 @@ param(
 
     [string]$RepositoryPrefix = "brightness-prod",
 
-    [string]$ImageTag = "latest",
-
     [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
+
+$ImageTag = "latest"
 
 $services = @(
     @{ Name = "gateway-api"; Dockerfile = "GatewayAPI/APIGateway.Presentation/Dockerfile" },

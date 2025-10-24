@@ -1,3 +1,4 @@
+using Amazon.Extensions.Configuration.SystemsManager;
 using APIGateway.Presentation.Middleware;
 using BrightNess.Library.Configuration;
 using BrightNess.Library.DI;
@@ -11,7 +12,12 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+Console.WriteLine($"[Gateway API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+if (!builder.Environment.IsDevelopment())
+{
+    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+    builder.Configuration.AddSystemsManager(parameterStorePath);
+}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

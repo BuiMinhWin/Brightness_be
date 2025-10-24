@@ -89,7 +89,7 @@ services:
       - ./AuthenticationAPI/AuthenticationAPI.Presentation/wwwroot/uploads:/app/wwwroot/uploads
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       ConnectionStrings__Redis: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
       Authentication__Key: ${AUTHENTICATION__KEY}
@@ -115,7 +115,7 @@ services:
       dockerfile: GatewayAPI/APIGateway.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
@@ -143,7 +143,7 @@ services:
       dockerfile: MeasurementAPI/MeasurementAPI.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -161,7 +161,7 @@ services:
       dockerfile: ChallengeAPI/ChallengeAPI.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -180,7 +180,7 @@ services:
       dockerfile: SocialAPI/SocialAPI.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -199,7 +199,7 @@ services:
       dockerfile: BillingAPI/BillingAPI.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -221,7 +221,7 @@ services:
       dockerfile: MediaAPI/MediaAPI.Presentation/Dockerfile
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -242,7 +242,7 @@ services:
       - .env
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
@@ -272,7 +272,7 @@ services:
       - .env
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleVision__ApiKey: ${GOOGLE_VISION_API_KEY}
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
@@ -297,7 +297,7 @@ services:
       - .env
     environment:
       <<: *cors_origins
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
       GoogleAI__ApiKey: ${GOOGLE_AI_API_KEY}
       GoogleAI__Model: gemini-2.5-flash

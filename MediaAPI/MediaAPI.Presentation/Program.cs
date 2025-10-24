@@ -1,3 +1,4 @@
+using Amazon.Extensions.Configuration.SystemsManager;
 using BrightNess.Library.Configuration;
 using MediaAPI.Infrastructure.Data;
 using MediaAPI.Infrastructure.DependencyInjection;
@@ -7,7 +8,12 @@ using Npgsql;
 using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+Console.WriteLine($"[Media API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+if (!builder.Environment.IsDevelopment())
+{
+    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+    builder.Configuration.AddSystemsManager(parameterStorePath);
+}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

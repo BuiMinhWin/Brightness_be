@@ -1,3 +1,4 @@
+using Amazon.Extensions.Configuration.SystemsManager;
 using BrightNess.Library.Configuration;
 using ChallengeAPI.Infrastructure.Data;
 using ChallengeAPI.Infrastructure.DependencyInjection;
@@ -8,7 +9,12 @@ using System.Collections.Generic;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+Console.WriteLine($"[Challenge API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+if (!builder.Environment.IsDevelopment())
+{
+    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+    builder.Configuration.AddSystemsManager(parameterStorePath);
+}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

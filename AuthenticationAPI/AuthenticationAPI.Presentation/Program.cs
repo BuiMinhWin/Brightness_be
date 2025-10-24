@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.Extensions.Configuration.SystemsManager;
 using AuthenticationAPI.Infrastructure.Data;
 using AuthenticationAPI.Infrastructure.DependencyInjection;
 using BrightNess.Library.Configuration;
@@ -10,7 +11,12 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddSecretsManager();
+Console.WriteLine($"[AuthenticationAPI] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+if (!builder.Environment.IsDevelopment())
+{
+    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+    builder.Configuration.AddSystemsManager(parameterStorePath);
+}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
