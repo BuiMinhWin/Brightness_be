@@ -9,11 +9,19 @@ namespace PersonalCoachAPI.Presentation.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IAIScheduleService _scheduleService;
+        private readonly IManualScheduleService _manualScheduleService;
+        private readonly IAIUsageLimitService _aiUsageLimitService;
         private readonly ILogger<ScheduleController> _logger;
 
-        public ScheduleController(IAIScheduleService scheduleService, ILogger<ScheduleController> logger)
+        public ScheduleController(
+            IAIScheduleService scheduleService,
+            IManualScheduleService manualScheduleService,
+            IAIUsageLimitService aiUsageLimitService,
+            ILogger<ScheduleController> logger)
         {
             _scheduleService = scheduleService;
+            _manualScheduleService = manualScheduleService;
+            _aiUsageLimitService = aiUsageLimitService;
             _logger = logger;
         }
 
@@ -28,6 +36,11 @@ namespace PersonalCoachAPI.Presentation.Controllers
             {
                 var result = await _scheduleService.GenerateScheduleAsync(request);
                 return Ok(result);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("limit reached"))
+            {
+                _logger.LogWarning(ex, "AI generation limit reached for user");
+                return StatusCode(429, new { success = false, message = ex.Message, code = "AI_LIMIT_REACHED" });
             }
             catch (Exception ex)
             {
@@ -250,6 +263,144 @@ namespace PersonalCoachAPI.Presentation.Controllers
             {
                 _logger.LogError(ex, "Error getting analytics");
                 return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // =====================================================
+        // MANUAL SCHEDULE BUILDER ENDPOINTS
+        // =====================================================
+
+        /// <summary>
+        /// Get AI usage limits for current user
+        /// </summary>
+        [HttpGet("ai-usage-limits/{userId}")]
+        public async Task<ActionResult<AIUsageLimitsDTO>> GetAIUsageLimits(Guid userId)
+        {
+            try
+            {
+                var limits = await _aiUsageLimitService.GetUsageLimitsAsync(userId);
+                return Ok(new { success = true, data = limits });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting AI usage limits");
+                return StatusCode(500, new { success = false, message = "Failed to get usage limits" });
+            }
+        }
+
+        /// <summary>
+        /// Create manual workout schedule (no AI generation)
+        /// </summary>
+        [HttpPost("manual")]
+        public async Task<ActionResult<WorkoutScheduleResponse>> CreateManualSchedule(
+            [FromBody] ManualScheduleRequest request)
+        {
+            try
+            {
+                var result = await _manualScheduleService.CreateManualScheduleAsync(request);
+                return Ok(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating manual schedule");
+                return StatusCode(500, new { success = false, message = "Failed to create manual schedule" });
+            }
+        }
+
+        /// <summary>
+        /// Add workout day from template to schedule
+        /// </summary>
+        [HttpPost("{scheduleId}/days/from-template")]
+        public async Task<ActionResult<WorkoutDayResponse>> AddDayFromTemplate(
+            Guid scheduleId,
+            [FromBody] AddDayFromTemplateRequest request)
+        {
+            try
+            {
+                request = request with { ScheduleId = scheduleId };
+                var result = await _manualScheduleService.AddWorkoutDayFromTemplateAsync(request);
+                return Ok(new { success = true, data = result });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding day from template");
+                return StatusCode(500, new { success = false, message = "Failed to add day from template" });
+            }
+        }
+
+        /// <summary>
+        /// Add custom workout day to schedule
+        /// </summary>
+        [HttpPost("{scheduleId}/days/custom")]
+        public async Task<ActionResult<WorkoutDayResponse>> AddCustomDay(
+            Guid scheduleId,
+            [FromBody] AddCustomDayRequest request)
+        {
+            try
+            {
+                request = request with { ScheduleId = scheduleId };
+                var result = await _manualScheduleService.AddCustomWorkoutDayAsync(request);
+                return Ok(new { success = true, data = result });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding custom day");
+                return StatusCode(500, new { success = false, message = "Failed to add custom day" });
+            }
+        }
+
+        /// <summary>
+        /// Update workout day exercises
+        /// </summary>
+        [HttpPut("{scheduleId}/days/{dayId}")]
+        public async Task<ActionResult<WorkoutDayResponse>> UpdateWorkoutDay(
+            Guid scheduleId,
+            Guid dayId,
+            [FromBody] UpdateWorkoutDayRequest request)
+        {
+            try
+            {
+                var result = await _manualScheduleService.UpdateWorkoutDayAsync(scheduleId, dayId, request);
+                return Ok(new { success = true, data = result });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating workout day");
+                return StatusCode(500, new { success = false, message = "Failed to update workout day" });
+            }
+        }
+
+        /// <summary>
+        /// Delete workout day from schedule
+        /// </summary>
+        [HttpDelete("{scheduleId}/days/{dayId}")]
+        public async Task<IActionResult> DeleteWorkoutDay(Guid scheduleId, Guid dayId)
+        {
+            try
+            {
+                await _manualScheduleService.DeleteWorkoutDayAsync(scheduleId, dayId);
+                return Ok(new { success = true, message = "Workout day deleted successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting workout day");
+                return StatusCode(500, new { success = false, message = "Failed to delete workout day" });
             }
         }
     }

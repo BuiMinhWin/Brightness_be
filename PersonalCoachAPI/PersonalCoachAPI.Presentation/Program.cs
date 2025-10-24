@@ -65,7 +65,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add Database Context
-var connectionString = builder.Configuration.GetRequiredConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetRequiredConnectionString("BrightnessDb");
 builder.Services.AddDbContext<PersonalCoachDbContext>(options =>
 {
     options.UseNpgsql(connectionString, npgsqlOptions =>
@@ -118,6 +118,10 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IRAGService, RAGService>();
 builder.Services.AddScoped<IAIScheduleService, AIScheduleService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IAIUsageLimitService, AIUsageLimitService>();
+builder.Services.AddScoped<IManualScheduleService, ManualScheduleService>();
+builder.Services.AddScoped<IExerciseLibraryService, ExerciseLibraryService>();
+builder.Services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
 
 // Add Repositories
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();

@@ -48,6 +48,9 @@ namespace PersonalCoachAPI.Application.DTOs
         public int DurationDays { get; set; }
         public List<ScheduleDayDetail> Days { get; set; } = new();
         public DateTime CreatedAt { get; set; }
+        public bool IsLatest { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public int Version { get; set; }
     }
 
     public class ScheduleDayDetail

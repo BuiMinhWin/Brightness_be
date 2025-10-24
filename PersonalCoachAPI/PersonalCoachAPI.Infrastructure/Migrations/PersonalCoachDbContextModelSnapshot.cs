@@ -64,6 +64,43 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.AIGenerationUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("GenerationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("RelatedScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "Year", "Month");
+
+                    b.ToTable("ai_generation_usage", "personalcoach");
+                });
+
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.AuthUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -196,8 +233,8 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<decimal>("CaloriesPerMinute")
-                        .HasColumnType("numeric");
+                    b.Property<int?>("CaloriesPerMinute")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -252,6 +289,9 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("SecondaryMuscles")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -260,7 +300,7 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Variations")
@@ -1012,6 +1052,92 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.ToTable("workout_schedule_exercises", "personalcoach");
                 });
 
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("EstimatedDuration")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FocusArea")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TemplateName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Difficulty");
+
+                    b.HasIndex("FocusArea");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("workout_templates", "personalcoach");
+                });
+
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutTemplateExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ExerciseLibraryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reps")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("RestSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Sets")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseLibraryId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("workout_template_exercises", "personalcoach");
+                });
+
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutFeedback", b =>
                 {
                     b.HasOne("PersonalCoachAPI.Domain.Entities.WorkoutScheduleDay", "ScheduleDay")
@@ -1053,6 +1179,25 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.Navigation("ScheduleDay");
                 });
 
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutTemplateExercise", b =>
+                {
+                    b.HasOne("PersonalCoachAPI.Domain.Entities.ExerciseLibrary", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseLibraryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PersonalCoachAPI.Domain.Entities.WorkoutTemplate", "Template")
+                        .WithMany("Exercises")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("Template");
+                });
+
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutSchedule", b =>
                 {
                     b.Navigation("Feedbacks");
@@ -1061,6 +1206,11 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutScheduleDay", b =>
+                {
+                    b.Navigation("Exercises");
+                });
+
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutTemplate", b =>
                 {
                     b.Navigation("Exercises");
                 });
