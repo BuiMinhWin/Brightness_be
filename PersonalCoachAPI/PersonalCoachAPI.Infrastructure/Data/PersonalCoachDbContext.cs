@@ -18,6 +18,9 @@ namespace PersonalCoachAPI.Infrastructure.Data
         public DbSet<WorkoutScheduleDay> WorkoutScheduleDays => Set<WorkoutScheduleDay>();
         public DbSet<WorkoutScheduleExercise> WorkoutScheduleExercises => Set<WorkoutScheduleExercise>();
         public DbSet<WorkoutFeedback> WorkoutFeedbacks => Set<WorkoutFeedback>();
+        public DbSet<AIGenerationUsage> AIGenerationUsages => Set<AIGenerationUsage>();
+        public DbSet<WorkoutTemplate> WorkoutTemplates => Set<WorkoutTemplate>();
+        public DbSet<WorkoutTemplateExercise> WorkoutTemplateExercises => Set<WorkoutTemplateExercise>();
         public DbSet<ScheduleEditHistory> ScheduleEditHistories => Set<ScheduleEditHistory>();
         public DbSet<ExerciseLibrary> ExerciseLibrary => Set<ExerciseLibrary>();
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
@@ -253,6 +256,55 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasIndex(x => x.ScheduleId);
                 entity.HasIndex(x => x.EditType);
                 entity.HasIndex(x => x.CreatedAt);
+            });
+
+            // AIGenerationUsage configuration
+            modelBuilder.Entity<AIGenerationUsage>(entity =>
+            {
+                entity.ToTable("ai_generation_usage");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.GenerationType).HasMaxLength(50).IsRequired();
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => new { x.UserId, x.Year, x.Month });
+            });
+
+            // WorkoutTemplate configuration
+            modelBuilder.Entity<WorkoutTemplate>(entity =>
+            {
+                entity.ToTable("workout_templates");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.TemplateName).HasMaxLength(200).IsRequired();
+                entity.Property(x => x.FocusArea).HasMaxLength(100).IsRequired();
+                entity.Property(x => x.Difficulty).HasMaxLength(50).IsRequired();
+                entity.Property(x => x.Description).HasColumnType("text");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasIndex(x => x.FocusArea);
+                entity.HasIndex(x => x.Difficulty);
+                entity.HasIndex(x => x.IsActive);
+            });
+
+            // WorkoutTemplateExercise configuration
+            modelBuilder.Entity<WorkoutTemplateExercise>(entity =>
+            {
+                entity.ToTable("workout_template_exercises");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Reps).HasMaxLength(50);
+                entity.Property(x => x.Notes).HasColumnType("text");
+                
+                entity.HasOne(x => x.Template)
+                    .WithMany(x => x.Exercises)
+                    .HasForeignKey(x => x.TemplateId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(x => x.Exercise)
+                    .WithMany()
+                    .HasForeignKey(x => x.ExerciseLibraryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                    
+                entity.HasIndex(x => x.TemplateId);
             });
         }
 

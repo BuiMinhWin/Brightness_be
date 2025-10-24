@@ -22,26 +22,60 @@ namespace PersonalCoachAPI.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<AIScheduleService> _logger;
         private readonly HttpClient _httpClient;
+        private readonly IAIUsageLimitService _aiUsageLimitService;
 
         public AIScheduleService(
             PersonalCoachDbContext context,
             IRAGService ragService,
             IConfiguration configuration,
             ILogger<AIScheduleService> logger,
-            HttpClient httpClient)
+            HttpClient httpClient,
+            IAIUsageLimitService aiUsageLimitService)
         {
             _context = context;
             _ragService = ragService;
             _configuration = configuration;
             _logger = logger;
             _httpClient = httpClient;
+            _aiUsageLimitService = aiUsageLimitService;
         }
 
         public async Task<WorkoutScheduleResponse> GenerateScheduleAsync(GenerateScheduleRequest request)
         {
+            // Check AI usage limits before generating
+            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(request.UserId);
+            if (!usageLimits.CanGenerate)
+            {
+                throw new InvalidOperationException(
+                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
+                    $"Resets in {usageLimits.DaysUntilReset} days. " +
+                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+            }
+
+            // Use transaction to ensure atomicity
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("Generating workout schedule for user {UserId}", request.UserId);
+                _logger.LogInformation("Generating workout schedule for user {UserId} (AI {Used}/{Limit})", 
+                    request.UserId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
+
+                // Archive all existing active schedules for this user
+                var existingSchedules = await _context.WorkoutSchedules
+                    .Where(s => s.UserId == request.UserId && s.IsLatest)
+                    .ToListAsync();
+
+                if (existingSchedules.Any())
+                {
+                    _logger.LogInformation("Archiving {Count} existing schedules for user {UserId}", 
+                        existingSchedules.Count, request.UserId);
+                    
+                    foreach (var existingSchedule in existingSchedules)
+                    {
+                        existingSchedule.IsLatest = false;
+                        existingSchedule.Status = "archived";
+                        existingSchedule.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
 
                 // Get user context
                 var userContext = await _ragService.GetUserContextAsync(request.UserId);
@@ -209,14 +243,22 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 // Save to database
                 _context.WorkoutSchedules.Add(schedule);
                 await _context.SaveChangesAsync();
+                
+                // Track AI usage
+                await _aiUsageLimitService.TrackGenerationAsync(request.UserId, "schedule_create", schedule.Id);
+                
+                // Commit transaction
+                await transaction.CommitAsync();
 
-                _logger.LogInformation("Successfully generated schedule {ScheduleId}", schedule.Id);
+                _logger.LogInformation("Successfully generated schedule {ScheduleId} and archived {Count} old schedules", 
+                    schedule.Id, existingSchedules.Count);
 
                 return MapToResponse(schedule);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating schedule");
+                await transaction.RollbackAsync();
                 throw;
             }
         }
@@ -339,7 +381,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 .Include(s => s.ScheduleDays)
                 .ThenInclude(d => d.Exercises)
                 .Where(s => s.UserId == userId)
-                .OrderByDescending(s => s.CreatedAt)
+                .OrderByDescending(s => s.IsLatest)  // Prioritize IsLatest flag
+                .ThenByDescending(s => s.CreatedAt)  // Then by creation date
                 .ToListAsync();
 
             return schedules.Select(MapToResponse).ToList();
@@ -348,6 +391,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
         public async Task MarkExerciseCompleteAsync(Guid exerciseId, bool completed, int? actualSets, int? actualReps)
         {
             var exercise = await _context.WorkoutScheduleExercises
+                .Include(e => e.ScheduleDay)
+                    .ThenInclude(d => d.Exercises)
                 .FirstOrDefaultAsync(e => e.Id == exerciseId);
 
             if (exercise == null)
@@ -358,6 +403,34 @@ namespace PersonalCoachAPI.Infrastructure.Services
             exercise.Completed = completed;
             exercise.ActualSets = actualSets;
             exercise.ActualReps = actualReps;
+
+            // Check if all exercises in the day are completed
+            var day = exercise.ScheduleDay;
+            if (day != null)
+            {
+                var allExercisesCompleted = day.Exercises.All(e => e.Completed || e.Id == exerciseId && completed);
+                
+                if (allExercisesCompleted && !day.Completed)
+                {
+                    // Mark the entire day as completed
+                    day.Completed = true;
+                    day.Status = "completed";
+                    day.CompletionDate = DateTime.UtcNow;
+                    day.UpdatedAt = DateTime.UtcNow;
+                    
+                    _logger.LogInformation("Marked day {DayId} as completed", day.Id);
+                }
+                else if (!allExercisesCompleted && day.Completed)
+                {
+                    // If an exercise was unmarked, unmark the day
+                    day.Completed = false;
+                    day.Status = "scheduled";
+                    day.CompletionDate = null;
+                    day.UpdatedAt = DateTime.UtcNow;
+                    
+                    _logger.LogInformation("Unmarked day {DayId} as incomplete", day.Id);
+                }
+            }
 
             await _context.SaveChangesAsync();
         }
@@ -598,13 +671,32 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
 
         public async Task<WorkoutScheduleResponse> RegenerateScheduleFromDayAsync(RegenerateScheduleRequest request)
         {
+            // Get current schedule first to get userId
+            var currentSchedule = await _context.WorkoutSchedules
+                .FirstOrDefaultAsync(s => s.Id == request.CurrentScheduleId);
+
+            if (currentSchedule == null)
+            {
+                throw new Exception("Schedule not found");
+            }
+
+            // Check AI usage limits before regenerating
+            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(currentSchedule.UserId);
+            if (!usageLimits.CanGenerate)
+            {
+                throw new InvalidOperationException(
+                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
+                    $"Resets in {usageLimits.DaysUntilReset} days. " +
+                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+            }
+
             try
             {
-                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId}", 
-                    request.FromDayNumber, request.CurrentScheduleId);
+                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (AI {Used}/{Limit})", 
+                    request.FromDayNumber, request.CurrentScheduleId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
 
-                // Get current schedule
-                var currentSchedule = await _context.WorkoutSchedules
+                // Reload schedule with includes
+                currentSchedule = await _context.WorkoutSchedules
                     .Include(s => s.ScheduleDays)
                         .ThenInclude(d => d.Exercises)
                     .FirstOrDefaultAsync(s => s.Id == request.CurrentScheduleId);
@@ -846,6 +938,9 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
 
                 // Save new schedule
                 _context.WorkoutSchedules.Add(newSchedule);
+                
+                // Track AI usage for regeneration
+                await _aiUsageLimitService.TrackGenerationAsync(currentSchedule.UserId, "schedule_regenerate", newSchedule.Id);
 
                 // Log edit history
                 var editHistory = new ScheduleEditHistory
@@ -1001,13 +1096,27 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
 
         public async Task<ScheduleAnalytics> GetScheduleAnalyticsAsync(Guid userId)
         {
-            var schedules = await _context.WorkoutSchedules
+            // Get only the latest active schedule for analytics
+            var latestSchedule = await _context.WorkoutSchedules
                 .Include(s => s.ScheduleDays)
                     .ThenInclude(d => d.Exercises)
-                .Where(s => s.UserId == userId)
-                .ToListAsync();
+                .Where(s => s.UserId == userId && s.IsLatest)
+                .FirstOrDefaultAsync();
 
-            var allDays = schedules.SelectMany(s => s.ScheduleDays).ToList();
+            if (latestSchedule == null)
+            {
+                return new ScheduleAnalytics
+                {
+                    TotalWorkoutsCompleted = 0,
+                    TotalWorkoutsPlanned = 0,
+                    OverallCompletionRate = 0,
+                    CompletionByFocusArea = new Dictionary<string, int>(),
+                    MostCompletedExercises = new List<string>(),
+                    RecentFeedback = new List<FeedbackSummary>()
+                };
+            }
+
+            var allDays = latestSchedule.ScheduleDays.ToList();
             var completedDays = allDays.Where(d => d.Completed).ToList();
             var allExercises = allDays.SelectMany(d => d.Exercises).ToList();
 
