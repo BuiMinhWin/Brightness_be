@@ -177,6 +177,27 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 throw new ArgumentException("Schedule not found");
             }
 
+            // Check for existing workout on the same date
+            var existingDay = await _context.WorkoutScheduleDays
+                .Include(d => d.Exercises)
+                .FirstOrDefaultAsync(d => d.ScheduleId == request.ScheduleId && d.Date.Date == request.Date.Date);
+
+            if (existingDay != null)
+            {
+                if (request.ReplaceExisting)
+                {
+                    // Remove existing day and its exercises
+                    _logger.LogInformation("Replacing existing day {ExistingDayId} on date {Date}", 
+                        existingDay.Id, request.Date.Date);
+                    _context.WorkoutScheduleDays.Remove(existingDay);
+                }
+                else
+                {
+                    // Prevent duplicate
+                    throw new InvalidOperationException($"A workout already exists on {request.Date:yyyy-MM-dd}. Set ReplaceExisting=true to replace it.");
+                }
+            }
+
             var scheduleDay = new WorkoutScheduleDay
             {
                 Id = Guid.NewGuid(),
