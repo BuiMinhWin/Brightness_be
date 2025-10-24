@@ -7,9 +7,9 @@ namespace SocialAPI.Application.Interfaces
 {
     public interface ICommentService
     {
-        Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId);
-        Task<CommentDTO> GetCommentByIdAsync(Guid commentId);
-        Task<CommentDTO> CreateCommentAsync(Guid postId, CreateCommentDTO commentDto, Guid userId);
+        Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId, Guid? userId = null);
+        Task<CommentDTO> GetCommentByIdAsync(Guid commentId, Guid? userId = null);
+        Task<CommentDTO> CreateCommentAsync(Guid postId, CreateCommentDTO commentDto, Guid userId, string? userName = null);
         Task<CommentDTO> UpdateCommentAsync(Guid commentId, UpdateCommentDTO commentDto, Guid userId);
         Task ToggleCommentVisibilityAsync(Guid commentId, Guid userId);
         Task DeleteCommentAsync(Guid commentId, Guid userId);

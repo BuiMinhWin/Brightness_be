@@ -32,6 +32,13 @@ namespace SocialAPI.Application.Services
 
         public async Task<ReportDTO> CreateReportAsync(CreateReportDTO reportDto, Guid userId)
         {
+            // Check if user has already reported this target
+            var existingReport = await _reportRepository.GetReportByUserAndTargetAsync(userId, reportDto.TargetId, reportDto.TargetType);
+            if (existingReport != null)
+            {
+                throw new InvalidOperationException("You have already reported this content.");
+            }
+
             var report = new Report
             {
                 Id = Guid.NewGuid(),

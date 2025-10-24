@@ -9,6 +9,7 @@ namespace SocialAPI.Application.Interfaces
         Task<Post> CreatePostAsync(Post post);
         Task UpdatePostAsync(Post post);
         Task DeletePostAsync(Guid id);
+        Task SoftDeletePostAsync(Guid id);
 
         Task<PostVote> GetPostVoteAsync(Guid postId, Guid userId);
         Task AddPostVoteAsync(PostVote vote);
