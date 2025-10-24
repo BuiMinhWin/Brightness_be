@@ -13,6 +13,7 @@ namespace PersonalCoachAPI.Application.DTOs
         public List<string> EquipmentAvailable { get; set; } = new();
         public string? AdditionalNotes { get; set; }
         public bool StartFromToday { get; set; } = false;
+        public DateTime? StartDate { get; set; }
     }
 
     public class ModifyDayRequest
@@ -190,5 +191,29 @@ namespace PersonalCoachAPI.Application.DTOs
         public DateTime Date { get; set; }
         public string DifficultyRating { get; set; } = string.Empty;
         public string? Notes { get; set; }
+    }
+
+    // Conflict Detection DTOs
+    public class CheckConflictsRequest
+    {
+        public Guid UserId { get; set; }
+        public DateTime StartDate { get; set; }
+        public int DurationDays { get; set; }
+        public List<string> AvailableDays { get; set; } = new();
+    }
+
+    public class ScheduleConflictInfo
+    {
+        public bool HasConflicts { get; set; }
+        public List<ConflictingWorkout> ConflictingWorkouts { get; set; } = new();
+        public int TotalConflicts { get; set; }
+    }
+
+    public class ConflictingWorkout
+    {
+        public DateTime Date { get; set; }
+        public string FocusArea { get; set; } = string.Empty;
+        public int ExerciseCount { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }

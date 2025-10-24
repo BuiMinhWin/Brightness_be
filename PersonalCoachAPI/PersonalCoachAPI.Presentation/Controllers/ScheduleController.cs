@@ -50,6 +50,29 @@ namespace PersonalCoachAPI.Presentation.Controllers
         }
 
         /// <summary>
+        /// Check for conflicts with existing workouts before generating new schedule
+        /// </summary>
+        [HttpPost("check-conflicts")]
+        public async Task<ActionResult<ScheduleConflictInfo>> CheckConflicts(
+            [FromBody] CheckConflictsRequest request)
+        {
+            try
+            {
+                var result = await _scheduleService.CheckScheduleConflictsAsync(
+                    request.UserId,
+                    request.StartDate,
+                    request.DurationDays,
+                    request.AvailableDays);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking schedule conflicts");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        /// <summary>
         /// Modify specific day in schedule without regenerating all
         /// </summary>
         [HttpPatch("{scheduleId}/day/{dayNumber}")]
@@ -340,8 +363,16 @@ namespace PersonalCoachAPI.Presentation.Controllers
             Guid scheduleId,
             [FromBody] AddCustomDayRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid AddCustomDayRequest model: {Errors}", 
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return BadRequest(new { success = false, message = "Invalid request data", errors = ModelState });
+            }
+            
             try
             {
+                _logger.LogInformation("Adding custom day to schedule {ScheduleId}, Date: {Date}", scheduleId, request.Date);
                 request = request with { ScheduleId = scheduleId };
                 var result = await _manualScheduleService.AddCustomWorkoutDayAsync(request);
                 return Ok(new { success = true, data = result });

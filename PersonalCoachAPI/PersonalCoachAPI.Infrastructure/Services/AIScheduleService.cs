@@ -138,9 +138,9 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 int workoutDayCount = 0;
                 int dayNumber = 1;
                 
-                // Determine start date based on user preference
-                var startDate = request.StartFromToday 
-                    ? DateTime.UtcNow.Date 
+                // Determine start date: use provided StartDate, or default to tomorrow (ensure UTC)
+                var startDate = request.StartDate.HasValue 
+                    ? DateTime.SpecifyKind(request.StartDate.Value.Date, DateTimeKind.Utc)
                     : DateTime.UtcNow.Date.AddDays(1);
                 var currentCheckDate = startDate;
                 
@@ -1028,19 +1028,40 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                         Id = Guid.NewGuid(),
                         ScheduleDayId = scheduleDay.Id,
                         ExerciseName = addReq.ExerciseName,
+                        ExerciseCategory = "general", // Default category
+                        TargetMuscles = "[]", // Empty JSON array as default
                         Sets = addReq.Sets,
                         Reps = addReq.Reps,
                         RestSeconds = addReq.RestSeconds,
                         OrderIndex = addReq.OrderIndex,
+                        Notes = string.Empty,
+                        VideoUrl = string.Empty,
+                        DurationSeconds = 0,
+                        WeightKg = 0,
+                        Completed = false,
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    scheduleDay.Exercises.Add(newExercise);
+                    // Explicitly add to DbContext to ensure proper tracking
+                    await _context.WorkoutScheduleExercises.AddAsync(newExercise);
                 }
             }
 
+            // Save changes first
+            await _context.SaveChangesAsync();
+
+            // Reload the schedule day to get fresh data
+            var reloadedScheduleDay = await _context.WorkoutScheduleDays
+                .Include(d => d.Exercises)
+                .FirstOrDefaultAsync(d => d.Id == scheduleDay.Id);
+
+            if (reloadedScheduleDay == null)
+            {
+                throw new Exception("Failed to reload schedule day after save");
+            }
+
             // Log edit history
-            var afterValue = JsonConvert.SerializeObject(MapDayToDetail(scheduleDay));
+            var afterValue = JsonConvert.SerializeObject(MapDayToDetail(reloadedScheduleDay));
             var editHistory = new ScheduleEditHistory
             {
                 Id = Guid.NewGuid(),
@@ -1058,7 +1079,7 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
             _context.ScheduleEditHistories.Add(editHistory);
             await _context.SaveChangesAsync();
 
-            return MapDayToDetail(scheduleDay);
+            return MapDayToDetail(reloadedScheduleDay);
         }
 
         public async Task<ScheduleHistoryResponse> GetScheduleHistoryAsync(Guid userId)
@@ -1243,6 +1264,78 @@ IMPORTANT:
 2. Preserve the user's progress and motivation
 3. Consider any injuries or limitations mentioned in feedback
 4. Adapt the workout to fit their current state and constraints";
+        }
+
+        public async Task<ScheduleConflictInfo> CheckScheduleConflictsAsync(
+            Guid userId, 
+            DateTime startDate, 
+            int durationDays, 
+            List<string> availableDays)
+        {
+            _logger.LogInformation("Checking schedule conflicts for user {UserId}, startDate: {StartDate}, duration: {Duration} days", 
+                userId, startDate, durationDays);
+
+            // Convert available days to day numbers (0=Sunday, 1=Monday, etc.)
+            var availableDayNumbers = availableDays.Select(day => 
+                day.ToLower() switch
+                {
+                    "sunday" => 0,
+                    "monday" => 1,
+                    "tuesday" => 2,
+                    "wednesday" => 3,
+                    "thursday" => 4,
+                    "friday" => 5,
+                    "saturday" => 6,
+                    _ => -1
+                }).Where(dayNum => dayNum >= 0).ToList();
+
+            // Calculate which dates will be affected (ensure UTC)
+            var affectedDates = new List<DateTime>();
+            var currentCheckDate = DateTime.SpecifyKind(startDate.Date, DateTimeKind.Utc);
+            int workoutDaysGenerated = 0;
+            int maxCalendarDays = durationDays * 7; // Safety limit
+            int calendarDaysChecked = 0;
+
+            while (workoutDaysGenerated < durationDays && calendarDaysChecked < maxCalendarDays)
+            {
+                var dayOfWeek = (int)currentCheckDate.DayOfWeek;
+                calendarDaysChecked++;
+
+                if (availableDayNumbers.Contains(dayOfWeek))
+                {
+                    affectedDates.Add(currentCheckDate);
+                    workoutDaysGenerated++;
+                }
+
+                currentCheckDate = currentCheckDate.AddDays(1);
+            }
+
+            _logger.LogInformation("Calculated {Count} affected dates", affectedDates.Count);
+
+            // Query existing workouts on those dates
+            var existingWorkouts = await _context.WorkoutScheduleDays
+                .Include(d => d.Exercises)
+                .Where(d => d.Schedule.UserId == userId && 
+                           d.Schedule.IsLatest && 
+                           affectedDates.Contains(d.Date.Date))
+                .Select(d => new ConflictingWorkout
+                {
+                    Date = d.Date.Date,
+                    FocusArea = d.FocusArea,
+                    ExerciseCount = d.Exercises.Count,
+                    IsCompleted = d.Completed
+                })
+                .OrderBy(d => d.Date)
+                .ToListAsync();
+
+            _logger.LogInformation("Found {Count} conflicting workouts", existingWorkouts.Count);
+
+            return new ScheduleConflictInfo
+            {
+                HasConflicts = existingWorkouts.Any(),
+                ConflictingWorkouts = existingWorkouts,
+                TotalConflicts = existingWorkouts.Count
+            };
         }
     }
 }

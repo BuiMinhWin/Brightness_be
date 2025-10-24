@@ -122,6 +122,7 @@ builder.Services.AddScoped<IAIUsageLimitService, AIUsageLimitService>();
 builder.Services.AddScoped<IManualScheduleService, ManualScheduleService>();
 builder.Services.AddScoped<IExerciseLibraryService, ExerciseLibraryService>();
 builder.Services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
+builder.Services.AddScoped<IBrokenLinkReportService, BrokenLinkReportService>();
 
 // Add Repositories
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
