@@ -26,6 +26,7 @@ namespace PersonalCoachAPI.Application.DTOs
     );
 
     public record ExerciseSuggestionRequest(
+        Guid UserId,
         string FocusArea,
         string Difficulty,
         List<string>? EquipmentAvailable,

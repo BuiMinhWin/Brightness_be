@@ -12,23 +12,41 @@ namespace SocialAPI.Presentation.Controllers
     public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
+        private readonly IReportService _reportService;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, IReportService reportService)
         {
             _postService = postService;
+            _reportService = reportService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts()
         {
-            var posts = await _postService.GetPostsAsync();
+            // Try to get userId from JWT claims (optional - for anonymous browsing support)
+            Guid? userId = null;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedUserId))
+            {
+                userId = parsedUserId;
+            }
+            
+            var posts = await _postService.GetPostsAsync(userId);
             return Ok(posts);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PostDTO>> GetPostById(Guid id)
         {
-            var post = await _postService.GetPostByIdAsync(id);
+            // Try to get userId from JWT claims (optional - for anonymous browsing support)
+            Guid? userId = null;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedUserId))
+            {
+                userId = parsedUserId;
+            }
+            
+            var post = await _postService.GetPostByIdAsync(id, userId);
             if (post == null) return NotFound();
             return Ok(post);
         }
@@ -71,38 +89,78 @@ namespace SocialAPI.Presentation.Controllers
             return Ok(posts);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("{id}/vote")]
         public async Task<IActionResult> VotePost(Guid id, [FromBody] PostVoteDTO voteDto)
         {
-            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             await _postService.VotePostAsync(id, userId, voteDto.VoteType);
             return Ok("Vote success");
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("{id}/vote")]
         public async Task<IActionResult> CancelPostVote(Guid id)
         {
-            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             await _postService.CancelPostVoteAsync(id, userId);
             return Ok("Cancel Success");
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("{id}/vote")]
         public async Task<IActionResult> GetUserVote(Guid id)
         {
-            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // ví dụ 1 user giả
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var vote = await _postService.GetUserVoteAsync(id, userId);
             if (vote == null)
             {
                 return Ok(new { hasVoted = false, voteType = (string)null });
             }
             return Ok(new { hasVoted = true, voteType = vote.VoteType });
+        }
+
+        // Report endpoints
+        [Authorize]
+        [HttpPost("{id}/report")]
+        public async Task<IActionResult> ReportPost(Guid id, [FromBody] ReportRequestDTO reportRequest)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            
+            try
+            {
+                var createReportDto = new CreateReportDTO("post", id, reportRequest.Reason);
+                await _reportService.CreateReportAsync(createReportDto, userId);
+                
+                return Ok("Report submitted successfully");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        //[Authorize(Roles = "Admin")]
+        [HttpGet("flagged")]
+        public async Task<ActionResult<IEnumerable<PostDTO>>> GetFlaggedPosts([FromQuery] int minReportCount = 5)
+        {
+            var flaggedPosts = await _postService.GetFlaggedPostsAsync(minReportCount);
+            return Ok(flaggedPosts);
+        }
+
+        //[Authorize(Roles = "Admin")]
+        [HttpDelete("{id}/soft-delete")]
+        public async Task<IActionResult> SoftDeletePost(Guid id)
+        {
+            await _postService.SoftDeletePostAsync(id);
+            return Ok("Post soft deleted successfully");
+        }
+
+        [HttpGet("{id}/reports/count")]
+        public async Task<IActionResult> GetReportCount(Guid id)
+        {
+            var count = await _postService.GetReportCountAsync(id);
+            return Ok(new { reportCount = count });
         }
     }
 }
