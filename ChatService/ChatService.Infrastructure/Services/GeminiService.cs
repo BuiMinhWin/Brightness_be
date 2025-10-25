@@ -1,9 +1,13 @@
 using ChatService.Application.DTOs;
 using ChatService.Application.Interfaces;
+using ChatService.Domain.Entities;
+using ChatService.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -13,9 +17,12 @@ namespace ChatService.Infrastructure.Services
 {
     public class GeminiService : IGeminiService
     {
+        private readonly ChatDbContext _dbContext;
         private readonly string _apiKey;
         private readonly string _model;
         private readonly HttpClient _httpClient;
+        private readonly decimal _tokenPricePer1K;
+        private readonly ILogger<GeminiService> _logger;
         private const string SystemInstruction = @"You are BrightNest Assistant, an AI health and fitness coach. Your role is to:
 
 1. Provide personalized health, fitness, and nutrition advice based on user's data
@@ -36,7 +43,11 @@ namespace ChatService.Infrastructure.Services
 6. Keep responses concise but informative
 7. Always prioritize user safety - recommend consulting healthcare professionals for medical concerns";
 
-        public GeminiService(IConfiguration configuration, HttpClient httpClient)
+        public GeminiService(
+            IConfiguration configuration,
+            HttpClient httpClient,
+            ChatDbContext dbContext,
+            ILogger<GeminiService> logger)
         {
             _apiKey = configuration["GoogleAI:ApiKey"] 
                 ?? configuration["Gemini:ApiKey"]
@@ -46,6 +57,17 @@ namespace ChatService.Infrastructure.Services
 
             _model = configuration["GoogleAI:Model"] ?? "gemini-2.5-flash";
             _httpClient = httpClient;
+            _dbContext = dbContext;
+            _logger = logger;
+
+            var priceSetting = configuration["GoogleCloud:TokenPricePer1K"]
+                ?? configuration["GOOGLE_CLOUD__TOKEN_PRICE_PER_1K"]
+                ?? "0";
+
+            if (!decimal.TryParse(priceSetting, NumberStyles.Float, CultureInfo.InvariantCulture, out _tokenPricePer1K))
+            {
+                decimal.TryParse(priceSetting, NumberStyles.Float, CultureInfo.CurrentCulture, out _tokenPricePer1K);
+            }
         }
 
         public async Task<string> GenerateResponseAsync(string userMessage, UserContextDTO userContext)
@@ -155,6 +177,8 @@ namespace ChatService.Infrastructure.Services
 
                 var generatedText = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
+                await LogUsageAsync(result?.UsageMetadata, "generate_response", userContext);
+
                 return generatedText?.Trim() ?? "I apologize, but I couldn't generate a response. Please try again.";
             }
             catch (Exception ex)
@@ -220,6 +244,8 @@ Summary:";
 
                 var summaryText = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
+                await LogUsageAsync(result?.UsageMetadata, "summarize_conversation");
+
                 return summaryText?.Trim() ?? "Unable to generate summary.";
             }
             catch (Exception ex)
@@ -227,12 +253,65 @@ Summary:";
                 throw new InvalidOperationException($"Error summarizing conversation: {ex.Message}", ex);
             }
         }
+
+        private async Task LogUsageAsync(UsageMetadata? usageMetadata, string operation, UserContextDTO? userContext = null)
+        {
+            if (usageMetadata is null)
+            {
+                return;
+            }
+
+            var promptTokens = usageMetadata.PromptTokenCount ?? 0;
+            var candidateTokens = usageMetadata.CandidatesTokenCount ?? 0;
+            var totalTokens = usageMetadata.TotalTokenCount ?? (promptTokens + candidateTokens);
+            var estimatedCost = _tokenPricePer1K > 0
+                ? Math.Round((decimal)totalTokens / 1000m * _tokenPricePer1K, 6)
+                : 0m;
+
+            var userIdentifier = userContext?.UserId != Guid.Empty ? userContext?.UserId.ToString() : "anonymous";
+            var userLabel = !string.IsNullOrWhiteSpace(userContext?.FullName)
+                ? $"{userContext?.FullName} ({userIdentifier})"
+                : userIdentifier;
+
+            var message =
+                $"[Gemini Usage][{operation}] User={userLabel} PromptTokens={promptTokens} OutputTokens={candidateTokens} TotalTokens={totalTokens} EstimatedCost≈{estimatedCost} (per 1k={_tokenPricePer1K})";
+
+            _logger?.LogInformation(message);
+            Console.WriteLine(message);
+
+            try
+            {
+                var log = new AiUsageLog
+                {
+                    UserId = userContext?.UserId == Guid.Empty ? null : userContext?.UserId,
+                    SessionId = null,
+                    UserName = userContext?.FullName,
+                    Operation = operation,
+                    Model = _model,
+                    PromptTokens = promptTokens,
+                    CompletionTokens = candidateTokens,
+                    TotalTokens = totalTokens,
+                    EstimatedCost = estimatedCost,
+                };
+
+                _dbContext.AiUsageLogs.Add(log);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Failed to persist AI usage log.");
+            }
+        }
     }
 
     // Response models for Gemini API
     public class GeminiResponse
     {
+        [JsonProperty("candidates")]
         public GeminiCandidate[]? Candidates { get; set; }
+
+        [JsonProperty("usageMetadata")]
+        public UsageMetadata? UsageMetadata { get; set; }
     }
 
     public class GeminiCandidate
@@ -248,6 +327,18 @@ Summary:";
     public class GeminiPart
     {
         public string? Text { get; set; }
+    }
+
+    public class UsageMetadata
+    {
+        [JsonProperty("promptTokenCount")]
+        public int? PromptTokenCount { get; set; }
+
+        [JsonProperty("candidatesTokenCount")]
+        public int? CandidatesTokenCount { get; set; }
+
+        [JsonProperty("totalTokenCount")]
+        public int? TotalTokenCount { get; set; }
     }
 }
 
