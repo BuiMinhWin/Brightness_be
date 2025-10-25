@@ -13,7 +13,12 @@ namespace ChatService.Application.DTOs
         // New credit-based fields
         int? RemainingCredits = null,
         int? MonthlyCredits = null,
-        string? SubscriptionTier = null
+        string? SubscriptionTier = null,
+        // AI Agent fields
+        bool RequiresConfirmation = false,
+        string? PendingActionType = null,
+        Dictionary<string, string>? PendingActionParams = null,
+        ActionResult? ActionResult = null
     );
 }
 

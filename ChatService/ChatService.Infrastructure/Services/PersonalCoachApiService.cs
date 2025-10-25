@@ -337,6 +337,237 @@ namespace ChatService.Infrastructure.Services
                 _logger.LogError(ex, "Error deducting chat credit for user {UserId}", userId);
             }
         }
+
+        public async Task<List<object>> GetSchedulesAsync(Guid userId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_personalCoachApiUrl}/api/Schedule/user/{userId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get schedules for user {UserId}: {StatusCode}", 
+                        userId, response.StatusCode);
+                    return new List<object>();
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var schedules = JsonConvert.DeserializeObject<List<object>>(content);
+                return schedules ?? new List<object>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting schedules for user {UserId}", userId);
+                return new List<object>();
+            }
+        }
+
+        public async Task<object?> GetScheduleByIdAsync(Guid scheduleId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_personalCoachApiUrl}/api/Schedule/{scheduleId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get schedule {ScheduleId}: {StatusCode}", 
+                        scheduleId, response.StatusCode);
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<object>(content);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting schedule {ScheduleId}", scheduleId);
+                return null;
+            }
+        }
+
+        public async Task UpdateScheduleAsync(Guid scheduleId, Dictionary<string, object> updates)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(updates);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await _httpClient.PutAsync($"{_personalCoachApiUrl}/api/Schedule/{scheduleId}", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to update schedule {ScheduleId}: {StatusCode} - {Error}", 
+                        scheduleId, response.StatusCode, errorContent);
+                    throw new InvalidOperationException("Failed to update schedule");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating schedule {ScheduleId}", scheduleId);
+                throw;
+            }
+        }
+
+        public async Task DeleteScheduleAsync(Guid scheduleId)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_personalCoachApiUrl}/api/Schedule/{scheduleId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to delete schedule {ScheduleId}: {StatusCode} - {Error}", 
+                        scheduleId, response.StatusCode, errorContent);
+                    throw new InvalidOperationException("Failed to delete schedule");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting schedule {ScheduleId}", scheduleId);
+                throw;
+            }
+        }
+
+        public async Task<object?> GetUserProfileAsync(Guid userId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_personalCoachApiUrl}/api/UserProfile/{userId}/profile");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get profile for user {UserId}: {StatusCode}", 
+                        userId, response.StatusCode);
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<object>(content);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting profile for user {UserId}", userId);
+                return null;
+            }
+        }
+
+        public async Task UpdateUserProfileAsync(Guid userId, Dictionary<string, object> updates)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(updates);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await _httpClient.PutAsync($"{_personalCoachApiUrl}/api/UserProfile/{userId}/profile", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to update profile for user {UserId}: {StatusCode} - {Error}", 
+                        userId, response.StatusCode, errorContent);
+                    throw new InvalidOperationException("Failed to update profile");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task UpdateUserPreferencesAsync(Guid userId, Dictionary<string, object> updates)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(updates);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await _httpClient.PutAsync($"{_personalCoachApiUrl}/api/UserProfile/{userId}/preferences", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to update preferences for user {UserId}: {StatusCode} - {Error}", 
+                        userId, response.StatusCode, errorContent);
+                    throw new InvalidOperationException("Failed to update preferences");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating preferences for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<List<object>> GetHealthDataHistoryAsync(Guid userId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_personalCoachApiUrl}/api/UserProfile/{userId}/health-data");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get health data for user {UserId}: {StatusCode}", 
+                        userId, response.StatusCode);
+                    return new List<object>();
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var healthData = JsonConvert.DeserializeObject<List<object>>(content);
+                return healthData ?? new List<object>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting health data for user {UserId}", userId);
+                return new List<object>();
+            }
+        }
+
+        public async Task DeleteHealthDataAsync(Guid userId, Guid healthDataId)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_personalCoachApiUrl}/api/UserProfile/{userId}/health-data/{healthDataId}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to delete health data {HealthDataId} for user {UserId}: {StatusCode} - {Error}", 
+                        healthDataId, userId, response.StatusCode, errorContent);
+                    throw new InvalidOperationException("Failed to delete health data");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting health data {HealthDataId} for user {UserId}", healthDataId, userId);
+                throw;
+            }
+        }
+
+        public async Task<object?> GetProgressSummaryAsync(Guid userId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_personalCoachApiUrl}/api/Schedule/user/{userId}/progress");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get progress for user {UserId}: {StatusCode}", 
+                        userId, response.StatusCode);
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<object>(content);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting progress for user {UserId}", userId);
+                return null;
+            }
+        }
     }
 
     public class UserPreference

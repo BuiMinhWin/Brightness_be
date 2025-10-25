@@ -38,6 +38,9 @@ namespace ChatService.Infrastructure.DependencyInjection
             services.AddScoped<IUserContextCacheService, UserContextCacheService>();
             services.AddScoped<IProfileAnalysisService, ProfileAnalysisService>();
             
+            // Register AI Agent services
+            services.AddScoped<IActionExecutorService, ActionExecutorService>();
+            
             // Register PersonalCoachAPI service with HttpClient
             services.AddHttpClient<IPersonalCoachApiService, PersonalCoachApiService>();
             
