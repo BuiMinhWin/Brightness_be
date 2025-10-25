@@ -11,17 +11,20 @@ namespace PersonalCoachAPI.Presentation.Controllers
         private readonly IAIScheduleService _scheduleService;
         private readonly IManualScheduleService _manualScheduleService;
         private readonly IAIUsageLimitService _aiUsageLimitService;
+        private readonly IAICreditService _aiCreditService;
         private readonly ILogger<ScheduleController> _logger;
 
         public ScheduleController(
             IAIScheduleService scheduleService,
             IManualScheduleService manualScheduleService,
             IAIUsageLimitService aiUsageLimitService,
+            IAICreditService aiCreditService,
             ILogger<ScheduleController> logger)
         {
             _scheduleService = scheduleService;
             _manualScheduleService = manualScheduleService;
             _aiUsageLimitService = aiUsageLimitService;
+            _aiCreditService = aiCreditService;
             _logger = logger;
         }
 
@@ -42,9 +45,41 @@ namespace PersonalCoachAPI.Presentation.Controllers
                 _logger.LogWarning(ex, "AI generation limit reached for user");
                 return StatusCode(429, new { success = false, message = ex.Message, code = "AI_LIMIT_REACHED" });
             }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient") || ex.Message.Contains("credits"))
+            {
+                _logger.LogWarning(ex, "Insufficient credits for schedule generation");
+                return StatusCode(402, new { 
+                    success = false,
+                    message = ex.Message,
+                    code = "INSUFFICIENT_CREDITS"
+                });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating schedule");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        /// <summary>
+        /// Check for conflicts with existing workouts before generating new schedule
+        /// </summary>
+        [HttpPost("check-conflicts")]
+        public async Task<ActionResult<ScheduleConflictInfo>> CheckConflicts(
+            [FromBody] CheckConflictsRequest request)
+        {
+            try
+            {
+                var result = await _scheduleService.CheckScheduleConflictsAsync(
+                    request.UserId,
+                    request.StartDate,
+                    request.DurationDays,
+                    request.AvailableDays);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking schedule conflicts");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -271,7 +306,7 @@ namespace PersonalCoachAPI.Presentation.Controllers
         // =====================================================
 
         /// <summary>
-        /// Get AI usage limits for current user
+        /// Get AI usage limits for current user (Legacy - use ai-credit-balance instead)
         /// </summary>
         [HttpGet("ai-usage-limits/{userId}")]
         public async Task<ActionResult<AIUsageLimitsDTO>> GetAIUsageLimits(Guid userId)
@@ -285,6 +320,70 @@ namespace PersonalCoachAPI.Presentation.Controllers
             {
                 _logger.LogError(ex, "Error getting AI usage limits");
                 return StatusCode(500, new { success = false, message = "Failed to get usage limits" });
+            }
+        }
+
+        /// <summary>
+        /// Get AI credit balance for current user (NEW credit-based system)
+        /// </summary>
+        [HttpGet("ai-credit-balance/{userId}")]
+        public async Task<ActionResult<AICreditBalanceDTO>> GetAICreditBalance(Guid userId)
+        {
+            try
+            {
+                var balance = await _aiCreditService.GetCreditBalanceAsync(userId);
+                return Ok(new { success = true, data = balance });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting AI credit balance");
+                return StatusCode(500, new { success = false, message = "Failed to get credit balance" });
+            }
+        }
+
+        /// <summary>
+        /// Get AI credit usage history for current user
+        /// </summary>
+        [HttpGet("ai-credit-history/{userId}")]
+        public async Task<ActionResult<List<CreditHistoryItemDTO>>> GetAICreditHistory(Guid userId, [FromQuery] int limit = 50)
+        {
+            try
+            {
+                var history = await _aiCreditService.GetCreditHistoryAsync(userId, limit);
+                return Ok(new { success = true, data = history, count = history.Count });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting AI credit history");
+                return StatusCode(500, new { success = false, message = "Failed to get credit history" });
+            }
+        }
+
+        /// <summary>
+        /// Deduct credits for a specific AI operation (used by other microservices)
+        /// </summary>
+        [HttpPost("deduct-credit")]
+        public async Task<IActionResult> DeductCredit([FromBody] DeductCreditRequest request)
+        {
+            try
+            {
+                await _aiCreditService.DeductCreditsAsync(request.UserId, request.OperationType);
+                var balance = await _aiCreditService.GetCreditBalanceAsync(request.UserId);
+                return Ok(new { 
+                    success = true, 
+                    message = "Credit deducted successfully",
+                    remainingCredits = balance.RemainingCredits
+                });
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient credits"))
+            {
+                _logger.LogWarning(ex, "Insufficient credits for user {UserId}", request.UserId);
+                return StatusCode(402, new { success = false, message = ex.Message, code = "INSUFFICIENT_CREDITS" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deducting credit for user {UserId}", request.UserId);
+                return StatusCode(500, new { success = false, message = "Failed to deduct credit" });
             }
         }
 
@@ -340,8 +439,16 @@ namespace PersonalCoachAPI.Presentation.Controllers
             Guid scheduleId,
             [FromBody] AddCustomDayRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid AddCustomDayRequest model: {Errors}", 
+                    string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return BadRequest(new { success = false, message = "Invalid request data", errors = ModelState });
+            }
+            
             try
             {
+                _logger.LogInformation("Adding custom day to schedule {ScheduleId}, Date: {Date}", scheduleId, request.Date);
                 request = request with { ScheduleId = scheduleId };
                 var result = await _manualScheduleService.AddCustomWorkoutDayAsync(request);
                 return Ok(new { success = true, data = result });

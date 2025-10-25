@@ -128,7 +128,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 Id = Guid.NewGuid(),
                 ScheduleId = request.ScheduleId,
                 DayNumber = request.DayNumber,
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 DayType = "workout",
                 FocusArea = template.FocusArea,
                 Completed = false,
@@ -203,7 +203,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 Id = Guid.NewGuid(),
                 ScheduleId = request.ScheduleId,
                 DayNumber = request.DayNumber,
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 DayType = request.DayType,
                 FocusArea = request.FocusArea,
                 Completed = false,
@@ -219,12 +219,16 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     ScheduleDayId = scheduleDay.Id,
                     ExerciseName = customExercise.ExerciseName,
                     ExerciseCategory = customExercise.Category,
+                    TargetMuscles = "[]", // Default empty JSON array for PostgreSQL
                     Sets = customExercise.Sets,
                     Reps = customExercise.Reps,
                     RestSeconds = customExercise.RestSeconds,
                     OrderIndex = customExercise.OrderIndex,
                     Completed = false,
-                    Notes = customExercise.Notes,
+                    Notes = customExercise.Notes ?? "",
+                    VideoUrl = "",
+                    DurationSeconds = 0,
+                    WeightKg = 0,
                     CreatedAt = DateTime.UtcNow
                 };
 

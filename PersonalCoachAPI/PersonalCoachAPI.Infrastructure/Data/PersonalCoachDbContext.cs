@@ -26,6 +26,7 @@ namespace PersonalCoachAPI.Infrastructure.Data
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
         public DbSet<UserContextSnapshot> UserContextSnapshots => Set<UserContextSnapshot>();
         public DbSet<AIConversation> AIConversations => Set<AIConversation>();
+        public DbSet<BrokenLinkReport> BrokenLinkReports => Set<BrokenLinkReport>();
         
         // Shared tables from other services (read-only access)
         public DbSet<AuthUser> Users => Set<AuthUser>();
@@ -305,6 +306,23 @@ namespace PersonalCoachAPI.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
                     
                 entity.HasIndex(x => x.TemplateId);
+            });
+
+            // BrokenLinkReport configuration
+            modelBuilder.Entity<BrokenLinkReport>(entity =>
+            {
+                entity.ToTable("broken_link_reports");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.ExerciseName).IsRequired().HasMaxLength(200);
+                entity.Property(x => x.BrokenVideoUrl).IsRequired().HasMaxLength(500);
+                entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
+                entity.Property(x => x.AdminNotes).HasColumnType("text");
+                entity.Property(x => x.NewVideoUrl).HasMaxLength(500);
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasIndex(x => x.Status);
+                entity.HasIndex(x => x.ExerciseId);
+                entity.HasIndex(x => x.ReportedAt);
             });
         }
 

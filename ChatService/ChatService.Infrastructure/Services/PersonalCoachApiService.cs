@@ -1,4 +1,5 @@
 using ChatService.Application.DTOs;
+using ChatService.Application.Exceptions;
 using ChatService.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -62,6 +63,24 @@ namespace ChatService.Infrastructure.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
+                    
+                    // Handle 402 Payment Required (insufficient credits)
+                    if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
+                    {
+                        _logger.LogWarning("Insufficient credits for user {UserId}: {Error}", userId, errorContent);
+                        
+                        try
+                        {
+                            var errorJson = JObject.Parse(errorContent);
+                            var errorMessage = errorJson["message"]?.ToString() ?? "Insufficient AI credits";
+                            throw new InsufficientCreditsException(errorMessage);
+                        }
+                        catch (JsonException)
+                        {
+                            throw new InsufficientCreditsException("Insufficient AI credits to create schedule");
+                        }
+                    }
+                    
                     _logger.LogError("Failed to create schedule for user {UserId}: {StatusCode} - {Error}", 
                         userId, response.StatusCode, errorContent);
                     throw new HttpRequestException($"Failed to create schedule: {response.StatusCode}");
@@ -243,12 +262,93 @@ namespace ChatService.Infrastructure.Services
                 return new List<string> { "Bodyweight", "None" };
             }
         }
+
+        // ============== CREDIT SYSTEM INTEGRATION ==============
+
+        public async Task<AICreditBalanceDTO?> GetCreditBalanceAsync(Guid userId)
+        {
+            try
+            {
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, 
+                    $"{_personalCoachApiUrl}/api/schedule/ai-credit-balance/{userId}");
+                httpRequest.Headers.Add("X-Internal-Api-Key", _internalApiKey);
+
+                var response = await _httpClient.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get credit balance for user {UserId}: {StatusCode}", 
+                        userId, response.StatusCode);
+                    return null;
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<CreditBalanceResponse>(responseContent);
+
+                return result?.Data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting credit balance for user {UserId}", userId);
+                return null;
+            }
+        }
+
+        public async Task<bool> CanAffordChatMessageAsync(Guid userId)
+        {
+            var balance = await GetCreditBalanceAsync(userId);
+            if (balance == null)
+            {
+                _logger.LogWarning("Could not check credit balance for user {UserId}, defaulting to disallow", userId);
+                return false;
+            }
+
+            // Chat messages cost 1 credit
+            var chatMessageCost = balance.CreditCostBreakdown?.GetValueOrDefault("ChatMessage", 1) ?? 1;
+            return balance.RemainingCredits >= chatMessageCost;
+        }
+
+        public async Task DeductChatMessageCreditAsync(Guid userId)
+        {
+            try
+            {
+                var requestBody = new { userId, operationType = 4 }; // 4 = ChatMessage enum value
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{_personalCoachApiUrl}/api/schedule/deduct-credit");
+                httpRequest.Headers.Add("X-Internal-Api-Key", _internalApiKey);
+                httpRequest.Content = content;
+                
+                var response = await _httpClient.SendAsync(httpRequest);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to deduct chat credit for user {UserId}: {StatusCode} - {Error}", 
+                        userId, response.StatusCode, errorContent);
+                    return;
+                }
+                
+                _logger.LogInformation("Successfully deducted 1 credit for chat message from user {UserId}", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deducting chat credit for user {UserId}", userId);
+            }
+        }
     }
 
     public class UserPreference
     {
         public string? AvailableDays { get; set; }
         public string? EquipmentAvailable { get; set; }
+    }
+
+    public class CreditBalanceResponse
+    {
+        public bool Success { get; set; }
+        public AICreditBalanceDTO? Data { get; set; }
     }
 }
 
