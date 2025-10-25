@@ -360,6 +360,27 @@ namespace PersonalCoachAPI.Presentation.Controllers
         }
 
         /// <summary>
+        /// Check if user can afford a specific AI operation (used by other microservices)
+        /// </summary>
+        [HttpPost("can-afford")]
+        public async Task<IActionResult> CanAffordOperation([FromBody] CanAffordRequest request)
+        {
+            try
+            {
+                var canAfford = await _aiCreditService.CanAffordOperationAsync(request.UserId, request.OperationType);
+                return Ok(new { 
+                    success = true, 
+                    canAfford = canAfford
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking affordability for user {UserId}", request.UserId);
+                return StatusCode(500, new { success = false, message = "Failed to check affordability" });
+            }
+        }
+
+        /// <summary>
         /// Deduct credits for a specific AI operation (used by other microservices)
         /// </summary>
         [HttpPost("deduct-credit")]

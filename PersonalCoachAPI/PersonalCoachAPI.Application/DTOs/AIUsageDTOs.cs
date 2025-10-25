@@ -40,6 +40,11 @@ namespace PersonalCoachAPI.Application.DTOs
         Guid? RelatedScheduleId
     );
 
+    public record CanAffordRequest(
+        Guid UserId,
+        AIOperationType OperationType
+    );
+
     public record DeductCreditRequest(
         Guid UserId,
         AIOperationType OperationType

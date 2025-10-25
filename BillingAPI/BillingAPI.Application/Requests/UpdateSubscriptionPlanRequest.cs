@@ -20,6 +20,9 @@ namespace BillingAPI.Application.Requests
         [Range(1, 3650)]
         public int? DurationDays { get; set; }
 
+        [Range(0, 100000)]
+        public int? MonthlyAICredits { get; set; }
+
         public bool? IsActive { get; set; }
     }
 }
