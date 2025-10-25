@@ -23,6 +23,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
         private readonly ILogger<AIScheduleService> _logger;
         private readonly HttpClient _httpClient;
         private readonly IAIUsageLimitService _aiUsageLimitService;
+        private readonly IAICreditService _aiCreditService;
 
         public AIScheduleService(
             PersonalCoachDbContext context,
@@ -30,7 +31,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
             IConfiguration configuration,
             ILogger<AIScheduleService> logger,
             HttpClient httpClient,
-            IAIUsageLimitService aiUsageLimitService)
+            IAIUsageLimitService aiUsageLimitService,
+            IAICreditService aiCreditService)
         {
             _context = context;
             _ragService = ragService;
@@ -38,26 +40,29 @@ namespace PersonalCoachAPI.Infrastructure.Services
             _logger = logger;
             _httpClient = httpClient;
             _aiUsageLimitService = aiUsageLimitService;
+            _aiCreditService = aiCreditService;
         }
 
         public async Task<WorkoutScheduleResponse> GenerateScheduleAsync(GenerateScheduleRequest request)
         {
-            // Check AI usage limits before generating
-            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(request.UserId);
-            if (!usageLimits.CanGenerate)
+            // Check AI credit balance before generating
+            var canAfford = await _aiCreditService.CanAffordOperationAsync(request.UserId, AIOperationType.ScheduleGeneration);
+            if (!canAfford)
             {
+                var balance = await _aiCreditService.GetCreditBalanceAsync(request.UserId);
+                var operationCost = _aiCreditService.GetOperationCost(AIOperationType.ScheduleGeneration);
                 throw new InvalidOperationException(
-                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
-                    $"Resets in {usageLimits.DaysUntilReset} days. " +
-                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+                    $"Insufficient AI credits. Schedule generation requires {operationCost} credits, but you only have {balance.RemainingCredits} remaining. " +
+                    $"Credits reset in {balance.DaysUntilReset} days.");
             }
 
             // Use transaction to ensure atomicity
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("Generating workout schedule for user {UserId} (AI {Used}/{Limit})", 
-                    request.UserId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
+                var balance = await _aiCreditService.GetCreditBalanceAsync(request.UserId);
+                _logger.LogInformation("Generating workout schedule for user {UserId} (Credits: {Remaining}/{Monthly})", 
+                    request.UserId, balance.RemainingCredits, balance.MonthlyCredits);
 
                 // Archive all existing active schedules for this user
                 var existingSchedules = await _context.WorkoutSchedules
@@ -244,8 +249,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 _context.WorkoutSchedules.Add(schedule);
                 await _context.SaveChangesAsync();
                 
-                // Track AI usage
-                await _aiUsageLimitService.TrackGenerationAsync(request.UserId, "schedule_create", schedule.Id);
+                // Deduct AI credits for schedule generation
+                await _aiCreditService.DeductCreditsAsync(request.UserId, AIOperationType.ScheduleGeneration, schedule.Id);
                 
                 // Commit transaction
                 await transaction.CommitAsync();
@@ -680,20 +685,22 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 throw new Exception("Schedule not found");
             }
 
-            // Check AI usage limits before regenerating
-            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(currentSchedule.UserId);
-            if (!usageLimits.CanGenerate)
+            // Check AI credit balance before regenerating
+            var canAfford = await _aiCreditService.CanAffordOperationAsync(currentSchedule.UserId, AIOperationType.ScheduleRegeneration);
+            if (!canAfford)
             {
+                var balance = await _aiCreditService.GetCreditBalanceAsync(currentSchedule.UserId);
+                var operationCost = _aiCreditService.GetOperationCost(AIOperationType.ScheduleRegeneration);
                 throw new InvalidOperationException(
-                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
-                    $"Resets in {usageLimits.DaysUntilReset} days. " +
-                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+                    $"Insufficient AI credits. Schedule regeneration requires {operationCost} credits, but you only have {balance.RemainingCredits} remaining. " +
+                    $"Credits reset in {balance.DaysUntilReset} days.");
             }
 
             try
             {
-                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (AI {Used}/{Limit})", 
-                    request.FromDayNumber, request.CurrentScheduleId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
+                var balance = await _aiCreditService.GetCreditBalanceAsync(currentSchedule.UserId);
+                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (Credits: {Remaining}/{Monthly})", 
+                    request.FromDayNumber, request.CurrentScheduleId, balance.RemainingCredits, balance.MonthlyCredits);
 
                 // Reload schedule with includes
                 currentSchedule = await _context.WorkoutSchedules
@@ -939,8 +946,8 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 // Save new schedule
                 _context.WorkoutSchedules.Add(newSchedule);
                 
-                // Track AI usage for regeneration
-                await _aiUsageLimitService.TrackGenerationAsync(currentSchedule.UserId, "schedule_regenerate", newSchedule.Id);
+                // Deduct AI credits for schedule regeneration
+                await _aiCreditService.DeductCreditsAsync(currentSchedule.UserId, AIOperationType.ScheduleRegeneration, newSchedule.Id);
 
                 // Log edit history
                 var editHistory = new ScheduleEditHistory

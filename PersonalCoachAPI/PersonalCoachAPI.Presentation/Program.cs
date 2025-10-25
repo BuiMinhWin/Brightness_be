@@ -119,6 +119,7 @@ builder.Services.AddScoped<IRAGService, RAGService>();
 builder.Services.AddScoped<IAIScheduleService, AIScheduleService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IAIUsageLimitService, AIUsageLimitService>();
+builder.Services.AddScoped<IAICreditService, AICreditService>(); // New credit service
 builder.Services.AddScoped<IManualScheduleService, ManualScheduleService>();
 builder.Services.AddScoped<IExerciseLibraryService, ExerciseLibraryService>();
 builder.Services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();

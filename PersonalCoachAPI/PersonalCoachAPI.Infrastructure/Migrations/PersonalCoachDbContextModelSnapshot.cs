@@ -75,12 +75,18 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
+                    b.Property<int>("CreditCost")
+                        .HasColumnType("integer");
+
                     b.Property<string>("GenerationType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
                     b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OperationType")
                         .HasColumnType("integer");
 
                     b.Property<Guid?>("RelatedScheduleId")

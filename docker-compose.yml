@@ -265,7 +265,12 @@ services:
       MESSAGE_LIMITS_PREMIUM_MONTHLY: ${MESSAGE_LIMITS_PREMIUM_MONTHLY:-1000}
       CONVERSATION_SUMMARIZATION_THRESHOLD: ${CONVERSATION_SUMMARIZATION_THRESHOLD:-10}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      # Service URLs
+      Services__AuthenticationAPI: http://authentication-api:8080/api/authentication
+      Services__BillingAPI: http://billing-api:8080/api/billing
       Services__PersonalCoachAPI: http://personal-coach-api:8080
+      # Credit System Feature Flag
+      FeatureFlags__UseCreditSystem: ${FEATURE_FLAGS__USE_CREDIT_SYSTEM:-true}
     depends_on:
       postgres:
         condition: service_healthy
@@ -290,6 +295,9 @@ services:
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
       Swagger__JsonEndpoint: /ai-ocr/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /ai-ocr
+      # Credit System Integration
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      Services__PersonalCoachAPI: http://personal-coach-api:8080
       
     depends_on:
       postgres:
@@ -315,6 +323,15 @@ services:
       Swagger__JsonEndpoint: /coach/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /coach
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      # AI Credit System Configuration
+      AICredits__FreeMonthlyCredits: ${AI_CREDITS__FREE_MONTHLY_CREDITS:-20}
+      AICredits__BasicMonthlyCredits: ${AI_CREDITS__BASIC_MONTHLY_CREDITS:-500}
+      AICredits__PremiumMonthlyCredits: ${AI_CREDITS__PREMIUM_MONTHLY_CREDITS:-1200}
+      AICredits__OperationCosts__ScheduleGeneration: ${AI_CREDITS__OPERATION_COSTS__SCHEDULE_GENERATION:-10}
+      AICredits__OperationCosts__ScheduleRegeneration: ${AI_CREDITS__OPERATION_COSTS__SCHEDULE_REGENERATION:-10}
+      AICredits__OperationCosts__DayModification: ${AI_CREDITS__OPERATION_COSTS__DAY_MODIFICATION:-5}
+      AICredits__OperationCosts__OCRProcessing: ${AI_CREDITS__OPERATION_COSTS__OCR_PROCESSING:-5}
+      AICredits__OperationCosts__ChatMessage: ${AI_CREDITS__OPERATION_COSTS__CHAT_MESSAGE:-1}
     depends_on:
       postgres:
         condition: service_healthy
