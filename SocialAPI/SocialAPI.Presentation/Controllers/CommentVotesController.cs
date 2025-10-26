@@ -19,20 +19,22 @@ namespace SocialAPI.Presentation.Controllers
             _commentService = commentService;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> VoteComment(Guid commentId, [FromBody] CommentVoteDTO voteDto)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
             await _commentService.VoteCommentAsync(commentId, userId, voteDto.VoteType);
             return Ok("React success");
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpDelete]
         public async Task<IActionResult> CancelCommentVote(Guid commentId)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            //var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
             await _commentService.CancelCommentVoteAsync(commentId, userId);
             return Ok("Cancel success");
         }

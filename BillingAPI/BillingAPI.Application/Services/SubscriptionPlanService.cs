@@ -45,20 +45,11 @@ namespace BillingAPI.Application.Services
                 Price = request.Price,
                 Currency = request.Currency.ToUpperInvariant(),
                 DurationDays = request.DurationDays,
-                MonthlyAICredits = request.MonthlyAICredits,
                 IsActive = request.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
 
-            var response = await _repository.CreateAsync(plan);
-            if (!response.Flag)
-            {
-                return response;
-            }
-
-            // Return the created plan as data
-            var planDto = MapToDto(plan);
-            return new Response(true, "Subscription plan created successfully", planDto);
+            return await _repository.CreateAsync(plan);
         }
 
         public async Task<Response> UpdateAsync(Guid id, UpdateSubscriptionPlanRequest request)
@@ -100,11 +91,6 @@ namespace BillingAPI.Application.Services
                 plan.DurationDays = request.DurationDays.Value;
             }
 
-            if (request.MonthlyAICredits.HasValue)
-            {
-                plan.MonthlyAICredits = request.MonthlyAICredits.Value;
-            }
-
             if (request.IsActive.HasValue)
             {
                 plan.IsActive = request.IsActive.Value;
@@ -112,15 +98,7 @@ namespace BillingAPI.Application.Services
 
             plan.UpdatedAt = DateTime.UtcNow;
 
-            var response = await _repository.UpdateAsync(plan);
-            if (!response.Flag)
-            {
-                return response;
-            }
-
-            // Return the updated plan as data
-            var planDto = MapToDto(plan);
-            return new Response(true, "Subscription plan updated successfully", planDto);
+            return await _repository.UpdateAsync(plan);
         }
 
         public async Task<Response> DeleteAsync(Guid id)
@@ -141,7 +119,6 @@ namespace BillingAPI.Application.Services
             plan.Price,
             plan.Currency,
             plan.DurationDays,
-            plan.MonthlyAICredits,
             plan.IsActive,
             plan.CreatedAt,
             plan.UpdatedAt

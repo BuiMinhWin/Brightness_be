@@ -12,18 +12,15 @@ namespace AIOCRService.Presentation.Controllers
     {
         private readonly IOCRService _ocrService;
         private readonly IUserHealthDataService _healthDataService;
-        private readonly IPersonalCoachApiService _personalCoachApiService;
         private readonly ILogger<OCRController> _logger;
 
         public OCRController(
             IOCRService ocrService, 
             IUserHealthDataService healthDataService,
-            IPersonalCoachApiService personalCoachApiService,
             ILogger<OCRController> logger)
         {
             _ocrService = ocrService;
             _healthDataService = healthDataService;
-            _personalCoachApiService = personalCoachApiService;
             _logger = logger;
         }
 
@@ -135,18 +132,6 @@ namespace AIOCRService.Presentation.Controllers
                     return BadRequest("No image file provided");
                 }
 
-                // Check if user has sufficient credits for OCR processing
-                var canAfford = await _personalCoachApiService.CanAffordOCRProcessingAsync(request.UserId);
-                if (!canAfford)
-                {
-                    _logger.LogWarning("Insufficient credits for OCR processing for user {UserId}", request.UserId);
-                    return StatusCode(402, new { 
-                        success = false,
-                        message = "Insufficient AI credits. OCR processing requires 5 credits. Please upgrade your subscription for more credits.",
-                        code = "INSUFFICIENT_CREDITS"
-                    });
-                }
-
                 // Convert file to base64
                 string imageBase64;
                 using (var memoryStream = new MemoryStream())
@@ -168,20 +153,7 @@ namespace AIOCRService.Presentation.Controllers
 
                 // Process directly with AI Vision
                 var result = await _ocrService.ProcessImageDirectlyWithAIAsync(ocrRequest.Id, request.Prompt);
-                
-                // Deduct credits after successful processing
-                await _personalCoachApiService.DeductOCRProcessingCreditAsync(request.UserId);
-                
                 return Ok(result);
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient credits"))
-            {
-                _logger.LogWarning(ex, "Insufficient credits for OCR processing for user {UserId}", request.UserId);
-                return StatusCode(402, new { 
-                    success = false,
-                    message = "Insufficient AI credits for OCR processing. Please upgrade your subscription.",
-                    code = "INSUFFICIENT_CREDITS"
-                });
             }
             catch (Exception ex)
             {

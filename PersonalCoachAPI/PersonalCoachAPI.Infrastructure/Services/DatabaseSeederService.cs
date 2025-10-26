@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PersonalCoachAPI.Domain.Entities;
 using PersonalCoachAPI.Infrastructure.Data;
@@ -36,27 +35,10 @@ public class DatabaseSeederService
 
     private async Task SeedExerciseLibraryAsync()
     {
-        // Check if exercises exist
-        var existingCount = await _dbContext.ExerciseLibrary.CountAsync();
-        
-        if (existingCount > 0)
+        // Check if already seeded
+        if (_dbContext.ExerciseLibrary.Any())
         {
-            // Update existing exercises to be active (fix for initial seeding bug)
-            var inactiveExercises = await _dbContext.ExerciseLibrary
-                .Where(e => !e.IsActive)
-                .ToListAsync();
-                
-            if (inactiveExercises.Any())
-            {
-                _logger.LogInformation("Activating {Count} inactive exercises", inactiveExercises.Count);
-                foreach (var exercise in inactiveExercises)
-                {
-                    exercise.IsActive = true;
-                }
-                await _dbContext.SaveChangesAsync();
-            }
-            
-            _logger.LogInformation("Exercise library already seeded ({Count} exercises), skipping...", existingCount);
+            _logger.LogInformation("Exercise library already seeded, skipping...");
             return;
         }
 
@@ -103,7 +85,6 @@ public class DatabaseSeederService
                 VideoUrl = dto.VideoUrl ?? "",
                 ImageUrl = dto.ImageUrl ?? "",
                 CaloriesPerMinute = dto.CaloriesPerMinute.HasValue ? (int?)Convert.ToInt32(dto.CaloriesPerMinute.Value) : null,
-                IsActive = true, // Make sure exercises are active by default
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 EmbeddingVector = null // Will be generated later by embedding service

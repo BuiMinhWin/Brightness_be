@@ -4,7 +4,6 @@ using SocialAPI.Domain.Entities;
 using SocialAPI.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SocialAPI.Infrastructure.Repositories
@@ -49,27 +48,6 @@ namespace SocialAPI.Infrastructure.Repositories
                 _context.Reports.Remove(report);
                 await _context.SaveChangesAsync();
             }
-        }
-
-        public async Task<int> GetReportCountForTargetAsync(Guid targetId, string targetType)
-        {
-            return await _context.Reports
-                .Where(r => r.TargetId == targetId && r.TargetType == targetType && r.Status == "pending")
-                .CountAsync();
-        }
-
-        public async Task<IEnumerable<Report>> GetReportsByTargetAsync(Guid targetId, string targetType)
-        {
-            return await _context.Reports
-                .Where(r => r.TargetId == targetId && r.TargetType == targetType)
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<Report?> GetReportByUserAndTargetAsync(Guid reporterId, Guid targetId, string targetType)
-        {
-            return await _context.Reports
-                .FirstOrDefaultAsync(r => r.ReporterId == reporterId && r.TargetId == targetId && r.TargetType == targetType && r.Status == "pending");
         }
     }
 }

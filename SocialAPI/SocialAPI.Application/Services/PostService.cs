@@ -8,13 +8,11 @@ namespace SocialAPI.Application.Services
     {
         private readonly IPostRepository _postRepository;
         private readonly ICommentRepository _commentRepository;
-        private readonly IReportRepository _reportRepository;
 
-        public PostService(IPostRepository postRepository, ICommentRepository commentRepository, IReportRepository reportRepository)
+        public PostService(IPostRepository postRepository, ICommentRepository commentRepository)
         {
             _postRepository = postRepository;
             _commentRepository = commentRepository;
-            _reportRepository = reportRepository;
         }
 
         public async Task<PostDTO> CreatePostAsync(PostDTO postDto)
@@ -31,7 +29,7 @@ namespace SocialAPI.Application.Services
             };
 
             var createdPost = await _postRepository.CreatePostAsync(post);
-            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0, 0, 0, null);
+            return new PostDTO(createdPost.Id, createdPost.UserId, createdPost.Title, createdPost.Content, createdPost.Visibility, createdPost.Status, createdPost.CreatedAt, createdPost.UpdatedAt, 0, 0, 0);
         }
 
         public async Task DeletePostAsync(Guid id)
@@ -39,32 +37,16 @@ namespace SocialAPI.Application.Services
             await _postRepository.DeletePostAsync(id);
         }
 
-        public async Task SoftDeletePostAsync(Guid id)
-        {
-            await _postRepository.SoftDeletePostAsync(id);
-        }
-
-        public async Task<PostDTO> GetPostByIdAsync(Guid id, Guid? userId = null)
+        public async Task<PostDTO> GetPostByIdAsync(Guid id)
         {
             var post = await _postRepository.GetPostByIdAsync(id);
             if (post == null) return null;
             var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
             var commentCount = await CalculateCommentCount(post.Id);
-            
-            // Get user vote status if userId is provided
-            UserVoteStatusDTO? userVoteStatus = null;
-            if (userId.HasValue)
-            {
-                var userVote = await _postRepository.GetPostVoteAsync(post.Id, userId.Value);
-                userVoteStatus = userVote != null 
-                    ? new UserVoteStatusDTO(true, userVote.VoteType)
-                    : new UserVoteStatusDTO(false, null);
-            }
-            
-            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount, userVoteStatus);
+            return new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount);
         }
 
-        public async Task<IEnumerable<PostDTO>> GetPostsAsync(Guid? userId = null)
+        public async Task<IEnumerable<PostDTO>> GetPostsAsync()
         {
             var posts = await _postRepository.GetPostsAsync();
             var postDtos = new List<PostDTO>();
@@ -72,18 +54,7 @@ namespace SocialAPI.Application.Services
             {
                 var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
                 var commentCount = await CalculateCommentCount(post.Id);
-                
-                // Get user vote status if userId is provided
-                UserVoteStatusDTO? userVoteStatus = null;
-                if (userId.HasValue)
-                {
-                    var userVote = await _postRepository.GetPostVoteAsync(post.Id, userId.Value);
-                    userVoteStatus = userVote != null 
-                        ? new UserVoteStatusDTO(true, userVote.VoteType)
-                        : new UserVoteStatusDTO(false, null);
-                }
-                
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount, userVoteStatus));
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount));
             }
             return postDtos;
         }
@@ -114,8 +85,7 @@ namespace SocialAPI.Application.Services
                 post.UpdatedAt,
                 reactionCount,
                 dislikeCount,
-                commentCount,
-                null
+                commentCount
             );
         }
 
@@ -146,8 +116,7 @@ namespace SocialAPI.Application.Services
                 post.UpdatedAt,
                 reactionCount,
                 dislikeCount,
-                commentCount,
-                null
+                commentCount
             );
         }
 
@@ -230,7 +199,7 @@ namespace SocialAPI.Application.Services
             {
                 var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
                 var commentCount = await CalculateCommentCount(post.Id);
-                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount, null));
+                postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount));
             }
             return postDtos;
         }
@@ -239,43 +208,6 @@ namespace SocialAPI.Application.Services
         {
             var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
             return comments.Count();
-        }
-
-        public async Task<IEnumerable<PostDTO>> GetFlaggedPostsAsync(int minReportCount = 5)
-        {
-            var posts = await _postRepository.GetPostsAsync();
-            var flaggedPosts = new List<PostDTO>();
-
-            foreach (var post in posts)
-            {
-                var reportCount = await _reportRepository.GetReportCountForTargetAsync(post.Id, "post");
-                if (reportCount >= minReportCount)
-                {
-                    var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
-                    var commentCount = await CalculateCommentCount(post.Id);
-                    flaggedPosts.Add(new PostDTO(
-                        post.Id, 
-                        post.UserId, 
-                        post.Title, 
-                        post.Content, 
-                        post.Visibility, 
-                        post.Status, 
-                        post.CreatedAt, 
-                        post.UpdatedAt, 
-                        reactionCount, 
-                        dislikeCount, 
-                        commentCount,
-                        null
-                    ));
-                }
-            }
-
-            return flaggedPosts;
-        }
-
-        public async Task<int> GetReportCountAsync(Guid postId)
-        {
-            return await _reportRepository.GetReportCountForTargetAsync(postId, "post");
         }
     }
 }

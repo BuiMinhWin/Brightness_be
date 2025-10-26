@@ -22,33 +22,21 @@ namespace SocialAPI.Presentation.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CommentDTO>>> GetComments(Guid postId)
         {
-            // Try to get userId from JWT claims (optional - for anonymous browsing support)
-            Guid? userId = null;
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedUserId))
-            {
-                userId = parsedUserId;
-            }
-
-            var comments = await _commentService.GetCommentsByPostIdAsync(postId, userId);
+            var comments = await _commentService.GetCommentsByPostIdAsync(postId);
             return Ok(comments);
         }
 
         [HttpPost]
         public async Task<ActionResult<CommentDTO>> CreateComment(Guid postId, CreateCommentDTO createCommentDto)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized("User not authenticated.");
-            }
-            var userId = Guid.Parse(userIdClaim.Value);
-            
-            // Extract username from JWT claims
-            var userNameClaim = User.FindFirst(ClaimTypes.Name) ?? User.FindFirst("preferred_username");
-            var userName = userNameClaim?.Value;
-            
-            var comment = await _commentService.CreateCommentAsync(postId, createCommentDto, userId, userName);
+            //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            //if (userIdClaim == null)
+            //{
+            //    return Unauthorized("User not authenticated.");
+            //}
+            //var userId = Guid.Parse(userIdClaim.Value);
+            var userId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"); // dùng để test tạm thời
+            var comment = await _commentService.CreateCommentAsync(postId, createCommentDto, userId);
             return CreatedAtAction(nameof(GetComment), new { postId = postId, commentId = comment.Id }, comment);
         }
 
