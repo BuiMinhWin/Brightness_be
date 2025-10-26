@@ -2,10 +2,10 @@
 using BillingAPI.Application.Services;
 using BillingAPI.Infrastructure.Data;
 using BillingAPI.Infrastructure.Email;
-using BillingAPI.Infrastructure.Services;
 using BillingAPI.Infrastructure.PaymentGateways;
 using BillingAPI.Infrastructure.PaymentGateways.Options;
 using BillingAPI.Infrastructure.Repositories;
+using BillingAPI.Infrastructure.Services;
 using BrightNess.Library.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
