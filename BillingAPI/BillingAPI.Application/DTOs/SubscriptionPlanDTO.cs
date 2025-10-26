@@ -10,7 +10,6 @@ namespace BillingAPI.Application.DTOs
         decimal Price,
         string Currency,
         int DurationDays,
-        int MonthlyAICredits,
         bool IsActive,
         DateTime CreatedAt,
         DateTime? UpdatedAt

@@ -11,25 +11,21 @@ namespace ChatService.Application.Services
     {
         private readonly IChatMessageRepository _messageRepository;
         private readonly ISubscriptionService _subscriptionService;
-        private readonly IPersonalCoachApiService _personalCoachApiService;
         private readonly ILogger<MessageLimitService> _logger;
         private readonly IConfiguration _configuration;
         private readonly int _freeDailyLimit;
         private readonly int _freeMonthlyLimit;
         private readonly int _premiumDailyLimit;
         private readonly int _premiumMonthlyLimit;
-        private readonly bool _useCreditSystem;
 
         public MessageLimitService(
             IChatMessageRepository messageRepository,
             ISubscriptionService subscriptionService,
-            IPersonalCoachApiService personalCoachApiService,
             ILogger<MessageLimitService> logger,
             IConfiguration configuration)
         {
             _messageRepository = messageRepository;
             _subscriptionService = subscriptionService;
-            _personalCoachApiService = personalCoachApiService;
             _logger = logger;
             _configuration = configuration;
 
@@ -48,8 +44,6 @@ namespace ChatService.Application.Services
             _premiumMonthlyLimit = int.Parse(configuration["MessageLimits:PremiumMonthly"] 
                 ?? configuration["MESSAGE_LIMITS_PREMIUM_MONTHLY"] 
                 ?? "1000");
-
-            _useCreditSystem = bool.Parse(configuration["FeatureFlags:UseCreditSystem"] ?? "true");
         }
 
         public async Task<MessageLimitsDTO> GetMessageLimitsAsync(Guid userId)
@@ -116,43 +110,12 @@ namespace ChatService.Application.Services
 
         public async Task<bool> CanSendMessageAsync(Guid userId)
         {
-            // Use credit system if enabled
-            if (_useCreditSystem)
-            {
-                try
-                {
-                    var canAfford = await _personalCoachApiService.CanAffordChatMessageAsync(userId);
-                    _logger.LogInformation("Credit check for user {UserId}: {CanAfford}", userId, canAfford);
-                    return canAfford;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error checking credit balance for user {UserId}, falling back to legacy limits", userId);
-                    // Fall back to legacy limits on error
-                }
-            }
-
-            // Legacy message limit system
             var limits = await GetMessageLimitsAsync(userId);
             return !limits.IsLimitReached;
         }
 
         public async Task IncrementMessageCountAsync(Guid userId)
         {
-            // Deduct credit if using credit system
-            if (_useCreditSystem)
-            {
-                try
-                {
-                    await _personalCoachApiService.DeductChatMessageCreditAsync(userId);
-                    _logger.LogInformation("Deducted 1 credit for chat message from user {UserId}", userId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error deducting credit for user {UserId}", userId);
-                }
-            }
-
             // The count is incremented automatically when a message is added
             // This method is here for potential future use (e.g., caching)
             await Task.CompletedTask;

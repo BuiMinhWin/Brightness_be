@@ -23,7 +23,6 @@ namespace ChatService.Application.Services
         private readonly IInputSanitizationService _inputSanitizationService;
         private readonly IResponseValidationService _responseValidationService;
         private readonly IUserContextCacheService _contextCacheService;
-        private readonly IPersonalCoachApiService _personalCoachApiService;
         private readonly ILogger<ConversationService> _logger;
         private readonly int _summarizationThreshold;
 
@@ -38,7 +37,6 @@ namespace ChatService.Application.Services
             IInputSanitizationService inputSanitizationService,
             IResponseValidationService responseValidationService,
             IUserContextCacheService contextCacheService,
-            IPersonalCoachApiService personalCoachApiService,
             ILogger<ConversationService> logger,
             IConfiguration configuration)
         {
@@ -52,7 +50,6 @@ namespace ChatService.Application.Services
             _inputSanitizationService = inputSanitizationService;
             _responseValidationService = responseValidationService;
             _contextCacheService = contextCacheService;
-            _personalCoachApiService = personalCoachApiService;
             _logger = logger;
             
             _summarizationThreshold = int.Parse(
@@ -102,20 +99,14 @@ namespace ChatService.Application.Services
             {
                 _logger.LogWarning("Unsafe intent detected for user {UserId}: {Message}", 
                     userId, sanitizedMessage.Substring(0, Math.Min(100, sanitizedMessage.Length)));
-                
-                var limitsForUnsafe = await _messageLimitService.GetMessageLimitsAsync(userId);
-                var creditBalanceForUnsafe = await _personalCoachApiService.GetCreditBalanceAsync(userId);
                     
                 return new SendMessageResponse(
                     SessionId: sessionId,
                     Message: "I can only help with fitness and health-related requests.",
                     Role: "ai",
-                    RemainingMessages: limitsForUnsafe.RemainingDaily,
-                    DailyLimit: limitsForUnsafe.DailyLimit,
-                    CreatedAt: DateTime.UtcNow,
-                    RemainingCredits: creditBalanceForUnsafe?.RemainingCredits,
-                    MonthlyCredits: creditBalanceForUnsafe?.MonthlyCredits,
-                    SubscriptionTier: creditBalanceForUnsafe?.SubscriptionTier
+                    RemainingMessages: (await _messageLimitService.GetMessageLimitsAsync(userId)).RemainingDaily,
+                    DailyLimit: (await _messageLimitService.GetMessageLimitsAsync(userId)).DailyLimit,
+                    CreatedAt: DateTime.UtcNow
                 );
             }
 
@@ -155,14 +146,8 @@ namespace ChatService.Application.Services
             // Check if summarization is needed
             await CheckAndSummarizeIfNeededAsync(sessionId);
 
-            // Deduct credit for chat message
-            await _messageLimitService.IncrementMessageCountAsync(userId);
-
-            // Get updated limits (legacy)
+            // Get updated limits
             var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
-            
-            // Get credit balance (new credit system)
-            var creditBalance = await _personalCoachApiService.GetCreditBalanceAsync(userId);
 
             return new SendMessageResponse(
                 SessionId: sessionId,
@@ -170,10 +155,7 @@ namespace ChatService.Application.Services
                 Role: "ai",
                 RemainingMessages: limits.RemainingDaily,
                 DailyLimit: limits.DailyLimit,
-                CreatedAt: aiMessage.CreatedAt,
-                RemainingCredits: creditBalance?.RemainingCredits,
-                MonthlyCredits: creditBalance?.MonthlyCredits,
-                SubscriptionTier: creditBalance?.SubscriptionTier
+                CreatedAt: aiMessage.CreatedAt
             );
         }
         

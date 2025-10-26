@@ -1,3 +1,4 @@
+using Amazon.Extensions.Configuration.SystemsManager;
 using BrightNess.Library.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,12 @@ using System.Linq;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Console.WriteLine($"[Personal Coach API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+if (!builder.Environment.IsDevelopment())
+{
+    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+    builder.Configuration.AddSystemsManager(parameterStorePath);
+}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -119,11 +125,9 @@ builder.Services.AddScoped<IRAGService, RAGService>();
 builder.Services.AddScoped<IAIScheduleService, AIScheduleService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IAIUsageLimitService, AIUsageLimitService>();
-builder.Services.AddScoped<IAICreditService, AICreditService>(); // New credit service
 builder.Services.AddScoped<IManualScheduleService, ManualScheduleService>();
 builder.Services.AddScoped<IExerciseLibraryService, ExerciseLibraryService>();
 builder.Services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
-builder.Services.AddScoped<IBrokenLinkReportService, BrokenLinkReportService>();
 
 // Add Repositories
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();

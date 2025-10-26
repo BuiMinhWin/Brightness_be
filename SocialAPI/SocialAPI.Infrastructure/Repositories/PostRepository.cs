@@ -31,18 +31,6 @@ namespace SocialAPI.Infrastructure.Repositories
             }
         }
 
-        public async Task SoftDeletePostAsync(Guid id)
-        {
-            var post = await _context.Posts.FindAsync(id);
-            if (post != null)
-            {
-                post.IsDeleted = true;
-                post.DeletedAt = DateTime.UtcNow;
-                _context.Entry(post).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-            }
-        }
-
         public async Task<Post> GetPostByIdAsync(Guid id)
         {
             return await _context.Posts.FindAsync(id);
@@ -50,7 +38,7 @@ namespace SocialAPI.Infrastructure.Repositories
 
         public async Task<IEnumerable<Post>> GetPostsAsync()
         {
-            return await _context.Posts.Where(p => !p.IsDeleted).ToListAsync();
+            return await _context.Posts.ToListAsync();
         }
 
         public async Task UpdatePostAsync(Post post)

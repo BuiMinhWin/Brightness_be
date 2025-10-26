@@ -30,7 +30,6 @@ namespace BillingAPI.Infrastructure.Data
             entity.Property(plan => plan.Price).HasColumnType("numeric(12,2)");
             entity.Property(plan => plan.Currency).IsRequired().HasMaxLength(10);
             entity.Property(plan => plan.DurationDays).HasDefaultValue(30);
-            entity.Property(plan => plan.MonthlyAICredits).HasDefaultValue(0);
             entity.Property(plan => plan.IsActive).HasDefaultValue(true);
             entity.Property(plan => plan.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
             entity.HasIndex(plan => plan.Name).IsUnique();

@@ -130,7 +130,7 @@ namespace PersonalCoachAPI.Presentation.Controllers
         }
 
         /// <summary>
-        /// Get AI exercise suggestions (uses real AI and counts toward monthly quota)
+        /// Get AI exercise suggestions (doesn't consume AI quota)
         /// </summary>
         [HttpGet("suggestions")]
         public async Task<IActionResult> GetAISuggestions(
@@ -140,15 +140,7 @@ namespace PersonalCoachAPI.Presentation.Controllers
         {
             try
             {
-                // Get authenticated user ID
-                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized(new { success = false, message = "User not authenticated" });
-                }
-
                 var request = new ExerciseSuggestionRequest(
-                    UserId: userId,
                     FocusArea: focusArea,
                     Difficulty: difficulty,
                     EquipmentAvailable: null,
@@ -162,24 +154,13 @@ namespace PersonalCoachAPI.Presentation.Controllers
                     success = true,
                     data = suggestions,
                     count = suggestions.Count,
-                    message = $"AI generated {suggestions.Count} personalized exercise suggestions"
-                });
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("limit reached"))
-            {
-                // AI limit reached
-                _logger.LogWarning(ex, "AI usage limit reached for user");
-                return StatusCode(403, new 
-                { 
-                    success = false, 
-                    message = ex.Message,
-                    upgradeRequired = true
+                    note = "AI suggestions don't consume your monthly AI generation quota"
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting AI suggestions");
-                return StatusCode(500, new { success = false, message = "Failed to get suggestions. Please try again." });
+                return StatusCode(500, new { success = false, message = "Failed to get suggestions" });
             }
         }
     }

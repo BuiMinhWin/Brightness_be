@@ -1,9 +1,7 @@
 using ChatService.Application.DTOs;
-using ChatService.Application.Exceptions;
 using ChatService.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,22 +18,19 @@ namespace ChatService.Presentation.Controllers
         private readonly IPersonalCoachApiService _personalCoachApiService;
         private readonly IUserContextCacheService _contextCacheService;
         private readonly IProfileAnalysisService _profileAnalysisService;
-        private readonly ILogger<ChatController> _logger;
 
         public ChatController(
             IConversationService conversationService,
             IMessageLimitService messageLimitService,
             IPersonalCoachApiService personalCoachApiService,
             IUserContextCacheService contextCacheService,
-            IProfileAnalysisService profileAnalysisService,
-            ILogger<ChatController> logger)
+            IProfileAnalysisService profileAnalysisService)
         {
             _conversationService = conversationService;
             _messageLimitService = messageLimitService;
             _personalCoachApiService = personalCoachApiService;
             _contextCacheService = contextCacheService;
             _profileAnalysisService = profileAnalysisService;
-            _logger = logger;
         }
 
         private Guid GetUserId()
@@ -171,25 +166,7 @@ namespace ChatService.Presentation.Controllers
                 // Count this AI operation as a message
                 await _messageLimitService.IncrementMessageCountAsync(userId);
                 
-                _logger.LogInformation("Creating schedule for user {UserId} with goal {Goal}, duration {Duration} days, difficulty {Difficulty}", 
-                    userId, request.Goal, request.DurationDays, request.DifficultyLevel);
-                
-                object scheduleResponse;
-                try
-                {
-                    scheduleResponse = await _personalCoachApiService.CreateScheduleAsync(userId, request);
-                    _logger.LogInformation("Schedule created successfully for user {UserId}", userId);
-                }
-                catch (InsufficientCreditsException)
-                {
-                    // Re-throw to be handled by outer catch block
-                    throw;
-                }
-                catch (Exception scheduleEx)
-                {
-                    _logger.LogError(scheduleEx, "Failed to create schedule via PersonalCoachAPI for user {UserId}. Check if PersonalCoachAPI is running and accessible.", userId);
-                    throw new InvalidOperationException("Unable to create schedule. The scheduling service may be temporarily unavailable.", scheduleEx);
-                }
+                var scheduleResponse = await _personalCoachApiService.CreateScheduleAsync(userId, request);
                 
                 // Invalidate cached context since schedule was created
                 await _contextCacheService.InvalidateCacheAsync(request.SessionId);
@@ -197,43 +174,16 @@ namespace ChatService.Presentation.Controllers
                 // Get updated limits
                 var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
                 
-                // Try to get credit balance, but don't fail the request if it's unavailable
-                AICreditBalanceDTO? creditBalance = null;
-                try
-                {
-                    creditBalance = await _personalCoachApiService.GetCreditBalanceAsync(userId);
-                }
-                catch (Exception creditEx)
-                {
-                    _logger.LogWarning(creditEx, "Failed to fetch credit balance for user {UserId}, continuing without it", userId);
-                }
-                
                 return Ok(new
                 {
                     schedule = scheduleResponse,
                     remainingMessages = newLimits.RemainingDaily,
-                    dailyLimit = newLimits.DailyLimit,
-                    remainingCredits = creditBalance?.RemainingCredits,
-                    monthlyCredits = creditBalance?.MonthlyCredits,
-                    subscriptionTier = creditBalance?.SubscriptionTier
-                });
-            }
-            catch (InsufficientCreditsException ex)
-            {
-                _logger.LogWarning(ex, "Insufficient credits for schedule creation for user {UserId}", GetUserId());
-                return StatusCode(402, new { 
-                    message = ex.Message,
-                    code = "INSUFFICIENT_CREDITS"
+                    dailyLimit = newLimits.DailyLimit
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating schedule from chat for user {UserId}", GetUserId());
-                return StatusCode(500, new { 
-                    message = "I apologize, but I encountered an error while creating your schedule. Please try again, or contact support if the issue persists.", 
-                    error = ex.Message,
-                    technicalDetails = ex.StackTrace 
-                });
+                return StatusCode(500, new { message = "An error occurred while creating schedule", error = ex.Message });
             }
         }
 
@@ -268,16 +218,12 @@ namespace ChatService.Presentation.Controllers
                 
                 // Get updated limits
                 var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
-                var creditBalance = await _personalCoachApiService.GetCreditBalanceAsync(userId);
                 
                 return Ok(new
                 {
                     message = "Preference update tracked successfully",
                     remainingMessages = newLimits.RemainingDaily,
-                    dailyLimit = newLimits.DailyLimit,
-                    remainingCredits = creditBalance?.RemainingCredits,
-                    monthlyCredits = creditBalance?.MonthlyCredits,
-                    subscriptionTier = creditBalance?.SubscriptionTier
+                    dailyLimit = newLimits.DailyLimit
                 });
             }
             catch (Exception ex)
@@ -351,15 +297,11 @@ namespace ChatService.Presentation.Controllers
                 
                 // Get updated limits
                 var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
-                var creditBalance = await _personalCoachApiService.GetCreditBalanceAsync(userId);
                 
                 return Ok(new
                 {
                     remainingMessages = newLimits.RemainingDaily,
-                    dailyLimit = newLimits.DailyLimit,
-                    remainingCredits = creditBalance?.RemainingCredits,
-                    monthlyCredits = creditBalance?.MonthlyCredits,
-                    subscriptionTier = creditBalance?.SubscriptionTier
+                    dailyLimit = newLimits.DailyLimit
                 });
             }
             catch (Exception ex)

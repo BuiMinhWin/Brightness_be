@@ -7,13 +7,11 @@ namespace SocialAPI.Application.DTOs
         Guid Id,
         Guid PostId,
         Guid UserId,
-        string? UserName,
         Guid? ParentCommentId,
         string Content,
         string Status,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
-        int ReactionCount = 0,
-        UserVoteStatusDTO? UserVoteStatus = null
+        int ReactionCount = 0
     );
 }

@@ -23,7 +23,6 @@ namespace PersonalCoachAPI.Infrastructure.Services
         private readonly ILogger<AIScheduleService> _logger;
         private readonly HttpClient _httpClient;
         private readonly IAIUsageLimitService _aiUsageLimitService;
-        private readonly IAICreditService _aiCreditService;
 
         public AIScheduleService(
             PersonalCoachDbContext context,
@@ -31,8 +30,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
             IConfiguration configuration,
             ILogger<AIScheduleService> logger,
             HttpClient httpClient,
-            IAIUsageLimitService aiUsageLimitService,
-            IAICreditService aiCreditService)
+            IAIUsageLimitService aiUsageLimitService)
         {
             _context = context;
             _ragService = ragService;
@@ -40,29 +38,26 @@ namespace PersonalCoachAPI.Infrastructure.Services
             _logger = logger;
             _httpClient = httpClient;
             _aiUsageLimitService = aiUsageLimitService;
-            _aiCreditService = aiCreditService;
         }
 
         public async Task<WorkoutScheduleResponse> GenerateScheduleAsync(GenerateScheduleRequest request)
         {
-            // Check AI credit balance before generating
-            var canAfford = await _aiCreditService.CanAffordOperationAsync(request.UserId, AIOperationType.ScheduleGeneration);
-            if (!canAfford)
+            // Check AI usage limits before generating
+            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(request.UserId);
+            if (!usageLimits.CanGenerate)
             {
-                var balance = await _aiCreditService.GetCreditBalanceAsync(request.UserId);
-                var operationCost = _aiCreditService.GetOperationCost(AIOperationType.ScheduleGeneration);
                 throw new InvalidOperationException(
-                    $"Insufficient AI credits. Schedule generation requires {operationCost} credits, but you only have {balance.RemainingCredits} remaining. " +
-                    $"Credits reset in {balance.DaysUntilReset} days.");
+                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
+                    $"Resets in {usageLimits.DaysUntilReset} days. " +
+                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
             }
 
             // Use transaction to ensure atomicity
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var balance = await _aiCreditService.GetCreditBalanceAsync(request.UserId);
-                _logger.LogInformation("Generating workout schedule for user {UserId} (Credits: {Remaining}/{Monthly})", 
-                    request.UserId, balance.RemainingCredits, balance.MonthlyCredits);
+                _logger.LogInformation("Generating workout schedule for user {UserId} (AI {Used}/{Limit})", 
+                    request.UserId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
 
                 // Archive all existing active schedules for this user
                 var existingSchedules = await _context.WorkoutSchedules
@@ -143,9 +138,9 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 int workoutDayCount = 0;
                 int dayNumber = 1;
                 
-                // Determine start date: use provided StartDate, or default to tomorrow (ensure UTC)
-                var startDate = request.StartDate.HasValue 
-                    ? DateTime.SpecifyKind(request.StartDate.Value.Date, DateTimeKind.Utc)
+                // Determine start date based on user preference
+                var startDate = request.StartFromToday 
+                    ? DateTime.UtcNow.Date 
                     : DateTime.UtcNow.Date.AddDays(1);
                 var currentCheckDate = startDate;
                 
@@ -249,8 +244,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 _context.WorkoutSchedules.Add(schedule);
                 await _context.SaveChangesAsync();
                 
-                // Deduct AI credits for schedule generation
-                await _aiCreditService.DeductCreditsAsync(request.UserId, AIOperationType.ScheduleGeneration, schedule.Id);
+                // Track AI usage
+                await _aiUsageLimitService.TrackGenerationAsync(request.UserId, "schedule_create", schedule.Id);
                 
                 // Commit transaction
                 await transaction.CommitAsync();
@@ -685,22 +680,20 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 throw new Exception("Schedule not found");
             }
 
-            // Check AI credit balance before regenerating
-            var canAfford = await _aiCreditService.CanAffordOperationAsync(currentSchedule.UserId, AIOperationType.ScheduleRegeneration);
-            if (!canAfford)
+            // Check AI usage limits before regenerating
+            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(currentSchedule.UserId);
+            if (!usageLimits.CanGenerate)
             {
-                var balance = await _aiCreditService.GetCreditBalanceAsync(currentSchedule.UserId);
-                var operationCost = _aiCreditService.GetOperationCost(AIOperationType.ScheduleRegeneration);
                 throw new InvalidOperationException(
-                    $"Insufficient AI credits. Schedule regeneration requires {operationCost} credits, but you only have {balance.RemainingCredits} remaining. " +
-                    $"Credits reset in {balance.DaysUntilReset} days.");
+                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
+                    $"Resets in {usageLimits.DaysUntilReset} days. " +
+                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
             }
 
             try
             {
-                var balance = await _aiCreditService.GetCreditBalanceAsync(currentSchedule.UserId);
-                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (Credits: {Remaining}/{Monthly})", 
-                    request.FromDayNumber, request.CurrentScheduleId, balance.RemainingCredits, balance.MonthlyCredits);
+                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (AI {Used}/{Limit})", 
+                    request.FromDayNumber, request.CurrentScheduleId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
 
                 // Reload schedule with includes
                 currentSchedule = await _context.WorkoutSchedules
@@ -946,8 +939,8 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 // Save new schedule
                 _context.WorkoutSchedules.Add(newSchedule);
                 
-                // Deduct AI credits for schedule regeneration
-                await _aiCreditService.DeductCreditsAsync(currentSchedule.UserId, AIOperationType.ScheduleRegeneration, newSchedule.Id);
+                // Track AI usage for regeneration
+                await _aiUsageLimitService.TrackGenerationAsync(currentSchedule.UserId, "schedule_regenerate", newSchedule.Id);
 
                 // Log edit history
                 var editHistory = new ScheduleEditHistory
@@ -1035,40 +1028,19 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                         Id = Guid.NewGuid(),
                         ScheduleDayId = scheduleDay.Id,
                         ExerciseName = addReq.ExerciseName,
-                        ExerciseCategory = "general", // Default category
-                        TargetMuscles = "[]", // Empty JSON array as default
                         Sets = addReq.Sets,
                         Reps = addReq.Reps,
                         RestSeconds = addReq.RestSeconds,
                         OrderIndex = addReq.OrderIndex,
-                        Notes = string.Empty,
-                        VideoUrl = string.Empty,
-                        DurationSeconds = 0,
-                        WeightKg = 0,
-                        Completed = false,
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    // Explicitly add to DbContext to ensure proper tracking
-                    await _context.WorkoutScheduleExercises.AddAsync(newExercise);
+                    scheduleDay.Exercises.Add(newExercise);
                 }
             }
 
-            // Save changes first
-            await _context.SaveChangesAsync();
-
-            // Reload the schedule day to get fresh data
-            var reloadedScheduleDay = await _context.WorkoutScheduleDays
-                .Include(d => d.Exercises)
-                .FirstOrDefaultAsync(d => d.Id == scheduleDay.Id);
-
-            if (reloadedScheduleDay == null)
-            {
-                throw new Exception("Failed to reload schedule day after save");
-            }
-
             // Log edit history
-            var afterValue = JsonConvert.SerializeObject(MapDayToDetail(reloadedScheduleDay));
+            var afterValue = JsonConvert.SerializeObject(MapDayToDetail(scheduleDay));
             var editHistory = new ScheduleEditHistory
             {
                 Id = Guid.NewGuid(),
@@ -1086,7 +1058,7 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
             _context.ScheduleEditHistories.Add(editHistory);
             await _context.SaveChangesAsync();
 
-            return MapDayToDetail(reloadedScheduleDay);
+            return MapDayToDetail(scheduleDay);
         }
 
         public async Task<ScheduleHistoryResponse> GetScheduleHistoryAsync(Guid userId)
@@ -1271,78 +1243,6 @@ IMPORTANT:
 2. Preserve the user's progress and motivation
 3. Consider any injuries or limitations mentioned in feedback
 4. Adapt the workout to fit their current state and constraints";
-        }
-
-        public async Task<ScheduleConflictInfo> CheckScheduleConflictsAsync(
-            Guid userId, 
-            DateTime startDate, 
-            int durationDays, 
-            List<string> availableDays)
-        {
-            _logger.LogInformation("Checking schedule conflicts for user {UserId}, startDate: {StartDate}, duration: {Duration} days", 
-                userId, startDate, durationDays);
-
-            // Convert available days to day numbers (0=Sunday, 1=Monday, etc.)
-            var availableDayNumbers = availableDays.Select(day => 
-                day.ToLower() switch
-                {
-                    "sunday" => 0,
-                    "monday" => 1,
-                    "tuesday" => 2,
-                    "wednesday" => 3,
-                    "thursday" => 4,
-                    "friday" => 5,
-                    "saturday" => 6,
-                    _ => -1
-                }).Where(dayNum => dayNum >= 0).ToList();
-
-            // Calculate which dates will be affected (ensure UTC)
-            var affectedDates = new List<DateTime>();
-            var currentCheckDate = DateTime.SpecifyKind(startDate.Date, DateTimeKind.Utc);
-            int workoutDaysGenerated = 0;
-            int maxCalendarDays = durationDays * 7; // Safety limit
-            int calendarDaysChecked = 0;
-
-            while (workoutDaysGenerated < durationDays && calendarDaysChecked < maxCalendarDays)
-            {
-                var dayOfWeek = (int)currentCheckDate.DayOfWeek;
-                calendarDaysChecked++;
-
-                if (availableDayNumbers.Contains(dayOfWeek))
-                {
-                    affectedDates.Add(currentCheckDate);
-                    workoutDaysGenerated++;
-                }
-
-                currentCheckDate = currentCheckDate.AddDays(1);
-            }
-
-            _logger.LogInformation("Calculated {Count} affected dates", affectedDates.Count);
-
-            // Query existing workouts on those dates
-            var existingWorkouts = await _context.WorkoutScheduleDays
-                .Include(d => d.Exercises)
-                .Where(d => d.Schedule.UserId == userId && 
-                           d.Schedule.IsLatest && 
-                           affectedDates.Contains(d.Date.Date))
-                .Select(d => new ConflictingWorkout
-                {
-                    Date = d.Date.Date,
-                    FocusArea = d.FocusArea,
-                    ExerciseCount = d.Exercises.Count,
-                    IsCompleted = d.Completed
-                })
-                .OrderBy(d => d.Date)
-                .ToListAsync();
-
-            _logger.LogInformation("Found {Count} conflicting workouts", existingWorkouts.Count);
-
-            return new ScheduleConflictInfo
-            {
-                HasConflicts = existingWorkouts.Any(),
-                ConflictingWorkouts = existingWorkouts,
-                TotalConflicts = existingWorkouts.Count
-            };
         }
     }
 }

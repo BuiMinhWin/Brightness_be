@@ -13,12 +13,6 @@ namespace SocialAPI.Application.DTOs
     DateTime? UpdatedAt,
     int ReactionCount,
     int DislikeCount,
-    int CommentCount,
-    UserVoteStatusDTO? UserVoteStatus = null
+    int CommentCount
 );
-
-    public record UserVoteStatusDTO(
-        bool HasVoted,
-        string? VoteType
-    );
 }
