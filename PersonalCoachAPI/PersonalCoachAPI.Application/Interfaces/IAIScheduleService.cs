@@ -40,6 +40,9 @@ namespace PersonalCoachAPI.Application.Interfaces
         
         // Get analytics for user's workout patterns
         Task<ScheduleAnalytics> GetScheduleAnalyticsAsync(Guid userId);
+        
+        // Check for conflicts with existing workouts
+        Task<ScheduleConflictInfo> CheckScheduleConflictsAsync(Guid userId, DateTime startDate, int durationDays, List<string> availableDays);
     }
 }
 

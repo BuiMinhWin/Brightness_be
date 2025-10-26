@@ -11,8 +11,10 @@ namespace SocialAPI.Domain.Entities
         public string Content { get; set; } = null!;
         public string Visibility { get; set; } = "public";
         public string Status { get; set; } = "draft";
+        public bool IsDeleted { get; set; } = false;
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public int ReactionCount { get; set; } = 0;
         public int DislikeCount { get; set; } = 0;
 

@@ -25,25 +25,46 @@ namespace SocialAPI.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId)
+        public async Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId, Guid? userId = null)
         {
             var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
             var commentDtos = new List<CommentDTO>();
             foreach (var comment in comments)
             {
-                commentDtos.Add(new CommentDTO(comment.Id, comment.PostId, comment.UserId, comment.ParentCommentId, comment.Content, comment.Status, comment.CreatedAt, comment.UpdatedAt, await CalculateReactions(comment.Id)));
+                // Get user vote status if userId is provided
+                UserVoteStatusDTO? userVoteStatus = null;
+                if (userId.HasValue)
+                {
+                    var userVote = await _commentRepository.GetCommentVoteAsync(comment.Id, userId.Value);
+                    userVoteStatus = userVote != null 
+                        ? new UserVoteStatusDTO(true, userVote.VoteType)
+                        : new UserVoteStatusDTO(false, null);
+                }
+
+                commentDtos.Add(new CommentDTO(comment.Id, comment.PostId, comment.UserId, comment.UserName, comment.ParentCommentId, comment.Content, comment.Status, comment.CreatedAt, comment.UpdatedAt, await CalculateReactions(comment.Id), userVoteStatus));
             }
             return commentDtos;
         }
 
-        public async Task<CommentDTO> GetCommentByIdAsync(Guid commentId)
+        public async Task<CommentDTO> GetCommentByIdAsync(Guid commentId, Guid? userId = null)
         {
             var comment = await _commentRepository.GetCommentByIdAsync(commentId);
             if (comment == null) return null;
-            return new CommentDTO(comment.Id, comment.PostId, comment.UserId, comment.ParentCommentId, comment.Content, comment.Status, comment.CreatedAt, comment.UpdatedAt, await CalculateReactions(comment.Id));
+            
+            // Get user vote status if userId is provided
+            UserVoteStatusDTO? userVoteStatus = null;
+            if (userId.HasValue)
+            {
+                var userVote = await _commentRepository.GetCommentVoteAsync(commentId, userId.Value);
+                userVoteStatus = userVote != null 
+                    ? new UserVoteStatusDTO(true, userVote.VoteType)
+                    : new UserVoteStatusDTO(false, null);
+            }
+            
+            return new CommentDTO(comment.Id, comment.PostId, comment.UserId, comment.UserName, comment.ParentCommentId, comment.Content, comment.Status, comment.CreatedAt, comment.UpdatedAt, await CalculateReactions(comment.Id), userVoteStatus);
         }
 
-        public async Task<CommentDTO> CreateCommentAsync(Guid postId, CreateCommentDTO commentDto, Guid userId)
+        public async Task<CommentDTO> CreateCommentAsync(Guid postId, CreateCommentDTO commentDto, Guid userId, string? userName = null)
         {
             var post = await _postRepository.GetPostByIdAsync(postId);
             if (post == null) throw new Exception("Post not found");
@@ -53,13 +74,14 @@ namespace SocialAPI.Application.Services
                 Id = Guid.NewGuid(),
                 PostId = postId,
                 UserId = userId,
+                UserName = userName,
                 Content = commentDto.Content,
                 ParentCommentId = commentDto.ParentCommentId,
                 CreatedAt = DateTime.UtcNow
             };
 
             var createdComment = await _commentRepository.CreateCommentAsync(comment);
-            return new CommentDTO(createdComment.Id, createdComment.PostId, createdComment.UserId, createdComment.ParentCommentId, createdComment.Content, createdComment.Status, createdComment.CreatedAt, createdComment.UpdatedAt, createdComment.ReactionCount);
+            return new CommentDTO(createdComment.Id, createdComment.PostId, createdComment.UserId, createdComment.UserName, createdComment.ParentCommentId, createdComment.Content, createdComment.Status, createdComment.CreatedAt, createdComment.UpdatedAt, createdComment.ReactionCount, null);
         }
 
         public async Task<CommentDTO> UpdateCommentAsync(Guid commentId, UpdateCommentDTO commentDto, Guid userId)
@@ -77,12 +99,14 @@ namespace SocialAPI.Application.Services
               comment.Id,
               comment.PostId,
               comment.UserId,
+              comment.UserName,
               comment.ParentCommentId,
               comment.Content,
               comment.Status,
               comment.CreatedAt,
               comment.UpdatedAt,
-              await CalculateReactions(comment.Id)
+              await CalculateReactions(comment.Id),
+              null
           );
         }
 

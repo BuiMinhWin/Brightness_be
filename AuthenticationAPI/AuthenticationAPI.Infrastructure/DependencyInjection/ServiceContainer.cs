@@ -85,10 +85,7 @@ namespace AuthenticationAPI.Infrastructure.DependencyInjection
 
             try
             {
-                var options = ConfigurationOptions.Parse(redisConnection);
-                options.AbortOnConnectFail = false; // Make connection more resilient
-
-                var connectionMultiplexer = ConnectionMultiplexer.Connect(options);
+                var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnection);
                 services.AddSingleton<IConnectionMultiplexer>(connectionMultiplexer);
                 services.AddSingleton<IRefreshTokenCacheService, RefreshTokenCacheService>();
                 services.AddSingleton<IJwtBlacklistService, RedisJwtBlacklistService>();

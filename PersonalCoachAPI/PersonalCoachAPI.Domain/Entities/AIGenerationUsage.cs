@@ -7,6 +7,8 @@ namespace PersonalCoachAPI.Domain.Entities
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string GenerationType { get; set; } = string.Empty; // "schedule_create", "schedule_regenerate"
+        public AIOperationType OperationType { get; set; }
+        public int CreditCost { get; set; }
         public DateTime CreatedAt { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }

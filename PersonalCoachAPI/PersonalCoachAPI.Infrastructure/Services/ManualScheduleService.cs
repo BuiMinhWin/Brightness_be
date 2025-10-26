@@ -128,7 +128,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 Id = Guid.NewGuid(),
                 ScheduleId = request.ScheduleId,
                 DayNumber = request.DayNumber,
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 DayType = "workout",
                 FocusArea = template.FocusArea,
                 Completed = false,
@@ -177,12 +177,33 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 throw new ArgumentException("Schedule not found");
             }
 
+            // Check for existing workout on the same date
+            var existingDay = await _context.WorkoutScheduleDays
+                .Include(d => d.Exercises)
+                .FirstOrDefaultAsync(d => d.ScheduleId == request.ScheduleId && d.Date.Date == request.Date.Date);
+
+            if (existingDay != null)
+            {
+                if (request.ReplaceExisting)
+                {
+                    // Remove existing day and its exercises
+                    _logger.LogInformation("Replacing existing day {ExistingDayId} on date {Date}", 
+                        existingDay.Id, request.Date.Date);
+                    _context.WorkoutScheduleDays.Remove(existingDay);
+                }
+                else
+                {
+                    // Prevent duplicate
+                    throw new InvalidOperationException($"A workout already exists on {request.Date:yyyy-MM-dd}. Set ReplaceExisting=true to replace it.");
+                }
+            }
+
             var scheduleDay = new WorkoutScheduleDay
             {
                 Id = Guid.NewGuid(),
                 ScheduleId = request.ScheduleId,
                 DayNumber = request.DayNumber,
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date.Date, DateTimeKind.Utc),
                 DayType = request.DayType,
                 FocusArea = request.FocusArea,
                 Completed = false,
@@ -198,12 +219,16 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     ScheduleDayId = scheduleDay.Id,
                     ExerciseName = customExercise.ExerciseName,
                     ExerciseCategory = customExercise.Category,
+                    TargetMuscles = "[]", // Default empty JSON array for PostgreSQL
                     Sets = customExercise.Sets,
                     Reps = customExercise.Reps,
                     RestSeconds = customExercise.RestSeconds,
                     OrderIndex = customExercise.OrderIndex,
                     Completed = false,
-                    Notes = customExercise.Notes,
+                    Notes = customExercise.Notes ?? "",
+                    VideoUrl = "",
+                    DurationSeconds = 0,
+                    WeightKg = 0,
                     CreatedAt = DateTime.UtcNow
                 };
 

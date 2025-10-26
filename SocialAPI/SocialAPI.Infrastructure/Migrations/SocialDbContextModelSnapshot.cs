@@ -60,6 +60,9 @@ namespace SocialAPI.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
@@ -109,8 +112,16 @@ namespace SocialAPI.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("DislikeCount")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("ReactionCount")
                         .ValueGeneratedOnAdd()
@@ -256,6 +267,10 @@ namespace SocialAPI.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ReporterId", "TargetId", "TargetType", "Status")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Reports_Unique_UserTargetStatus");
 
                     b.ToTable("reports", "social");
                 });

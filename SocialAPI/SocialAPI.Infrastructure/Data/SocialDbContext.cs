@@ -26,6 +26,7 @@ namespace SocialAPI.Infrastructure.Data
                 entity.Property(x => x.Title).IsRequired().HasMaxLength(200);
                 entity.Property(x => x.Visibility).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
+                entity.Property(x => x.IsDeleted).HasDefaultValue(false);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 entity.Property(x => x.ReactionCount).HasDefaultValue(0);
             });
@@ -89,6 +90,11 @@ namespace SocialAPI.Infrastructure.Data
                 entity.Property(x => x.Reason).IsRequired().HasMaxLength(500);
                 entity.Property(x => x.Status).IsRequired().HasMaxLength(50);
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                // Unique constraint: One user can only report a target once (per pending status)
+                entity.HasIndex(x => new { x.ReporterId, x.TargetId, x.TargetType, x.Status })
+                    .IsUnique()
+                    .HasDatabaseName("IX_Reports_Unique_UserTargetStatus");
             });
 
             modelBuilder.Entity<PostImage>(entity =>

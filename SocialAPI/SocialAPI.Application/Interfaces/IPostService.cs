@@ -4,13 +4,14 @@ namespace SocialAPI.Application.Interfaces
 {
     public interface IPostService
     {
-        Task<IEnumerable<PostDTO>> GetPostsAsync();
-        Task<PostDTO> GetPostByIdAsync(Guid id);
+        Task<IEnumerable<PostDTO>> GetPostsAsync(Guid? userId = null);
+        Task<PostDTO> GetPostByIdAsync(Guid id, Guid? userId = null);
         //Task UpdatePostAsync(Guid id, PostDTO postDto);
         Task<PostDTO> UpdatePostAsync(Guid id, PostDTO postDto);
         Task<PostDTO> UpdatePostStatusAsync(Guid id, string status);
         //Task UpdatePostStatusAsync(Guid id, string status);
         Task DeletePostAsync(Guid id);
+        Task SoftDeletePostAsync(Guid id);
         Task<PostDTO> CreatePostAsync(PostDTO postDto);
 
         Task VotePostAsync(Guid postId, Guid userId, string voteType);
@@ -19,5 +20,7 @@ namespace SocialAPI.Application.Interfaces
 
         Task<IEnumerable<PostDTO>> GetPostsByTagAsync(string tagSlug);
         Task UpdatePostReactionCountAsync(Guid postId);
+        Task<IEnumerable<PostDTO>> GetFlaggedPostsAsync(int minReportCount = 5);
+        Task<int> GetReportCountAsync(Guid postId);
     }
 }

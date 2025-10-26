@@ -8,7 +8,6 @@ namespace ChatService.Infrastructure.Data
         public DbSet<ChatSession> ChatSessions => Set<ChatSession>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<ConversationSummary> ConversationSummaries => Set<ConversationSummary>();
-        public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
         
         // Shared tables from other services (read-only access)
         public DbSet<User> Users => Set<User>();
@@ -63,24 +62,6 @@ namespace ChatService.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(x => x.SessionId)
                     .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity<AiUsageLog>(entity =>
-            {
-                entity.ToTable("ai_usage_logs");
-                entity.HasKey(x => x.Id);
-                entity.Property(x => x.Operation).HasMaxLength(100);
-                entity.Property(x => x.Model).HasMaxLength(100);
-                entity.Property(x => x.UserName).HasMaxLength(200);
-                entity.Property(x => x.PromptTokens).HasDefaultValue(0);
-                entity.Property(x => x.CompletionTokens).HasDefaultValue(0);
-                entity.Property(x => x.TotalTokens).HasDefaultValue(0);
-                entity.Property(x => x.EstimatedCost).HasColumnType("numeric(18,6)").HasDefaultValue(0);
-                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
-
-                entity.HasIndex(x => x.CreatedAt);
-                entity.HasIndex(x => x.UserId);
-                entity.HasIndex(x => x.SessionId);
             });
 
             // Configure shared entities (read-only, no migrations)

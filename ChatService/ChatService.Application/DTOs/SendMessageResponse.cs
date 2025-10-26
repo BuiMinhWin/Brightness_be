@@ -7,9 +7,13 @@ namespace ChatService.Application.DTOs
         Guid SessionId,
         string Message,
         string Role,
-        int RemainingMessages,
-        int DailyLimit,
-        DateTime CreatedAt
+        int RemainingMessages,  // Legacy - for backward compatibility
+        int DailyLimit,         // Legacy - for backward compatibility
+        DateTime CreatedAt,
+        // New credit-based fields
+        int? RemainingCredits = null,
+        int? MonthlyCredits = null,
+        string? SubscriptionTier = null
     );
 }
 
