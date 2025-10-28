@@ -9,11 +9,12 @@ using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine($"[Media API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
-if (!builder.Environment.IsDevelopment())
-{
-    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
-    builder.Configuration.AddSystemsManager(parameterStorePath);
-}
+// AWS Systems Manager - Disabled for VPS deployment
+//if (!builder.Environment.IsDevelopment())
+//{
+//    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+//    builder.Configuration.AddSystemsManager(parameterStorePath);
+//}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 

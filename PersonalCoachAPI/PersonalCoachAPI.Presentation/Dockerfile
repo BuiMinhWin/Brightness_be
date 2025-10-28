@@ -24,6 +24,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 
 WORKDIR /app
 COPY --from=build /app/publish .
+# Copy SeedData folder for database seeding
+COPY PersonalCoachAPI/SeedData /app/SeedData
 
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "PersonalCoachAPI.Presentation.dll"]
