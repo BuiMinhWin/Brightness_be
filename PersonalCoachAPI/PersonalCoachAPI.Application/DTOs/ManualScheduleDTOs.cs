@@ -27,7 +27,8 @@ namespace PersonalCoachAPI.Application.DTOs
         string DayType,
         string FocusArea,
         int EstimatedDuration,
-        List<CustomExerciseDTO> Exercises
+        List<CustomExerciseDTO> Exercises,
+        bool ReplaceExisting = false
     );
 
     public record CustomExerciseDTO(

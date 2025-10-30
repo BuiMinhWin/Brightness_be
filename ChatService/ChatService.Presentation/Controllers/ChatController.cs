@@ -156,22 +156,15 @@ namespace ChatService.Presentation.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 
-                // Check message limits
-                var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
-                if (limits.IsLimitReached)
-                {
-                    return StatusCode(429, new { message = "Daily message limit reached", limitReached = true });
-                }
-
-                // Count this AI operation as a message
-                await _messageLimitService.IncrementMessageCountAsync(userId);
+                // NOTE: We don't deduct chat credits here because PersonalCoachAPI
+                // will deduct schedule generation credits. This is just coordination.
                 
                 var scheduleResponse = await _personalCoachApiService.CreateScheduleAsync(userId, request);
                 
                 // Invalidate cached context since schedule was created
                 await _contextCacheService.InvalidateCacheAsync(request.SessionId);
                 
-                // Get updated limits
+                // Get current limits for display
                 var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
                 
                 return Ok(new
@@ -200,23 +193,14 @@ namespace ChatService.Presentation.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
                 
-                // Check message limits
-                var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
-                if (limits.IsLimitReached)
-                {
-                    return StatusCode(429, new { message = "Daily message limit reached", limitReached = true });
-                }
-
-                // Count this AI operation as a message
-                await _messageLimitService.IncrementMessageCountAsync(userId);
-                
-                // Note: The actual preference update is handled by the frontend calling PersonalCoach API directly
-                // This endpoint just tracks AI credits and invalidates cache
+                // NOTE: We don't deduct chat credits for preference updates.
+                // This is a FREE operation that just coordinates with PersonalCoachAPI.
+                // The frontend calls PersonalCoachAPI directly for the actual update.
                 
                 // Invalidate cached context since preferences updated
                 await _contextCacheService.InvalidateCacheAsync(request.SessionId);
                 
-                // Get updated limits
+                // Get current limits for display
                 var newLimits = await _messageLimitService.GetMessageLimitsAsync(userId);
                 
                 return Ok(new

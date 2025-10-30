@@ -71,13 +71,18 @@ namespace PersonalCoachAPI.Infrastructure.Services
         public async Task<List<ExerciseLibraryDTO>> SearchExercisesAsync(string query)
         {
             var searchLower = query.ToLower();
+            
+            // Note: TargetMuscles is JSONB type, so we can't use ToLower() directly on it
+            // We search in ExerciseName, ExerciseNameVi, Description, and Category instead
             var exercises = await _context.ExerciseLibrary
                 .Where(e => e.IsActive)
                 .Where(e => 
                     e.ExerciseName.ToLower().Contains(searchLower) ||
                     e.ExerciseNameVi.ToLower().Contains(searchLower) ||
                     e.Description.ToLower().Contains(searchLower) ||
-                    e.TargetMuscles.ToLower().Contains(searchLower))
+                    e.Category.ToLower().Contains(searchLower))
+                .OrderBy(e => e.Category)
+                .ThenBy(e => e.ExerciseName)
                 .Take(50)
                 .ToListAsync();
 

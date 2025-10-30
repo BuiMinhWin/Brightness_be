@@ -144,7 +144,9 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     ScheduleDayId = scheduleDay.Id,
                     ExerciseName = templateExercise.Exercise.ExerciseNameVi,
                     ExerciseCategory = templateExercise.Exercise.Category,
-                    TargetMuscles = templateExercise.Exercise.TargetMuscles,
+                    TargetMuscles = !string.IsNullOrEmpty(templateExercise.Exercise.TargetMuscles) 
+                        ? templateExercise.Exercise.TargetMuscles 
+                        : "[]",
                     Sets = templateExercise.Sets,
                     Reps = templateExercise.Reps,
                     RestSeconds = templateExercise.RestSeconds,
@@ -177,12 +179,43 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 throw new ArgumentException("Schedule not found");
             }
 
+            // Check if a day already exists on this date
+            var requestDate = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc).Date;
+            var existingDay = await _context.WorkoutScheduleDays
+                .Include(d => d.Exercises)
+                .FirstOrDefaultAsync(d => d.ScheduleId == request.ScheduleId && d.Date.Date == requestDate);
+
+            if (existingDay != null)
+            {
+                // BLOCK if the day is completed - preserve data integrity
+                if (existingDay.Completed)
+                {
+                    throw new InvalidOperationException(
+                        "Cannot modify a completed workout day. This workout is part of your progress history. " +
+                        "To make changes: 1) Mark it as incomplete first, or 2) Create a new custom workout on a different date.");
+                }
+
+                // If not completed and replace is requested, delete the old day
+                if (request.ReplaceExisting)
+                {
+                    _logger.LogInformation("Replacing existing incomplete day on {Date} for schedule {ScheduleId}", 
+                        requestDate, request.ScheduleId);
+                    _context.WorkoutScheduleDays.Remove(existingDay);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"A workout already exists on {requestDate:MMM dd, yyyy}. " +
+                        "Enable 'Replace Existing' to overwrite it, or choose a different date.");
+                }
+            }
+
             var scheduleDay = new WorkoutScheduleDay
             {
                 Id = Guid.NewGuid(),
                 ScheduleId = request.ScheduleId,
                 DayNumber = request.DayNumber,
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 DayType = request.DayType,
                 FocusArea = request.FocusArea,
                 Completed = false,
@@ -204,6 +237,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     OrderIndex = customExercise.OrderIndex,
                     Completed = false,
                     Notes = customExercise.Notes,
+                    TargetMuscles = "[]", // Initialize with empty JSON array
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -216,7 +250,9 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     if (libraryExercise != null)
                     {
                         scheduleExercise.ExerciseName = libraryExercise.ExerciseNameVi;
-                        scheduleExercise.TargetMuscles = libraryExercise.TargetMuscles;
+                        scheduleExercise.TargetMuscles = !string.IsNullOrEmpty(libraryExercise.TargetMuscles) 
+                            ? libraryExercise.TargetMuscles 
+                            : "[]";
                         scheduleExercise.VideoUrl = libraryExercise.VideoUrl;
                     }
                 }
@@ -275,6 +311,7 @@ namespace PersonalCoachAPI.Infrastructure.Services
                         OrderIndex = customExercise.OrderIndex,
                         Completed = false,
                         Notes = customExercise.Notes,
+                        TargetMuscles = "[]", // Initialize with empty JSON array
                         CreatedAt = DateTime.UtcNow
                     };
 
@@ -287,7 +324,9 @@ namespace PersonalCoachAPI.Infrastructure.Services
                         if (libraryExercise != null)
                         {
                             scheduleExercise.ExerciseName = libraryExercise.ExerciseNameVi;
-                            scheduleExercise.TargetMuscles = libraryExercise.TargetMuscles;
+                            scheduleExercise.TargetMuscles = !string.IsNullOrEmpty(libraryExercise.TargetMuscles) 
+                                ? libraryExercise.TargetMuscles 
+                                : "[]";
                             scheduleExercise.VideoUrl = libraryExercise.VideoUrl;
                         }
                     }

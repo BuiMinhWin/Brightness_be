@@ -35,11 +35,7 @@ namespace PersonalCoachAPI.Application.Interfaces
         // Edit individual workout day
         Task<ScheduleDayDetail> EditWorkoutDayAsync(EditWorkoutDayRequest request);
         
-        // Get schedule history and versions
-        Task<ScheduleHistoryResponse> GetScheduleHistoryAsync(Guid userId);
-        
-        // Get analytics for user's workout patterns
-        Task<ScheduleAnalytics> GetScheduleAnalyticsAsync(Guid userId);
+        // Old history/analytics methods removed - use IScheduleHistoryService instead
     }
 }
 

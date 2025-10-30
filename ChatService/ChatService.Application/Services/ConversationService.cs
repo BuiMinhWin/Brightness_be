@@ -19,6 +19,7 @@ namespace ChatService.Application.Services
         private readonly IGeminiService _geminiService;
         private readonly IUserContextService _userContextService;
         private readonly IMessageLimitService _messageLimitService;
+        private readonly ICreditService _creditService;
         private readonly IIntentDetectionService _intentDetectionService;
         private readonly IInputSanitizationService _inputSanitizationService;
         private readonly IResponseValidationService _responseValidationService;
@@ -33,6 +34,7 @@ namespace ChatService.Application.Services
             IGeminiService geminiService,
             IUserContextService userContextService,
             IMessageLimitService messageLimitService,
+            ICreditService creditService,
             IIntentDetectionService intentDetectionService,
             IInputSanitizationService inputSanitizationService,
             IResponseValidationService responseValidationService,
@@ -46,6 +48,7 @@ namespace ChatService.Application.Services
             _geminiService = geminiService;
             _userContextService = userContextService;
             _messageLimitService = messageLimitService;
+            _creditService = creditService;
             _intentDetectionService = intentDetectionService;
             _inputSanitizationService = inputSanitizationService;
             _responseValidationService = responseValidationService;
@@ -60,10 +63,11 @@ namespace ChatService.Application.Services
 
         public async Task<SendMessageResponse> SendMessageAsync(Guid userId, SendMessageRequest request)
         {
-            // Check message limits
-            if (!await _messageLimitService.CanSendMessageAsync(userId))
+            // Check token-based credit limits (estimate 500 tokens per message)
+            const int estimatedTokens = 500;
+            if (!await _creditService.CanAffordOperationAsync(userId, estimatedTokens))
             {
-                throw new InvalidOperationException("Message limit reached. Please upgrade your subscription.");
+                throw new InvalidOperationException("Insufficient AI credits. Please upgrade your subscription or wait for your credits to reset.");
             }
 
             // Sanitize user input
@@ -131,6 +135,27 @@ namespace ChatService.Application.Services
             // Validate and sanitize AI response
             var aiResponse = _responseValidationService.ValidateAndSanitizeResponse(rawAiResponse);
 
+            // Deduct credits (estimate based on response length if actual tokens not available)
+            // Rough estimate: 1 token ≈ 4 characters
+            var estimatedPromptTokens = sanitizedMessage.Length / 4;
+            var estimatedCompletionTokens = aiResponse.Length / 4;
+            
+            try
+            {
+                await _creditService.DeductCreditsAsync(
+                    userId,
+                    "chat_message",
+                    "gemini-2.5-flash",
+                    estimatedPromptTokens,
+                    estimatedCompletionTokens,
+                    sessionId.ToString());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to deduct credits for user {UserId}, but allowing message to proceed", userId);
+                // Allow message to proceed even if credit deduction fails for now
+            }
+
             // Save AI message
             var aiMessage = new ChatMessage
             {
@@ -146,7 +171,7 @@ namespace ChatService.Application.Services
             // Check if summarization is needed
             await CheckAndSummarizeIfNeededAsync(sessionId);
 
-            // Get updated limits
+            // Get updated limits (keep for backwards compatibility during transition)
             var limits = await _messageLimitService.GetMessageLimitsAsync(userId);
 
             return new SendMessageResponse(

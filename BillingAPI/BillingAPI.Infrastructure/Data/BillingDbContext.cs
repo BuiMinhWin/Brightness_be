@@ -10,6 +10,9 @@ namespace BillingAPI.Infrastructure.Data
         public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<AICreditPool> AICreditPools => Set<AICreditPool>();
+        public DbSet<AIOperationLog> AIOperationLogs => Set<AIOperationLog>();
+        public DbSet<CreditCostConfiguration> CreditCostConfigurations => Set<CreditCostConfiguration>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,6 +22,9 @@ namespace BillingAPI.Infrastructure.Data
             ConfigureSubscriptionPlan(modelBuilder.Entity<SubscriptionPlan>());
             ConfigureInvoice(modelBuilder.Entity<Invoice>());
             ConfigurePayment(modelBuilder.Entity<Payment>());
+            ConfigureAICreditPool(modelBuilder.Entity<AICreditPool>());
+            ConfigureAIOperationLog(modelBuilder.Entity<AIOperationLog>());
+            ConfigureCreditCostConfiguration(modelBuilder.Entity<CreditCostConfiguration>());
         }
 
         private static void ConfigureSubscriptionPlan(EntityTypeBuilder<SubscriptionPlan> entity)
@@ -80,6 +86,60 @@ namespace BillingAPI.Infrastructure.Data
         private static PaymentGatewayType ParseGateway(string value)
         {
             return Enum.TryParse<PaymentGatewayType>(value, out var parsed) ? parsed : PaymentGatewayType.PayOs;
+        }
+
+        private static void ConfigureAICreditPool(EntityTypeBuilder<AICreditPool> entity)
+        {
+            entity.ToTable("ai_credit_pools");
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.UserId).IsRequired();
+            entity.Property(p => p.ServiceName).IsRequired().HasMaxLength(50);
+            entity.Property(p => p.SubscriptionTier).IsRequired().HasMaxLength(50);
+            entity.Property(p => p.MonthlyTokenLimit).IsRequired();
+            entity.Property(p => p.RemainingTokens).IsRequired();
+            entity.Property(p => p.CycleStartDate).IsRequired();
+            entity.Property(p => p.CycleEndDate).IsRequired();
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+            entity.HasIndex(p => new { p.UserId, p.ServiceName }).IsUnique();
+        }
+
+        private static void ConfigureAIOperationLog(EntityTypeBuilder<AIOperationLog> entity)
+        {
+            entity.ToTable("ai_operation_logs");
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.UserId).IsRequired();
+            entity.Property(l => l.CreditPoolId).IsRequired();
+            entity.Property(l => l.ServiceName).IsRequired().HasMaxLength(50);
+            entity.Property(l => l.OperationType).IsRequired().HasMaxLength(100);
+            entity.Property(l => l.Model).IsRequired().HasMaxLength(100);
+            entity.Property(l => l.PromptTokens).IsRequired();
+            entity.Property(l => l.CompletionTokens).IsRequired();
+            entity.Property(l => l.TotalTokens).IsRequired();
+            entity.Property(l => l.TokenCost).IsRequired();
+            entity.Property(l => l.EstimatedMonetaryCost).HasColumnType("numeric(12,6)");
+            entity.Property(l => l.RelatedEntityId).HasMaxLength(100);
+            entity.Property(l => l.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+            
+            entity.HasOne(l => l.CreditPool)
+                .WithMany(p => p.OperationLogs)
+                .HasForeignKey(l => l.CreditPoolId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(l => l.UserId);
+            entity.HasIndex(l => l.CreditPoolId);
+            entity.HasIndex(l => l.CreatedAt);
+        }
+
+        private static void ConfigureCreditCostConfiguration(EntityTypeBuilder<CreditCostConfiguration> entity)
+        {
+            entity.ToTable("credit_cost_configurations");
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.ServiceName).IsRequired().HasMaxLength(50);
+            entity.Property(c => c.OperationType).IsRequired().HasMaxLength(100);
+            entity.Property(c => c.BaseTokenMultiplier).HasColumnType("numeric(10,2)");
+            entity.Property(c => c.IsActive).HasDefaultValue(true);
+            entity.Property(c => c.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+            entity.HasIndex(c => new { c.ServiceName, c.OperationType }).IsUnique();
         }
     }
 }

@@ -29,6 +29,9 @@ namespace AIOCRService.Infrastructure.DependencyInjection
             // Services
             services.AddScoped<IOCRService, OCRService>();
             services.AddScoped<IUserHealthDataService, UserHealthDataService>();
+            
+            // Credit Service (for token deduction)
+            services.AddHttpClient<ICreditService, CreditService>();
 
             // External services - Use Gemini Vision for both OCR and AI processing
             services.AddHttpClient<IExternalOCRService, GoogleGeminiVisionService>();

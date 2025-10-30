@@ -22,10 +22,13 @@ namespace PersonalCoachAPI.Infrastructure.Data
         public DbSet<WorkoutTemplate> WorkoutTemplates => Set<WorkoutTemplate>();
         public DbSet<WorkoutTemplateExercise> WorkoutTemplateExercises => Set<WorkoutTemplateExercise>();
         public DbSet<ScheduleEditHistory> ScheduleEditHistories => Set<ScheduleEditHistory>();
+        public DbSet<ScheduleHistory> ScheduleHistories => Set<ScheduleHistory>();
+        public DbSet<ScheduleSnapshot> ScheduleSnapshots => Set<ScheduleSnapshot>();
         public DbSet<ExerciseLibrary> ExerciseLibrary => Set<ExerciseLibrary>();
         public DbSet<HealthKnowledgeBase> HealthKnowledgeBase => Set<HealthKnowledgeBase>();
         public DbSet<UserContextSnapshot> UserContextSnapshots => Set<UserContextSnapshot>();
         public DbSet<AIConversation> AIConversations => Set<AIConversation>();
+        public DbSet<BrokenLinkReport> BrokenLinkReports => Set<BrokenLinkReport>();
         
         // Shared tables from other services (read-only access)
         public DbSet<AuthUser> Users => Set<AuthUser>();
@@ -100,6 +103,9 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.Property(x => x.RegeneratedFromDay).HasColumnName("regenerated_from_day");
                 entity.Property(x => x.RegenerationReason).HasColumnName("regeneration_reason");
                 entity.Property(x => x.IsLatest).HasColumnName("is_latest");
+                entity.Property(x => x.OriginalAvailableDays).HasColumnName("original_available_days").HasColumnType("jsonb");
+                entity.Property(x => x.OriginalEquipmentAvailable).HasColumnName("original_equipment_available").HasColumnType("jsonb");
+                entity.Property(x => x.OriginalAdditionalNotes).HasColumnName("original_additional_notes").HasColumnType("text");
                 entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
                 entity.HasIndex(x => x.UserId);
                 entity.HasIndex(x => x.Status);
@@ -258,6 +264,54 @@ namespace PersonalCoachAPI.Infrastructure.Data
                 entity.HasIndex(x => x.CreatedAt);
             });
 
+            // ScheduleHistory configuration
+            modelBuilder.Entity<ScheduleHistory>(entity =>
+            {
+                entity.ToTable("schedule_histories");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.ActionType).HasMaxLength(50).IsRequired();
+                entity.Property(x => x.ChangeReason).HasMaxLength(200);
+                entity.Property(x => x.UserNotes).HasColumnType("text");
+                entity.Property(x => x.PreviousDifficulty).HasMaxLength(50);
+                entity.Property(x => x.NewDifficulty).HasMaxLength(50);
+                entity.Property(x => x.ConfigurationSnapshot).HasColumnType("jsonb");
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.ActionType);
+                entity.HasIndex(x => x.CreatedAt);
+                entity.HasIndex(x => new { x.ScheduleId, x.Version });
+            });
+
+            // ScheduleSnapshot configuration (Git-like snapshot system)
+            modelBuilder.Entity<ScheduleSnapshot>(entity =>
+            {
+                entity.ToTable("schedule_snapshots");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.ActionType).HasMaxLength(50).IsRequired();
+                entity.Property(x => x.Source).HasMaxLength(50).IsRequired();
+                entity.Property(x => x.ScheduleStateSnapshot).HasColumnType("jsonb").IsRequired();
+                entity.Property(x => x.ChangeDetails).HasColumnType("jsonb");
+                entity.Property(x => x.ChangeReason).HasMaxLength(100);
+                entity.Property(x => x.UserNote).HasColumnType("text");
+                entity.Property(x => x.AffectedEntityType).HasMaxLength(50);
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now() at time zone 'utc'");
+                
+                entity.HasOne(x => x.Schedule)
+                    .WithMany()
+                    .HasForeignKey(x => x.ScheduleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.ScheduleId);
+                entity.HasIndex(x => x.ActionType);
+                entity.HasIndex(x => x.Source);
+                entity.HasIndex(x => new { x.ScheduleId, x.SnapshotNumber });
+                entity.HasIndex(x => x.AffectedEntityType);
+                entity.HasIndex(x => x.CreatedAt);
+            });
+
             // AIGenerationUsage configuration
             modelBuilder.Entity<AIGenerationUsage>(entity =>
             {
@@ -305,6 +359,29 @@ namespace PersonalCoachAPI.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
                     
                 entity.HasIndex(x => x.TemplateId);
+            });
+
+            // BrokenLinkReport configuration
+            modelBuilder.Entity<BrokenLinkReport>(entity =>
+            {
+                entity.ToTable("broken_link_reports");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.ExerciseId).HasColumnName("exercise_id").IsRequired();
+                entity.Property(x => x.ExerciseName).HasColumnName("exercise_name").IsRequired();
+                entity.Property(x => x.BrokenVideoUrl).HasColumnName("broken_video_url").IsRequired();
+                entity.Property(x => x.ReportedByUserId).HasColumnName("reported_by_user_id").IsRequired();
+                entity.Property(x => x.ReportedAt).HasColumnName("reported_at").IsRequired();
+                entity.Property(x => x.Status).HasColumnName("status").IsRequired().HasDefaultValue("pending");
+                entity.Property(x => x.UserComment).HasColumnName("user_comment");
+                entity.Property(x => x.AdminNotes).HasColumnName("admin_notes");
+                entity.Property(x => x.ResolvedAt).HasColumnName("resolved_at");
+                entity.Property(x => x.ResolvedByUserId).HasColumnName("resolved_by_user_id");
+                entity.Property(x => x.NewVideoUrl).HasColumnName("new_video_url");
+
+                entity.HasIndex(x => x.ExerciseId);
+                entity.HasIndex(x => x.Status);
+                entity.HasIndex(x => x.ReportedAt);
             });
         }
 

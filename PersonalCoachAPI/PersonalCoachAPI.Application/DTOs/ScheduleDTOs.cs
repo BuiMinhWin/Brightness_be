@@ -12,7 +12,7 @@ namespace PersonalCoachAPI.Application.DTOs
         public List<string> AvailableDays { get; set; } = new();
         public List<string> EquipmentAvailable { get; set; } = new();
         public string? AdditionalNotes { get; set; }
-        public bool StartFromToday { get; set; } = false;
+        public DateTime? StartDate { get; set; } // Allows dynamic start date up to 30 days ahead
     }
 
     public class ModifyDayRequest
@@ -190,5 +190,93 @@ namespace PersonalCoachAPI.Application.DTOs
         public DateTime Date { get; set; }
         public string DifficultyRating { get; set; } = string.Empty;
         public string? Notes { get; set; }
+    }
+
+    // Schedule Snapshot DTOs (Git-like snapshot system)
+    public class ScheduleSnapshotResponse
+    {
+        public Guid Id { get; set; }
+        public Guid ScheduleId { get; set; }
+        public int SnapshotNumber { get; set; }
+        public string ActionType { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
+        public string? ChangeReason { get; set; }
+        public string? UserNote { get; set; }
+        public string? ChangeDetails { get; set; } // JSON string
+        public string? AffectedEntityType { get; set; }
+        public Guid? AffectedEntityId { get; set; }
+        public int TokensUsed { get; set; }
+        public DateTime CreatedAt { get; set; }
+        
+        // Parsed change summary (human-readable)
+        public string ChangeSummary { get; set; } = string.Empty;
+    }
+
+    public class CreateSnapshotRequest
+    {
+        public Guid ScheduleId { get; set; }
+        public Guid UserId { get; set; }
+        public string ActionType { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
+        public string? ChangeReason { get; set; }
+        public string? UserNote { get; set; }
+        public string? AffectedEntityType { get; set; }
+        public Guid? AffectedEntityId { get; set; }
+        public int TokensUsed { get; set; } = 0;
+        public object? ChangeDetails { get; set; } // Will be serialized to JSON
+    }
+
+    public class UserScheduleAnalytics
+    {
+        public Guid UserId { get; set; }
+        public int TotalSnapshots { get; set; }
+        public int TotalManualChanges { get; set; }
+        public int TotalAIRegenerations { get; set; }
+        public int TotalTokensUsed { get; set; }
+        public Dictionary<string, int> ActionTypeDistribution { get; set; } = new();
+        public Dictionary<string, int> ChangeReasons { get; set; } = new();
+        public List<ScheduleSnapshotResponse> RecentSnapshots { get; set; } = new();
+        
+        // Additional properties for schedule history
+        public int TotalSchedulesCreated { get; set; }
+        public int TotalRegenerations { get; set; }
+        public decimal AverageCompletionRate { get; set; }
+        public int TotalWorkoutsCompleted { get; set; }
+        public Dictionary<string, int> RegenerationReasons { get; set; } = new();
+        public Dictionary<string, int> DifficultyDistribution { get; set; } = new();
+        public List<ScheduleVersionDetail> RecentVersions { get; set; } = new();
+        public DateTime? FirstScheduleDate { get; set; }
+        public DateTime? FirstActivityDate { get; set; }
+        public DateTime? LastActivityDate { get; set; }
+    }
+
+    public class ScheduleHistoryEntry
+    {
+        public Guid Id { get; set; }
+        public Guid ScheduleId { get; set; }
+        public int Version { get; set; }
+        public string ActionType { get; set; } = string.Empty;
+        public string? ChangeReason { get; set; }
+        public string? UserNotes { get; set; }
+        public int? FromDayNumber { get; set; }
+        public string? PreviousDifficulty { get; set; }
+        public string? NewDifficulty { get; set; }
+        public int TotalDays { get; set; }
+        public int CompletedDays { get; set; }
+        public decimal CompletionRate { get; set; }
+        public int TokensUsed { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string? ConfigurationSnapshot { get; set; }
+    }
+
+    public class ScheduleVersionDetail
+    {
+        public Guid ScheduleId { get; set; }
+        public int Version { get; set; }
+        public string Goal { get; set; } = string.Empty;
+        public string Difficulty { get; set; } = string.Empty;
+        public decimal CompletionRate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string ActionType { get; set; } = string.Empty;
     }
 }

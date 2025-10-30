@@ -142,13 +142,40 @@ namespace AIOCRService.Infrastructure.Services
                 var model = _configuration["GoogleAI:Model"] ?? "gemini-2.5-flash";
                 var url = $"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={apiKey}";
 
-                var response = await _httpClient.PostAsync(url, content);
+                // Retry logic for transient errors (503 Service Unavailable)
+                HttpResponseMessage? response = null;
+                int maxRetries = 3;
+                int retryDelayMs = 1000; // Start with 1 second
 
-                if (!response.IsSuccessStatusCode)
+                for (int attempt = 0; attempt < maxRetries; attempt++)
                 {
+                    if (attempt > 0)
+                    {
+                        _logger.LogInformation("Retrying Google AI API call (attempt {Attempt}/{MaxRetries}) after {Delay}ms delay", 
+                            attempt + 1, maxRetries, retryDelayMs);
+                        await Task.Delay(retryDelayMs);
+                        retryDelayMs *= 2; // Exponential backoff
+                    }
+
+                    response = await _httpClient.PostAsync(url, content);
+
+                    // If successful or non-retryable error, break
+                    if (response.IsSuccessStatusCode || (int)response.StatusCode != 503)
+                    {
+                        break;
+                    }
+
+                    // Log 503 error
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Google AI API error: {Error}", errorContent);
-                    throw new HttpRequestException($"Google AI API error: {response.StatusCode}");
+                    _logger.LogWarning("Google AI API returned 503 (attempt {Attempt}/{MaxRetries}): {Error}", 
+                        attempt + 1, maxRetries, errorContent);
+                }
+
+                if (response == null || !response.IsSuccessStatusCode)
+                {
+                    var errorContent = response != null ? await response.Content.ReadAsStringAsync() : "No response";
+                    _logger.LogError("Google AI API error after {MaxRetries} attempts: {Error}", maxRetries, errorContent);
+                    throw new HttpRequestException($"Google AI API error: {response?.StatusCode}");
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -156,7 +183,22 @@ namespace AIOCRService.Infrastructure.Services
 
                 var result = JsonConvert.DeserializeObject<GoogleAIResponse>(responseContent);
 
-                var aiResponse = result?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "No response from AI";
+                // Check for MAX_TOKENS finish reason
+                var candidate = result?.Candidates?.FirstOrDefault();
+                if (candidate?.FinishReason == "MAX_TOKENS")
+                {
+                    _logger.LogError("Google AI response was truncated due to MAX_TOKENS limit. ThoughtsTokenCount: {ThoughtsCount}", 
+                        result?.UsageMetadata?.ThoughtsTokenCount);
+                    throw new InvalidOperationException("AI response was truncated. The document may be too complex or contain too much data. Please try with a simpler document.");
+                }
+
+                var aiResponse = candidate?.Content?.Parts?.FirstOrDefault()?.Text;
+                if (string.IsNullOrWhiteSpace(aiResponse))
+                {
+                    _logger.LogError("No text content in AI response. FinishReason: {FinishReason}", candidate?.FinishReason);
+                    throw new InvalidOperationException("AI returned an empty response. Please try again or use a different document.");
+                }
+                
                 _logger.LogInformation("Parsed AI Vision Response: {ParsedResponse}", aiResponse);
 
                 // Return raw text - parsing will be done by AIResponseParser
@@ -340,11 +382,13 @@ namespace AIOCRService.Infrastructure.Services
     public class GoogleAIResponse
     {
         public Candidate[]? Candidates { get; set; }
+        public UsageMetadata? UsageMetadata { get; set; }
     }
 
     public class Candidate
     {
         public Content? Content { get; set; }
+        public string? FinishReason { get; set; }
     }
 
     public class Content
@@ -355,5 +399,12 @@ namespace AIOCRService.Infrastructure.Services
     public class Part
     {
         public string? Text { get; set; }
+    }
+
+    public class UsageMetadata
+    {
+        public int ThoughtsTokenCount { get; set; }
+        public int PromptTokenCount { get; set; }
+        public int TotalTokenCount { get; set; }
     }
 }

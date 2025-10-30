@@ -10,18 +10,15 @@ namespace PersonalCoachAPI.Presentation.Controllers
     {
         private readonly IAIScheduleService _scheduleService;
         private readonly IManualScheduleService _manualScheduleService;
-        private readonly IAIUsageLimitService _aiUsageLimitService;
         private readonly ILogger<ScheduleController> _logger;
 
         public ScheduleController(
             IAIScheduleService scheduleService,
             IManualScheduleService manualScheduleService,
-            IAIUsageLimitService aiUsageLimitService,
             ILogger<ScheduleController> logger)
         {
             _scheduleService = scheduleService;
             _manualScheduleService = manualScheduleService;
-            _aiUsageLimitService = aiUsageLimitService;
             _logger = logger;
         }
 
@@ -204,10 +201,23 @@ namespace PersonalCoachAPI.Presentation.Controllers
                 var result = await _scheduleService.RegenerateScheduleFromDayAsync(request);
                 return Ok(result);
             }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("limit reached") || ex.Message.Contains("Insufficient AI credits"))
+            {
+                _logger.LogWarning(ex, "AI generation limit reached for schedule regeneration");
+                return StatusCode(429, new { 
+                    success = false, 
+                    message = ex.Message, 
+                    code = "AI_LIMIT_REACHED" 
+                });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error regenerating schedule");
-                return StatusCode(500, new { message = "Error regenerating schedule", error = ex.Message });
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Error regenerating schedule", 
+                    error = ex.Message 
+                });
             }
         }
 
@@ -230,62 +240,24 @@ namespace PersonalCoachAPI.Presentation.Controllers
             }
         }
 
-        /// <summary>
-        /// Get schedule history and versions for a user
-        /// </summary>
-        [HttpGet("history/user/{userId}")]
-        public async Task<ActionResult<ScheduleHistoryResponse>> GetScheduleHistory(Guid userId)
-        {
-            try
-            {
-                var result = await _scheduleService.GetScheduleHistoryAsync(userId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting schedule history");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        /// <summary>
-        /// Get analytics for user's workout patterns
-        /// </summary>
-        [HttpGet("analytics/user/{userId}")]
-        public async Task<ActionResult<ScheduleAnalytics>> GetAnalytics(Guid userId)
-        {
-            try
-            {
-                var result = await _scheduleService.GetScheduleAnalyticsAsync(userId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting analytics");
-                return StatusCode(500, "Internal server error");
-            }
-        }
+        // Old history/analytics endpoints removed - use ScheduleHistoryController instead
 
         // =====================================================
         // MANUAL SCHEDULE BUILDER ENDPOINTS
         // =====================================================
 
         /// <summary>
-        /// Get AI usage limits for current user
+        /// Get AI usage limits for current user (DEPRECATED - use BillingAPI credit system instead)
         /// </summary>
         [HttpGet("ai-usage-limits/{userId}")]
-        public async Task<ActionResult<AIUsageLimitsDTO>> GetAIUsageLimits(Guid userId)
+        [Obsolete("This endpoint is deprecated. Use BillingAPI /api/credits/balance endpoint instead")]
+        public ActionResult GetAIUsageLimits(Guid userId)
         {
-            try
-            {
-                var limits = await _aiUsageLimitService.GetUsageLimitsAsync(userId);
-                return Ok(new { success = true, data = limits });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting AI usage limits");
-                return StatusCode(500, new { success = false, message = "Failed to get usage limits" });
-            }
+            return Ok(new { 
+                success = true, 
+                message = "This endpoint is deprecated. Please use the BillingAPI credit system at /api/credits/balance",
+                redirectTo = "/api/credits/balance"
+            });
         }
 
         /// <summary>
@@ -345,6 +317,11 @@ namespace PersonalCoachAPI.Presentation.Controllers
                 request = request with { ScheduleId = scheduleId };
                 var result = await _manualScheduleService.AddCustomWorkoutDayAsync(request);
                 return Ok(new { success = true, data = result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid operation when adding custom day");
+                return BadRequest(new { success = false, message = ex.Message, code = "VALIDATION_ERROR" });
             }
             catch (ArgumentException ex)
             {

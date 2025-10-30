@@ -22,7 +22,8 @@ namespace PersonalCoachAPI.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<AIScheduleService> _logger;
         private readonly HttpClient _httpClient;
-        private readonly IAIUsageLimitService _aiUsageLimitService;
+        private readonly ICreditService _creditService;
+        private readonly IScheduleHistoryService _historyService;
 
         public AIScheduleService(
             PersonalCoachDbContext context,
@@ -30,34 +31,40 @@ namespace PersonalCoachAPI.Infrastructure.Services
             IConfiguration configuration,
             ILogger<AIScheduleService> logger,
             HttpClient httpClient,
-            IAIUsageLimitService aiUsageLimitService)
+            ICreditService creditService,
+            IScheduleHistoryService historyService)
         {
             _context = context;
             _ragService = ragService;
             _configuration = configuration;
             _logger = logger;
             _httpClient = httpClient;
-            _aiUsageLimitService = aiUsageLimitService;
+            _creditService = creditService;
+            _historyService = historyService;
         }
 
         public async Task<WorkoutScheduleResponse> GenerateScheduleAsync(GenerateScheduleRequest request)
         {
-            // Check AI usage limits before generating
-            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(request.UserId);
-            if (!usageLimits.CanGenerate)
+            // Estimate tokens needed for schedule generation (rough estimate)
+            // A full schedule generation typically uses 1000-2000 tokens
+            const int estimatedTokens = 1500;
+            
+            // Check if user can afford this operation (uses credit system)
+            var canAfford = await _creditService.CanAffordOperationAsync(request.UserId.ToString(), "schedule", estimatedTokens);
+            if (!canAfford)
             {
                 throw new InvalidOperationException(
-                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
-                    $"Resets in {usageLimits.DaysUntilReset} days. " +
-                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+                    $"Insufficient AI credits. " +
+                    $"This operation requires approximately {estimatedTokens} credits. " +
+                    $"Please upgrade your plan or wait for your monthly reset.");
             }
 
             // Use transaction to ensure atomicity
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("Generating workout schedule for user {UserId} (AI {Used}/{Limit})", 
-                    request.UserId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
+                _logger.LogInformation("Generating workout schedule for user {UserId} with credit system", 
+                    request.UserId);
 
                 // Archive all existing active schedules for this user
                 var existingSchedules = await _context.WorkoutSchedules
@@ -115,6 +122,10 @@ namespace PersonalCoachAPI.Infrastructure.Services
                     Status = "active",
                     CreatedAt = DateTime.UtcNow,
                     AiGenerationPrompt = BuildAIPrompt(request, userContext),
+                    // Store original configuration for regeneration
+                    OriginalAvailableDays = JsonConvert.SerializeObject(request.AvailableDays),
+                    OriginalEquipmentAvailable = JsonConvert.SerializeObject(request.EquipmentAvailable),
+                    OriginalAdditionalNotes = request.AdditionalNotes,
                     ScheduleDays = new List<WorkoutScheduleDay>()
                 };
 
@@ -138,10 +149,24 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 int workoutDayCount = 0;
                 int dayNumber = 1;
                 
-                // Determine start date based on user preference
-                var startDate = request.StartFromToday 
-                    ? DateTime.UtcNow.Date 
-                    : DateTime.UtcNow.Date.AddDays(1);
+                // Determine start date - use provided date or default to today
+                var today = DateTime.UtcNow.Date;
+                var startDate = request.StartDate.HasValue 
+                    ? DateTime.SpecifyKind(request.StartDate.Value.Date, DateTimeKind.Utc)
+                    : today;
+                
+                // Validate start date is not in the past and not more than 30 days ahead
+                if (startDate < today)
+                {
+                    startDate = today; // Adjust to today if past date provided
+                    _logger.LogWarning("Start date was in the past, adjusted to today: {Today}", today);
+                }
+                else if (startDate > today.AddDays(30))
+                {
+                    startDate = today.AddDays(30); // Cap at 30 days ahead
+                    _logger.LogWarning("Start date was more than 30 days ahead, adjusted to: {MaxDate}", startDate);
+                }
+                
                 var currentCheckDate = startDate;
                 
                 // Generate schedule for the duration
@@ -244,8 +269,26 @@ namespace PersonalCoachAPI.Infrastructure.Services
                 _context.WorkoutSchedules.Add(schedule);
                 await _context.SaveChangesAsync();
                 
-                // Track AI usage
-                await _aiUsageLimitService.TrackGenerationAsync(request.UserId, "schedule_create", schedule.Id);
+                // Deduct credits for schedule generation (5x multiplier in BillingAPI config)
+                // Using rough estimate of 500 prompt + 1000 completion tokens
+                await _creditService.DeductCreditsAsync(
+                    request.UserId.ToString(),
+                    "schedule_generation",
+                    "gemini-2.5-flash",
+                    promptTokens: 500,
+                    completionTokens: 1000,
+                    referenceId: schedule.Id.ToString());
+                
+                // Record history for this schedule creation
+                await _historyService.RecordScheduleActionAsync(
+                    schedule.Id,
+                    request.UserId,
+                    "created",
+                    version: 1, // Initial version
+                    changeReason: "initial_creation",
+                    userNotes: request.AdditionalNotes,
+                    newDifficulty: request.DifficultyLevel,
+                    tokensUsed: 7500); // Total tokens after 5x multiplier
                 
                 // Commit transaction
                 await transaction.CommitAsync();
@@ -680,20 +723,24 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 throw new Exception("Schedule not found");
             }
 
-            // Check AI usage limits before regenerating
-            var usageLimits = await _aiUsageLimitService.GetUsageLimitsAsync(currentSchedule.UserId);
-            if (!usageLimits.CanGenerate)
+            // Estimate tokens needed for schedule regeneration
+            // Regeneration typically uses 1000-1500 tokens depending on remaining days
+            const int estimatedTokens = 1200;
+            
+            // Check if user can afford this operation using credit system
+            var canAfford = await _creditService.CanAffordOperationAsync(currentSchedule.UserId.ToString(), "schedule", estimatedTokens);
+            if (!canAfford)
             {
                 throw new InvalidOperationException(
-                    $"Monthly AI generation limit reached ({usageLimits.MonthlyLimit}). " +
-                    $"Resets in {usageLimits.DaysUntilReset} days. " +
-                    $"Used: {usageLimits.UsedThisMonth}/{usageLimits.MonthlyLimit}");
+                    $"Insufficient AI credits. " +
+                    $"This operation requires approximately {estimatedTokens} credits. " +
+                    $"Please upgrade your plan or wait for your monthly reset.");
             }
 
             try
             {
-                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} (AI {Used}/{Limit})", 
-                    request.FromDayNumber, request.CurrentScheduleId, usageLimits.UsedThisMonth, usageLimits.MonthlyLimit);
+                _logger.LogInformation("Regenerating schedule from day {FromDay} for schedule {ScheduleId} with credit system", 
+                    request.FromDayNumber, request.CurrentScheduleId);
 
                 // Reload schedule with includes
                 currentSchedule = await _context.WorkoutSchedules
@@ -731,15 +778,14 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 var newDifficulty = request.NewDifficultyLevel ?? 
                     DetermineDifficultyFromFeedback(currentSchedule.DifficultyLevel, feedbackHistory);
 
-                // Get available days (use new if provided, otherwise from user preferences)
-                var userPreferences = await _context.UserPreferences.FirstOrDefaultAsync(p => p.UserId == currentSchedule.UserId);
+                // Get available days (use new if provided, otherwise from ORIGINAL schedule configuration)
                 var availableDays = request.NewAvailableDays ?? 
                     JsonConvert.DeserializeObject<List<string>>(
-                        userPreferences?.AvailableDays ?? "[]") ?? new List<string>();
+                        currentSchedule.OriginalAvailableDays ?? "[]") ?? new List<string>();
 
                 if (!availableDays.Any())
                 {
-                    // Default to weekdays if no preference
+                    // Default to weekdays if no original configuration
                     availableDays = new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
                 }
 
@@ -747,8 +793,9 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 var remainingWorkouts = currentSchedule.DurationDays - completedDays.Count;
 
                 // Search for exercises with adaptive filtering based on feedback
+                // Use ORIGINAL equipment configuration, not current preferences
                 var equipmentAvailable = JsonConvert.DeserializeObject<List<string>>(
-                    userPreferences?.EquipmentAvailable ?? "[]") ?? new List<string>();
+                    currentSchedule.OriginalEquipmentAvailable ?? "[]") ?? new List<string>();
 
                 var exercises = await _ragService.SearchExercisesByGoalAsync(
                     currentSchedule.Goal,
@@ -789,6 +836,10 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                     IsLatest = true,
                     CreatedAt = DateTime.UtcNow,
                     AiGenerationPrompt = BuildRegenerationPrompt(request, feedbackHistory, userContext),
+                    // Preserve original configuration from parent schedule
+                    OriginalAvailableDays = currentSchedule.OriginalAvailableDays,
+                    OriginalEquipmentAvailable = currentSchedule.OriginalEquipmentAvailable,
+                    OriginalAdditionalNotes = currentSchedule.OriginalAdditionalNotes,
                     ScheduleDays = new List<WorkoutScheduleDay>()
                 };
 
@@ -939,8 +990,28 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                 // Save new schedule
                 _context.WorkoutSchedules.Add(newSchedule);
                 
-                // Track AI usage for regeneration
-                await _aiUsageLimitService.TrackGenerationAsync(currentSchedule.UserId, "schedule_regenerate", newSchedule.Id);
+                // Deduct credits for schedule regeneration (5x multiplier in BillingAPI config)
+                // Using rough estimate of 400 prompt + 800 completion tokens
+                await _creditService.DeductCreditsAsync(
+                    currentSchedule.UserId.ToString(),
+                    "schedule_regeneration",
+                    "gemini-2.5-flash",
+                    promptTokens: 400,
+                    completionTokens: 800,
+                    referenceId: newSchedule.Id.ToString());
+                
+                // Record history for this schedule regeneration
+                await _historyService.RecordScheduleActionAsync(
+                    newSchedule.Id,
+                    currentSchedule.UserId,
+                    "regenerated",
+                    version: newSchedule.Version,
+                    changeReason: request.Reason,
+                    userNotes: request.AdditionalNotes,
+                    fromDayNumber: request.FromDayNumber,
+                    previousDifficulty: currentSchedule.DifficultyLevel,
+                    newDifficulty: newDifficulty,
+                    tokensUsed: 6000); // Total tokens after 5x multiplier (1200 * 5)
 
                 // Log edit history
                 var editHistory = new ScheduleEditHistory
@@ -1028,14 +1099,21 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
                         Id = Guid.NewGuid(),
                         ScheduleDayId = scheduleDay.Id,
                         ExerciseName = addReq.ExerciseName,
+                        ExerciseCategory = "strength", // Default category
+                        TargetMuscles = "[]", // Empty JSON array
                         Sets = addReq.Sets,
                         Reps = addReq.Reps,
+                        DurationSeconds = 0,
                         RestSeconds = addReq.RestSeconds,
+                        WeightKg = 0,
                         OrderIndex = addReq.OrderIndex,
+                        Notes = string.Empty,
+                        VideoUrl = string.Empty,
+                        Completed = false,
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    scheduleDay.Exercises.Add(newExercise);
+                    await _context.WorkoutScheduleExercises.AddAsync(newExercise);
                 }
             }
 
@@ -1061,100 +1139,8 @@ IMPORTANT: Consider the user's health data (especially InBody metrics and AI ins
             return MapDayToDetail(scheduleDay);
         }
 
-        public async Task<ScheduleHistoryResponse> GetScheduleHistoryAsync(Guid userId)
-        {
-            var schedules = await _context.WorkoutSchedules
-                .Include(s => s.ScheduleDays)
-                    .ThenInclude(d => d.Exercises)
-                .Where(s => s.UserId == userId)
-                .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
-
-            var versions = schedules.Select(s => new ScheduleVersionInfo
-            {
-                ScheduleId = s.Id,
-                Version = s.Version,
-                CreatedAt = s.CreatedAt,
-                IsLatest = s.IsLatest,
-                Status = s.Status,
-                TotalDays = s.ScheduleDays.Count,
-                CompletedDays = s.ScheduleDays.Count(d => d.Completed),
-                CompletionPercentage = s.ScheduleDays.Any() 
-                    ? (int)((double)s.ScheduleDays.Count(d => d.Completed) / s.ScheduleDays.Count * 100) 
-                    : 0,
-                RegenerationReason = s.RegenerationReason
-            }).ToList();
-
-            var analytics = await GetScheduleAnalyticsAsync(userId);
-
-            return new ScheduleHistoryResponse
-            {
-                Versions = versions,
-                Analytics = analytics
-            };
-        }
-
-        public async Task<ScheduleAnalytics> GetScheduleAnalyticsAsync(Guid userId)
-        {
-            // Get only the latest active schedule for analytics
-            var latestSchedule = await _context.WorkoutSchedules
-                .Include(s => s.ScheduleDays)
-                    .ThenInclude(d => d.Exercises)
-                .Where(s => s.UserId == userId && s.IsLatest)
-                .FirstOrDefaultAsync();
-
-            if (latestSchedule == null)
-            {
-                return new ScheduleAnalytics
-                {
-                    TotalWorkoutsCompleted = 0,
-                    TotalWorkoutsPlanned = 0,
-                    OverallCompletionRate = 0,
-                    CompletionByFocusArea = new Dictionary<string, int>(),
-                    MostCompletedExercises = new List<string>(),
-                    RecentFeedback = new List<FeedbackSummary>()
-                };
-            }
-
-            var allDays = latestSchedule.ScheduleDays.ToList();
-            var completedDays = allDays.Where(d => d.Completed).ToList();
-            var allExercises = allDays.SelectMany(d => d.Exercises).ToList();
-
-            var completionByFocusArea = completedDays
-                .GroupBy(d => d.FocusArea)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            var mostCompletedExercises = allExercises
-                .Where(e => e.Completed)
-                .GroupBy(e => e.ExerciseName)
-                .OrderByDescending(g => g.Count())
-                .Take(10)
-                .Select(g => g.Key)
-                .ToList();
-
-            var feedbacks = await _context.WorkoutFeedbacks
-                .Where(f => f.UserId == userId)
-                .OrderByDescending(f => f.CreatedAt)
-                .Take(10)
-                .Select(f => new FeedbackSummary
-                {
-                    Date = f.CreatedAt,
-                    DifficultyRating = f.DifficultyRating,
-                    Notes = f.Notes
-                })
-                .ToListAsync();
-
-            return new ScheduleAnalytics
-            {
-                TotalWorkoutsCompleted = completedDays.Count,
-                TotalWorkoutsPlanned = allDays.Count,
-                OverallCompletionRate = allDays.Any() ? (int)((double)completedDays.Count / allDays.Count * 100) : 0,
-                CompletionByFocusArea = completionByFocusArea,
-                MostCompletedExercises = mostCompletedExercises,
-                AverageDifficulty = 0, // TODO: Calculate based on feedback
-                RecentFeedback = feedbacks
-            };
-        }
+        // Old GetScheduleHistoryAsync and GetScheduleAnalyticsAsync methods removed
+        // Use ScheduleHistoryService instead for richer history tracking with token usage
 
         // Helper Methods for Adaptive AI
 
