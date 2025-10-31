@@ -11,15 +11,18 @@ namespace AIOCRService.Application.Services
         private readonly IOCRRepository _repository;
         private readonly IExternalOCRService _externalOCRService;
         private readonly IExternalAIService _externalAIService;
+        private readonly ICreditService _creditService;
 
         public OCRService(
             IOCRRepository repository,
             IExternalOCRService externalOCRService,
-            IExternalAIService externalAIService)
+            IExternalAIService externalAIService,
+            ICreditService creditService)
         {
             _repository = repository;
             _externalOCRService = externalOCRService;
             _externalAIService = externalAIService;
+            _creditService = creditService;
         }
 
         public async Task<OCRRequestDTO> CreateOCRRequestAsync(CreateOCRRequestDTO request)
@@ -149,6 +152,37 @@ namespace AIOCRService.Application.Services
             };
 
             var createdData = await _repository.CreateProcessedDataAsync(processedData);
+
+            // Deduct credits for AI OCR operation
+            try
+            {
+                // Estimate tokens based on image size and prompt
+                // Image: ~1 token per 4 bytes for base64 encoded images (rough estimate)
+                // Prompt: ~1 token per 4 characters
+                var imageTokens = request.ImageBase64.Length / 4;
+                var promptTokens = Math.Max(100, aiPrompt.Length / 4); // Minimum 100 tokens
+                
+                // Response tokens based on parsed content length
+                var responseTokens = Math.Max(200, parsedResponse.CleanedJson.Length / 4); // Minimum 200 tokens
+                
+                // Total estimated tokens (capped for safety)
+                var estimatedPromptTokens = Math.Min(imageTokens + promptTokens, 4000);
+                var estimatedCompletionTokens = Math.Min(responseTokens, 2000);
+
+                await _creditService.DeductCreditsAsync(
+                    request.UserId,
+                    "ocr_vision",
+                    "gemini-2.5-flash",
+                    estimatedPromptTokens,
+                    estimatedCompletionTokens,
+                    createdData.Id.ToString());
+            }
+            catch (Exception ex)
+            {
+                // Log but don't fail the operation if credit deduction fails
+                Console.WriteLine($"Warning: Failed to deduct credits for user {request.UserId}: {ex.Message}");
+            }
+
             return MapToDTO(createdData);
         }
 

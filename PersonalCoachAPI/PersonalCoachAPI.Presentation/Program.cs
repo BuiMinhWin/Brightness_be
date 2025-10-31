@@ -18,11 +18,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine($"[Personal Coach API] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
-if (!builder.Environment.IsDevelopment())
-{
-    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
-    builder.Configuration.AddSystemsManager(parameterStorePath);
-}
+// AWS Systems Manager - Disabled for VPS deployment
+//if (!builder.Environment.IsDevelopment())
+//{
+//    var parameterStorePath = $"/Brightness/{builder.Environment.EnvironmentName}/";
+//    builder.Configuration.AddSystemsManager(parameterStorePath);
+//}
 EnvironmentConfiguration.TryLoadDotEnv(builder.Environment);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -120,14 +121,19 @@ builder.Services.AddAuthentication(options =>
 // Add HTTP Client
 builder.Services.AddHttpClient();
 
+// Configure HttpClient for CreditService specifically
+builder.Services.AddHttpClient<ICreditService, CreditService>();
+
 // Add Application Services
 builder.Services.AddScoped<IRAGService, RAGService>();
 builder.Services.AddScoped<IAIScheduleService, AIScheduleService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddScoped<IAIUsageLimitService, AIUsageLimitService>();
 builder.Services.AddScoped<IManualScheduleService, ManualScheduleService>();
 builder.Services.AddScoped<IExerciseLibraryService, ExerciseLibraryService>();
 builder.Services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
+builder.Services.AddScoped<IScheduleSnapshotService, ScheduleSnapshotService>();
+builder.Services.AddScoped<IScheduleHistoryService, ScheduleHistoryService>();
+builder.Services.AddScoped<IBrokenLinkReportService, BrokenLinkReportService>();
 
 // Add Repositories
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();

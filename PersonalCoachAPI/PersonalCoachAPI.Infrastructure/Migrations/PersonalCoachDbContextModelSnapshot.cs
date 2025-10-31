@@ -223,6 +223,74 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.BrokenLinkReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("admin_notes");
+
+                    b.Property<string>("BrokenVideoUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("broken_video_url");
+
+                    b.Property<string>("ExerciseId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("exercise_id");
+
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("exercise_name");
+
+                    b.Property<string>("NewVideoUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("new_video_url");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reported_at");
+
+                    b.Property<Guid>("ReportedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reported_by_user_id");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid?>("ResolvedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resolved_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
+
+                    b.Property<string>("UserComment")
+                        .HasColumnType("text")
+                        .HasColumnName("user_comment");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("ReportedAt");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("broken_link_reports", "personalcoach");
+                });
+
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.ExerciseLibrary", b =>
                 {
                     b.Property<Guid>("Id")
@@ -526,6 +594,152 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("schedule_edit_history", "personalcoach");
+                });
+
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.ScheduleHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ChangeReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("CompletedDays")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("CompletionRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ConfigurationSnapshot")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<int?>("FromDayNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NewDifficulty")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PreviousDifficulty")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TokensUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalDays")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserNotes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionType");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ScheduleId", "Version");
+
+                    b.ToTable("schedule_histories", "personalcoach");
+                });
+
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.ScheduleSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("AffectedEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AffectedEntityType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ChangeDetails")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("ChangeReason")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ScheduleStateSnapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("SnapshotNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("TokensUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserNote")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionType");
+
+                    b.HasIndex("AffectedEntityType");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ScheduleId", "SnapshotNumber");
+
+                    b.ToTable("schedule_snapshots", "personalcoach");
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.UserContextSnapshot", b =>
@@ -862,6 +1076,18 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_latest");
 
+                    b.Property<string>("OriginalAdditionalNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("original_additional_notes");
+
+                    b.Property<string>("OriginalAvailableDays")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("original_available_days");
+
+                    b.Property<string>("OriginalEquipmentAvailable")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("original_equipment_available");
+
                     b.Property<Guid?>("ParentScheduleId")
                         .HasColumnType("uuid")
                         .HasColumnName("parent_schedule_id");
@@ -1136,6 +1362,17 @@ namespace PersonalCoachAPI.Infrastructure.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("workout_template_exercises", "personalcoach");
+                });
+
+            modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.ScheduleSnapshot", b =>
+                {
+                    b.HasOne("PersonalCoachAPI.Domain.Entities.WorkoutSchedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("PersonalCoachAPI.Domain.Entities.WorkoutFeedback", b =>

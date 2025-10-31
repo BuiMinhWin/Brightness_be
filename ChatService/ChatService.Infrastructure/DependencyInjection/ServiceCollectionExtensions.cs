@@ -31,6 +31,7 @@ namespace ChatService.Infrastructure.DependencyInjection
             services.AddScoped<IMessageLimitService, MessageLimitService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IAiUsageService, AiUsageService>();
+            services.AddHttpClient<ICreditService, CreditService>();
             
             // Register security services
             services.AddScoped<IIntentDetectionService, IntentDetectionService>();

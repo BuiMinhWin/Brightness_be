@@ -317,7 +317,7 @@ HƯỚNG DẪN: Trích xuất TẤT CẢ số liệu kiểm tra thể lực, bao
         {
             return new Dictionary<string, int>
             {
-                { "maxOutputTokens", 8000 },
+                { "maxOutputTokens", 16384 }, // Increased for Gemini 2.5 Flash extended thinking
                 { "maxInputChars", 1000 }
             };
         }
@@ -327,7 +327,7 @@ HƯỚNG DẪN: Trích xuất TẤT CẢ số liệu kiểm tra thể lực, bao
             return new Dictionary<string, object>
             {
                 { "temperature", 0.7 },
-                { "maxOutputTokens", 8000 },
+                { "maxOutputTokens", 16384 }, // Increased for Gemini 2.5 Flash extended thinking
                 { "topP", 1.0 },
                 { "topK", 64 }
             };

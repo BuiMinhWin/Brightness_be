@@ -164,12 +164,39 @@ namespace ChatService.Infrastructure.Services
                 var json = JsonConvert.SerializeObject(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync(url, content);
+                // Retry logic for transient errors (503 Service Unavailable)
+                HttpResponseMessage? response = null;
+                int maxRetries = 3;
+                int retryDelayMs = 1000; // Start with 1 second
 
-                if (!response.IsSuccessStatusCode)
+                for (int attempt = 0; attempt < maxRetries; attempt++)
                 {
+                    if (attempt > 0)
+                    {
+                        _logger.LogInformation("Retrying Gemini API call (attempt {Attempt}/{MaxRetries}) after {Delay}ms delay", 
+                            attempt + 1, maxRetries, retryDelayMs);
+                        await Task.Delay(retryDelayMs);
+                        retryDelayMs *= 2; // Exponential backoff
+                    }
+
+                    response = await _httpClient.PostAsync(url, content);
+
+                    // If successful or non-retryable error, break
+                    if (response.IsSuccessStatusCode || (int)response.StatusCode != 503)
+                    {
+                        break;
+                    }
+
+                    // Log 503 error
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Gemini API error: {response.StatusCode} - {errorContent}");
+                    _logger.LogWarning("Gemini API returned 503 (attempt {Attempt}/{MaxRetries}): {Error}", 
+                        attempt + 1, maxRetries, errorContent);
+                }
+
+                if (response == null || !response.IsSuccessStatusCode)
+                {
+                    var errorContent = response != null ? await response.Content.ReadAsStringAsync() : "No response";
+                    throw new HttpRequestException($"Gemini API error: {response?.StatusCode} - {errorContent}");
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();

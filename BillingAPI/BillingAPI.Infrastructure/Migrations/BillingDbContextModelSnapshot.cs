@@ -23,6 +23,152 @@ namespace BillingAPI.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BillingAPI.Domain.Entities.AICreditPool", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<DateTime>("CycleEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CycleStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MonthlyTokenLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RemainingTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("SubscriptionTier")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ServiceName")
+                        .IsUnique();
+
+                    b.ToTable("ai_credit_pools", "billing");
+                });
+
+            modelBuilder.Entity("BillingAPI.Domain.Entities.AIOperationLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CompletionTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<Guid>("CreditPoolId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("EstimatedMonetaryCost")
+                        .HasColumnType("numeric(12,6)");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PromptTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RelatedEntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("TokenCost")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("CreditPoolId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ai_operation_logs", "billing");
+                });
+
+            modelBuilder.Entity("BillingAPI.Domain.Entities.CreditCostConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("BaseTokenMultiplier")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceName", "OperationType")
+                        .IsUnique();
+
+                    b.ToTable("credit_cost_configurations", "billing");
+                });
+
             modelBuilder.Entity("BillingAPI.Domain.Entities.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -199,6 +345,17 @@ namespace BillingAPI.Infrastructure.Migrations
                     b.ToTable("subscription_plans", "billing");
                 });
 
+            modelBuilder.Entity("BillingAPI.Domain.Entities.AIOperationLog", b =>
+                {
+                    b.HasOne("BillingAPI.Domain.Entities.AICreditPool", "CreditPool")
+                        .WithMany("OperationLogs")
+                        .HasForeignKey("CreditPoolId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreditPool");
+                });
+
             modelBuilder.Entity("BillingAPI.Domain.Entities.Invoice", b =>
                 {
                     b.HasOne("BillingAPI.Domain.Entities.SubscriptionPlan", "SubscriptionPlan")
@@ -223,6 +380,11 @@ namespace BillingAPI.Infrastructure.Migrations
                         .HasForeignKey("SubscriptionPlanId");
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("BillingAPI.Domain.Entities.AICreditPool", b =>
+                {
+                    b.Navigation("OperationLogs");
                 });
 
             modelBuilder.Entity("BillingAPI.Domain.Entities.Invoice", b =>

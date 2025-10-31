@@ -26,6 +26,11 @@ namespace PersonalCoachAPI.Domain.Entities
         public string? RegenerationReason { get; set; } // "too_hard", "too_easy", "busy", "user_request"
         public bool IsLatest { get; set; } = true;
         
+        // Original Configuration (preserved from initial creation for regeneration)
+        public string? OriginalAvailableDays { get; set; } // JSON array of day names
+        public string? OriginalEquipmentAvailable { get; set; } // JSON array of equipment
+        public string? OriginalAdditionalNotes { get; set; } // Original user notes from creation
+        
         // Navigation properties
         public ICollection<WorkoutScheduleDay> ScheduleDays { get; set; } = new List<WorkoutScheduleDay>();
         public ICollection<WorkoutFeedback> Feedbacks { get; set; } = new List<WorkoutFeedback>();

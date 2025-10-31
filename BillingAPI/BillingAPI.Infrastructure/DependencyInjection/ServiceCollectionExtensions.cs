@@ -29,11 +29,15 @@ namespace BillingAPI.Infrastructure.DependencyInjection
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IAICreditPoolRepository, AICreditPoolRepository>();
+            services.AddScoped<IAIOperationLogRepository, AIOperationLogRepository>();
+            services.AddScoped<ICreditCostConfigurationRepository, CreditCostConfigurationRepository>();
 
             services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IInvoiceEmailService, InvoiceEmailService>();
+            services.AddScoped<ICreditManagementService, CreditManagementService>();
 
             services.AddScoped<IPayOsGateway, PayOsGateway>();
 
