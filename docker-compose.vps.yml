@@ -92,7 +92,7 @@ services:
       <<: *cors_origins
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__BrightnessDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};IncludeErrorDetail=true
-      ConnectionStrings__Redis: redis:6379,password=${REDIS_PASSWORD}
+      ConnectionStrings__Redis: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
       Authentication__Key: ${AUTHENTICATION__KEY}
       Authentication__Issuer: ${AUTHENTICATION__ISSUER}
       Authentication__Audience: ${AUTHENTICATION__AUDIENCE}
@@ -100,7 +100,7 @@ services:
       Authentication__Google__ClientSecret: ${AUTHENTICATION__GOOGLE__CLIENTSECRET}
       Swagger__JsonEndpoint: /auth/swagger/v1/swagger.json
       Swagger__GatewayPrefix: /auth
-      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD}
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:?REDIS_PASSWORD not set}
     depends_on:
       postgres:
         condition: service_healthy
@@ -249,6 +249,8 @@ services:
     build:
       context: .
       dockerfile: ChatService/ChatService.Presentation/Dockerfile
+    env_file:
+      - .env
     restart: always
     environment:
       <<: *cors_origins
@@ -278,6 +280,8 @@ services:
     build:
       context: .
       dockerfile: AIOCRService/AIOCRService.Presentation/Dockerfile
+    env_file:
+      - .env
     restart: always
     environment:
       <<: *cors_origins
@@ -301,6 +305,8 @@ services:
     build:
       context: .
       dockerfile: PersonalCoachAPI/PersonalCoachAPI.Presentation/Dockerfile
+    env_file:
+      - .env
     restart: always
     environment:
       <<: *cors_origins
