@@ -119,7 +119,6 @@ function Sync-Files {
                 --exclude='.vscode' `
                 --exclude='*.user' `
                 --exclude='*.suo' `
-                --exclude='.env' `
                 --exclude='.env.local' `
                 --exclude='.env.development' `
                 --exclude='TestResults' `
@@ -136,7 +135,6 @@ function Sync-Files {
                 --exclude='.vscode' `
                 --exclude='*.user' `
                 --exclude='*.suo' `
-                --exclude='.env' `
                 --exclude='.env.local' `
                 --exclude='.env.development' `
                 --exclude='TestResults' `
@@ -165,7 +163,6 @@ function Sync-Files {
             ".vscode",
             "*.user",
             "*.suo",
-            ".env",
             ".env.local",
             ".env.development",
             "TestResults",
@@ -275,9 +272,9 @@ function Show-Logs {
     
     # Use single line command to avoid line ending issues
     if (Test-Path $SshKeyPath) {
-        ssh -i $SshKeyPath "$VpsUser@$VpsHost" "cd $VpsPath/Brightness_be && docker-compose -f docker-compose.vps.yml --env-file .env.vps logs --tail=100"
+        ssh -i $SshKeyPath "$VpsUser@$VpsHost" "cd $VpsPath/Brightness_be && docker-compose -f docker-compose.vps.yml --env-file .env logs --tail=100"
     } else {
-        ssh "$VpsUser@$VpsHost" "cd $VpsPath/Brightness_be && docker-compose -f docker-compose.vps.yml --env-file .env.vps logs --tail=100"
+        ssh "$VpsUser@$VpsHost" "cd $VpsPath/Brightness_be && docker-compose -f docker-compose.vps.yml --env-file .env logs --tail=100"
     }
 }
 

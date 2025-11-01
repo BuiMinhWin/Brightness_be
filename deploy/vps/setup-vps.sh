@@ -236,7 +236,7 @@ main() {
     print_info "Next steps:"
     echo "1. Log out and log back in to apply Docker group changes"
     echo "2. Clone your repository to /opt/brightnest"
-    echo "3. Copy .env.vps.example to .env.vps and configure it"
+    echo "3. Copy .env.example to .env and configure it"
     echo "4. Run the deployment script: ./deploy/vps/deploy.sh"
     echo ""
     print_warning "Security recommendations:"

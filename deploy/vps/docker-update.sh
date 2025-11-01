@@ -6,7 +6,7 @@
 set -e
 
 COMPOSE_FILE="../../docker-compose.vps.yml"
-ENV_FILE="../../.env.vps"
+ENV_FILE="../../.env"
 
 # Colors
 GREEN='\033[0;32m'

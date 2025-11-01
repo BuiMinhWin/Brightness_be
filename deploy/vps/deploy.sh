@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Configuration
 PROJECT_NAME="brightnest"
 COMPOSE_FILE="../../docker-compose.vps.yml"
-ENV_FILE="../../.env.vps"
+ENV_FILE="../../.env"
 
 # Function to print colored output
 print_info() {
@@ -61,16 +61,16 @@ check_prerequisites() {
     print_success "All prerequisites are met."
 }
 
-# Check if .env.vps file exists
+# Check if .env file exists
 check_env_file() {
     if [ ! -f "$ENV_FILE" ]; then
         print_warning "$ENV_FILE not found. Creating from example file..."
-        if [ -f "../../env.vps.example" ]; then
-            cp ../../env.vps.example "$ENV_FILE"
+        if [ -f "../../env.example" ]; then
+            cp ../../env.example "$ENV_FILE"
             print_warning "Please edit $ENV_FILE with your configuration before continuing."
             exit 1
         else
-            print_error "env.vps.example not found. Cannot create $ENV_FILE"
+            print_error "env.example not found. Cannot create $ENV_FILE"
             exit 1
         fi
     fi
