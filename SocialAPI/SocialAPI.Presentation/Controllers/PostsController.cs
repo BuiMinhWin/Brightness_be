@@ -25,6 +25,14 @@ namespace SocialAPI.Presentation.Controllers
             return Ok(posts);
         }
 
+        //[Authorize(Roles = "Admin")]
+        [HttpGet("flagged")]
+        public async Task<ActionResult<IEnumerable<PostDTO>>> GetFlaggedPosts()
+        {
+            var flaggedPosts = await _postService.GetFlaggedPostsAsync();
+            return Ok(flaggedPosts);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<PostDTO>> GetPostById(Guid id)
         {
@@ -51,9 +59,13 @@ namespace SocialAPI.Presentation.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdatePostStatus(Guid id, [FromBody] string status)
+        public async Task<IActionResult> UpdatePostStatus(Guid id, [FromBody] UpdatePostStatusDTO request)
         {
-            var updatedPost = await _postService.UpdatePostStatusAsync(id, status);
+            if (request == null || string.IsNullOrWhiteSpace(request.Status))
+            {
+                return BadRequest("Status is required");
+            }
+            var updatedPost = await _postService.UpdatePostStatusAsync(id, request.Status);
             return Ok(updatedPost);
         }
 

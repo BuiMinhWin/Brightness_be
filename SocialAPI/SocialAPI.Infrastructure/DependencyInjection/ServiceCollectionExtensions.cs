@@ -20,7 +20,6 @@ namespace SocialAPI.Infrastructure.DependencyInjection
                 schema: "social");
 
             services.AddScoped<IPostRepository, PostRepository>();
-            services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<ITagRepository, TagRepository>();

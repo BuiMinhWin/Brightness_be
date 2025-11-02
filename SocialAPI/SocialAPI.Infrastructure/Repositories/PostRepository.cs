@@ -38,7 +38,10 @@ namespace SocialAPI.Infrastructure.Repositories
 
         public async Task<IEnumerable<Post>> GetPostsAsync()
         {
-            return await _context.Posts.ToListAsync();
+            // Exclude soft-deleted posts (status == "deleted")
+            return await _context.Posts
+                .Where(p => p.Status == null || p.Status.ToLower() != "deleted")
+                .ToListAsync();
         }
 
         public async Task UpdatePostAsync(Post post)

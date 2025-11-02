@@ -14,13 +14,15 @@ namespace BillingAPI.Application.Services
         IInvoiceRepository invoiceRepository,
         ISubscriptionPlanRepository planRepository,
         IUserSubscriptionService userSubscriptionService,
-        IInvoiceEmailService invoiceEmailService)
+        IInvoiceEmailService invoiceEmailService,
+        ICreditManagementService creditManagementService)
         : IInvoiceService
     {
         private readonly IInvoiceRepository _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
         private readonly ISubscriptionPlanRepository _planRepository = planRepository ?? throw new ArgumentNullException(nameof(planRepository));
         private readonly IUserSubscriptionService _userSubscriptionService = userSubscriptionService ?? throw new ArgumentNullException(nameof(userSubscriptionService));
         private readonly IInvoiceEmailService _invoiceEmailService = invoiceEmailService ?? throw new ArgumentNullException(nameof(invoiceEmailService));
+        private readonly ICreditManagementService _creditManagementService = creditManagementService ?? throw new ArgumentNullException(nameof(creditManagementService));
 
         public async Task<IEnumerable<InvoiceDTO>> GetAllAsync(Guid? userId = null, string? status = null)
         {
@@ -84,7 +86,7 @@ namespace BillingAPI.Application.Services
 
             var createResult = await _invoiceRepository.CreateAsync(invoice);
 
-            // Tr? v? invoice data trong Response.Data d? frontend có th? access invoice.id
+            // Tr? v? invoice data trong Response.Data d? frontend cï¿½ th? access invoice.id
             if (createResult.Flag)
             {
                 var invoiceDto = MapToDto(invoice);
@@ -131,6 +133,14 @@ namespace BillingAPI.Application.Services
 
             var userId = invoice.UserExternalId.Value;
 
+            // Load plan to determine subscription tier based on price
+            var plan = await _planRepository.FindByIdAsync(invoice.SubscriptionPlanId);
+            if (plan is null)
+            {
+                Console.WriteLine($"?? Cannot update user subscription: subscription plan {invoice.SubscriptionPlanId} not found.");
+                return updateResult;
+            }
+
             Console.WriteLine($"?? Calling UserSubscriptionService to update user {userId} with plan {invoice.SubscriptionPlanId}");
 
             var subscriptionUpdateResult = await _userSubscriptionService.UpdateUserSubscriptionAsync(
@@ -140,6 +150,15 @@ namespace BillingAPI.Application.Services
             if (subscriptionUpdateResult)
             {
                 Console.WriteLine($"? Successfully updated user subscription for {userId}");
+                
+                // Use the credit tier assigned to the plan
+                var subscriptionTier = string.IsNullOrWhiteSpace(plan.CreditTier) 
+                    ? "free" 
+                    : plan.CreditTier.ToLowerInvariant();
+                
+                // Initialize or update credit pools based on the plan's credit tier
+                await _creditManagementService.InitializeCreditPoolsForUserAsync(userId, subscriptionTier);
+                Console.WriteLine($"? Initialized credit pools for user {userId} with {subscriptionTier} tier from plan {plan.Name}");
             }
             else
             {
@@ -150,13 +169,6 @@ namespace BillingAPI.Application.Services
             if (userProfile is null)
             {
                 Console.WriteLine($"?? Cannot send invoice email: user profile not found for {userId}");
-                return updateResult;
-            }
-
-            var plan = await _planRepository.FindByIdAsync(invoice.SubscriptionPlanId);
-            if (plan is null)
-            {
-                Console.WriteLine($"?? Cannot send invoice email: subscription plan {invoice.SubscriptionPlanId} not found.");
                 return updateResult;
             }
 

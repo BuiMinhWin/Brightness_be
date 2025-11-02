@@ -1,6 +1,7 @@
 ﻿using SocialAPI.Application.DTOs;
 using SocialAPI.Application.Interfaces;
 using SocialAPI.Domain.Entities;
+using System.Linq;
 
 namespace SocialAPI.Application.Services
 {
@@ -8,11 +9,13 @@ namespace SocialAPI.Application.Services
     {
         private readonly IPostRepository _postRepository;
         private readonly ICommentRepository _commentRepository;
+        private readonly IReportRepository _reportRepository;
 
-        public PostService(IPostRepository postRepository, ICommentRepository commentRepository)
+        public PostService(IPostRepository postRepository, ICommentRepository commentRepository, IReportRepository reportRepository)
         {
             _postRepository = postRepository;
             _commentRepository = commentRepository;
+            _reportRepository = reportRepository;
         }
 
         public async Task<PostDTO> CreatePostAsync(PostDTO postDto)
@@ -52,6 +55,12 @@ namespace SocialAPI.Application.Services
             var postDtos = new List<PostDTO>();
             foreach (var post in posts)
             {
+                // Double-check to exclude deleted posts (in case repository filter didn't catch it)
+                if (post.Status != null && post.Status.ToLowerInvariant() == "deleted")
+                {
+                    continue;
+                }
+                
                 var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
                 var commentCount = await CalculateCommentCount(post.Id);
                 postDtos.Add(new PostDTO(post.Id, post.UserId, post.Title, post.Content, post.Visibility, post.Status, post.CreatedAt, post.UpdatedAt, reactionCount, dislikeCount, commentCount));
@@ -208,6 +217,48 @@ namespace SocialAPI.Application.Services
         {
             var comments = await _commentRepository.GetCommentsByPostIdAsync(postId);
             return comments.Count();
+        }
+
+        public async Task<IEnumerable<PostDTO>> GetFlaggedPostsAsync()
+        {
+            // Get all reports for posts (TargetType == "post")
+            var postReports = await _reportRepository.GetReportsByTargetTypeAsync("post");
+            
+            // Get unique post IDs from reports
+            var flaggedPostIds = postReports.Select(r => r.TargetId).Distinct().ToList();
+            
+            if (!flaggedPostIds.Any())
+            {
+                return Enumerable.Empty<PostDTO>();
+            }
+
+            // Get all flagged posts, excluding approved and deleted posts
+            var flaggedPosts = new List<PostDTO>();
+            foreach (var postId in flaggedPostIds)
+            {
+                var post = await _postRepository.GetPostByIdAsync(postId);
+                // Only include posts that are not approved or deleted
+                if (post != null && !string.IsNullOrWhiteSpace(post.Status) && post.Status.ToLowerInvariant() != "approved" && post.Status.ToLowerInvariant() != "deleted")
+                {
+                    var (reactionCount, dislikeCount) = await CalculateReactionsAndDislikes(post.Id);
+                    var commentCount = await CalculateCommentCount(post.Id);
+                    flaggedPosts.Add(new PostDTO(
+                        post.Id,
+                        post.UserId,
+                        post.Title,
+                        post.Content,
+                        post.Visibility,
+                        post.Status,
+                        post.CreatedAt,
+                        post.UpdatedAt,
+                        reactionCount,
+                        dislikeCount,
+                        commentCount
+                    ));
+                }
+            }
+
+            return flaggedPosts;
         }
     }
 }

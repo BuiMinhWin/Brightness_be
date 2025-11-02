@@ -45,6 +45,7 @@ namespace BillingAPI.Application.Services
                 Price = request.Price,
                 Currency = request.Currency.ToUpperInvariant(),
                 DurationDays = request.DurationDays,
+                CreditTier = request.CreditTier?.ToLowerInvariant() ?? "free",
                 IsActive = request.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
@@ -91,6 +92,11 @@ namespace BillingAPI.Application.Services
                 plan.DurationDays = request.DurationDays.Value;
             }
 
+            if (!string.IsNullOrWhiteSpace(request.CreditTier))
+            {
+                plan.CreditTier = request.CreditTier.Trim().ToLowerInvariant();
+            }
+
             if (request.IsActive.HasValue)
             {
                 plan.IsActive = request.IsActive.Value;
@@ -119,6 +125,7 @@ namespace BillingAPI.Application.Services
             plan.Price,
             plan.Currency,
             plan.DurationDays,
+            plan.CreditTier,
             plan.IsActive,
             plan.CreatedAt,
             plan.UpdatedAt

@@ -307,6 +307,13 @@ namespace BillingAPI.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
+                    b.Property<string>("CreditTier")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("free");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .HasMaxLength(10)

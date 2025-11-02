@@ -19,5 +19,6 @@ namespace SocialAPI.Application.Interfaces
 
         Task<IEnumerable<PostDTO>> GetPostsByTagAsync(string tagSlug);
         Task UpdatePostReactionCountAsync(Guid postId);
+        Task<IEnumerable<PostDTO>> GetFlaggedPostsAsync();
     }
 }
