@@ -4,6 +4,7 @@ using SocialAPI.Domain.Entities;
 using SocialAPI.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SocialAPI.Infrastructure.Repositories
@@ -48,6 +49,13 @@ namespace SocialAPI.Infrastructure.Repositories
                 _context.Reports.Remove(report);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<Report>> GetReportsByTargetTypeAsync(string targetType)
+        {
+            return await _context.Reports
+                .Where(r => r.TargetType == targetType)
+                .ToListAsync();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace BillingAPI.Domain.Entities
         public decimal Price { get; set; }
         public string Currency { get; set; } = "VND";
         public int DurationDays { get; set; }
+        public string CreditTier { get; set; } = "free"; // "free", "basic", or "premium"
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

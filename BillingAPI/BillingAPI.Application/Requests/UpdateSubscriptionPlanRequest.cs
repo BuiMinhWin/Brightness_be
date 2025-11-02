@@ -20,6 +20,9 @@ namespace BillingAPI.Application.Requests
         [Range(1, 3650)]
         public int? DurationDays { get; set; }
 
+        [MaxLength(50)]
+        public string? CreditTier { get; set; }
+
         public bool? IsActive { get; set; }
     }
 }

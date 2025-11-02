@@ -252,7 +252,15 @@ namespace BillingAPI.Application.Services
 
         private int GetMonthlyTokenLimit(string serviceName, string subscriptionTier)
         {
-            var configKey = subscriptionTier.ToLower() == "free" ? "FreeTier" : "PremiumTier";
+            var tierLower = subscriptionTier.ToLower();
+            string configKey = tierLower switch
+            {
+                "free" => "FreeTier",
+                "basic" => "BasicTier",
+                "premium" => "PremiumTier",
+                _ => "PremiumTier" // Default to premium for unknown tiers
+            };
+            
             var serviceKey = serviceName == "chat" ? "ChatMonthlyTokens" : "ScheduleMonthlyTokens";
             
             return _configuration.GetValue<int>($"CreditSystem:{configKey}:{serviceKey}", 

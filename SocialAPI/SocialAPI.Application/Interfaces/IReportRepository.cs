@@ -12,5 +12,6 @@ namespace SocialAPI.Application.Interfaces
         Task<Report> CreateReportAsync(Report report);
         Task UpdateReportAsync(Report report);
         Task DeleteReportAsync(Guid reportId);
+        Task<IEnumerable<Report>> GetReportsByTargetTypeAsync(string targetType);
     }
 }

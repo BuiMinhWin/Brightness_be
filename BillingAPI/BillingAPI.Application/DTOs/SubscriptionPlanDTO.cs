@@ -10,6 +10,7 @@ namespace BillingAPI.Application.DTOs
         decimal Price,
         string Currency,
         int DurationDays,
+        string CreditTier,
         bool IsActive,
         DateTime CreatedAt,
         DateTime? UpdatedAt
