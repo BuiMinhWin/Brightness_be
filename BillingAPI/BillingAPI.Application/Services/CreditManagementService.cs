@@ -205,33 +205,61 @@ namespace BillingAPI.Application.Services
             
             foreach (var service in services)
             {
-                var exists = await _creditPoolRepository.ExistsAsync(userId, service);
-                if (exists)
-                {
-                    continue;
-                }
-
+                var existingPool = await _creditPoolRepository.GetByUserAndServiceAsync(userId, service);
                 var limit = GetMonthlyTokenLimit(service, subscriptionTier);
                 var now = DateTime.UtcNow;
                 var cycleEnd = now.AddMonths(1);
 
-                var pool = new AICreditPool
+                if (existingPool != null)
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    ServiceName = service,
-                    SubscriptionTier = subscriptionTier,
-                    MonthlyTokenLimit = limit,
-                    RemainingTokens = limit,
-                    CycleStartDate = now,
-                    CycleEndDate = cycleEnd,
-                    CreatedAt = now
-                };
+                    // Update existing pool with new tier limits
+                    var oldLimit = existingPool.MonthlyTokenLimit;
+                    var oldTier = existingPool.SubscriptionTier;
+                    
+                    // Calculate new remaining tokens: keep current remaining, add the difference in limits
+                    var limitDifference = limit - oldLimit;
+                    var newRemainingTokens = Math.Max(0, existingPool.RemainingTokens + limitDifference);
+                    
+                    existingPool.SubscriptionTier = subscriptionTier;
+                    existingPool.MonthlyTokenLimit = limit;
+                    existingPool.RemainingTokens = newRemainingTokens;
+                    existingPool.UpdatedAt = now;
+                    
+                    // Reset cycle if tier changed significantly (optional: could keep current cycle)
+                    // For now, we'll keep the current cycle unless it's expired
+                    if (now >= existingPool.CycleEndDate)
+                    {
+                        existingPool.CycleStartDate = now;
+                        existingPool.CycleEndDate = cycleEnd;
+                        existingPool.RemainingTokens = limit; // Full reset if cycle expired
+                    }
+                    
+                    await _creditPoolRepository.UpdateAsync(existingPool);
+                    _logger.LogInformation(
+                        "Updated {Service} credit pool for user {UserId} from {OldTier} ({OldLimit} tokens) to {NewTier} ({NewLimit} tokens). Remaining: {Remaining}",
+                        service, userId, oldTier, oldLimit, subscriptionTier, limit, existingPool.RemainingTokens);
+                }
+                else
+                {
+                    // Create new pool
+                    var pool = new AICreditPool
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        ServiceName = service,
+                        SubscriptionTier = subscriptionTier,
+                        MonthlyTokenLimit = limit,
+                        RemainingTokens = limit,
+                        CycleStartDate = now,
+                        CycleEndDate = cycleEnd,
+                        CreatedAt = now
+                    };
 
-                await _creditPoolRepository.CreateAsync(pool);
-                _logger.LogInformation(
-                    "Initialized {Service} credit pool for user {UserId} with {Limit} tokens",
-                    service, userId, limit);
+                    await _creditPoolRepository.CreateAsync(pool);
+                    _logger.LogInformation(
+                        "Initialized {Service} credit pool for user {UserId} with {Limit} tokens",
+                        service, userId, limit);
+                }
             }
         }
 
@@ -261,10 +289,17 @@ namespace BillingAPI.Application.Services
                 _ => "PremiumTier" // Default to premium for unknown tiers
             };
             
-            var serviceKey = serviceName == "chat" ? "ChatMonthlyTokens" : "ScheduleMonthlyTokens";
+            var serviceKey = serviceName switch
+            {
+                "chat" => "ChatMonthlyTokens",
+                "schedule" => "ScheduleMonthlyTokens",
+                "ocr" => "ChatMonthlyTokens", // OCR uses same limits as chat for now
+                _ => "ChatMonthlyTokens"
+            };
             
-            return _configuration.GetValue<int>($"CreditSystem:{configKey}:{serviceKey}", 
-                serviceName == "chat" ? 10000 : 5000);
+            var defaultLimit = serviceName == "chat" ? 10000 : (serviceName == "schedule" ? 5000 : 10000);
+            
+            return _configuration.GetValue<int>($"CreditSystem:{configKey}:{serviceKey}", defaultLimit);
         }
 
         private decimal CalculateMonetaryCost(int totalTokens, string model)
